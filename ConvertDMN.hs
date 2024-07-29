@@ -24,87 +24,48 @@ data Val = Bool Bool
 
 data Arg = Arg String deriving Show
 
--- ok corrected conversion function using pattern matching etc
+-- InputEntrytoExpr :: InputEntry { sInputEntryId :: Id, sMaybeCondition :: Maybe Condition }
+-- e.g. `InputEntry a b = …`
+        --  InputEntry c d = …`
+
 convertDecision :: Decision -> CompiledRule
-convertDecision Decision { decisionLogic = DecTable { rules = rs, schema = Schema { sInputSchemas = inputs } } } = 
-    MkCompiledRule (map (\InputSchema { sInputSchemaId = id } -> Arg id) inputs) (nestedIfRules rs)
+convertDecision Decision { decisionLogic = DecTable { rules = rules, schema = Schema { sInputSchemas = inputs } } } = 
+    MkCompiledRule (map (\InputSchema {sInputSchemaId = id} -> Arg id) inputs) (nestedIfRules rules)
 
 -- nested IF different rules 
 nestedIfRules :: [Rule] -> Expr
 nestedIfRules [] = error "No rules in decision table"
-nestedIfRules [rule] = combineOneRule rule
+nestedIfRules [rule] = getOutputEntry $ outputEntry rule
 nestedIfRules (rule:rules) = 
-    If (combineOneRule rule) 
-       (getOutputEntry $ outputEntry rule) 
-       (nestedIfRules rules)
+    case rules of
+        [lastRule] -> If (combineOneRule rule)
+                         (getOutputEntry $ outputEntry rule)
+                         (getOutputEntry $ outputEntry lastRule)
+        _ -> If (combineOneRule rule)
+                (getOutputEntry $ outputEntry rule)
+                (nestedIfRules rules)
 
 -- AND all the conditions in a rule together
 combineOneRule :: Rule -> Expr
-combineOneRule Rule { inputEntries = [] } = 
-    Const (Bool True)  -- If no input entries, always true
-combineOneRule Rule { inputEntries = [entry] } = 
+combineOneRule Rule [entry] = 
     case checkCondition entry of
-        Just expr -> expr  -- If only one condition and it's valid, return it directly
-        Nothing -> Const (Bool True)  -- If the single condition is invalid, default to true
+        Just expr -> expr  -- If only one condition and it's valid, return it directly - figure out an easier way take away the Just?
 combineOneRule Rule { inputEntries = entries } = 
     case mapMaybe checkCondition entries of
-        [] -> Const (Bool True)  -- If no valid conditions, always true
-        exprs -> And exprs  -- If multiple valid conditions, use And
+        exprs -> And exprs  -- If multiple conditions, use And
 
 -- this checks if there is a condition, and forms the Equal etc
 checkCondition :: InputEntry -> Maybe Expr
-checkCondition InputEntry { sInputEntryId = id, sMaybeCondition = Just (ConditionString val) } = 
-    Just (Equal (Var (Arg id)) (Const (String val)))
-checkCondition InputEntry { sInputEntryId = id, sMaybeCondition = Just (ConditionBool val) } = 
-    Just (Equal (Var (Arg id)) (Const (Bool val)))
+checkCondition InputEntry {sMaybeCondition = Just (ConditionString val), ..} = -- string
+    Just (Equal (Var (Arg sInputEntryId)) (Const (String val)))
+checkCondition InputEntry {sMaybeCondition = Just (ConditionBool val), ..} = -- bool
+    Just (Equal (Var (Arg sInputEntryId)) (Const (Bool val)))
 checkCondition _ = Nothing
--- e.g. `InputEntry a b = …`
-        --  InputEntry c d = …`
 
-getDefaultRule :: [Rule] -> Expr
-getDefaultRule rules = 
-    let rules = reverse rules
-        (lastRule:otherRules) = rules
-    in lastRule
-
+-- to get the "Then" of if/then/else
 getOutputEntry :: OutputEntry -> Expr
 getOutputEntry OutputEntry {sExpr = expr} = Const (String expr)
 
--- conversion function this is wrong lmao
--- convertDecision :: Decision -> CompiledRule
--- convertDecision Decision{..} =
---     case decisionLogic of
---         DecTable{..} ->
---             let args = map (Arg . sInputSchemaId) (sInputSchemas $ schema)
---                 (defaultRule, otherRules) = extractDefaultRule rules
---                 nestedIfs = foldl' (flip combineRules) defaultRule otherRules
---             in MkCompiledRule args nestedIfs
---         _ -> error "Lit exp not yet supported"
-
--- extractDefaultRule :: [Rule] -> (Expr, [Rule])
--- extractDefaultRule rules =
---     case reverse rules of
---         [] -> error "No rules in decision table"
---         (lastRule:otherRules) ->
---             (convertOutputEntry (outputEntry lastRule), reverse otherRules)
-
--- combineRules :: Rule -> Expr -> Expr
--- combineRules Rule{..} elseExpr =
---     let conditions = catMaybes $ map inputEntryToConditionExpr inputEntries
---         outputExpr = convertOutputEntry outputEntry
---     in if null conditions
---        then outputExpr 
---        else If (And conditions) outputExpr elseExpr
-
--- inputEntryToConditionExpr :: InputEntry -> Maybe Expr
--- inputEntryToConditionExpr InputEntry{..} =
---     case sMaybeCondition of
---         Just (ConditionString val) -> Just $ Equal (Var (Arg sInputEntryId)) (Const (String val))
---         Just (ConditionBool val) -> Just $ Equal (Var (Arg sInputEntryId)) (Const (Bool val))
---         Nothing -> Nothing
-
--- convertOutputEntry :: OutputEntry -> Expr
--- convertOutputEntry OutputEntry{..} = Const (String sExpr)
 
 -- example
 rule1 :: CompiledRule -- target
@@ -130,3 +91,21 @@ rule1 = MkCompiledRule [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG
                 )
             )
         )
+
+ruleProduced :: CompiledRule
+ruleProduced = MkCompiledRule [Arg "stage",Arg "sector",Arg "stage_com",Arg "has_ESG",Arg "wants_ESG"] 
+        (If 
+            (And [Equal (Var (Arg "stage")) (Const (String "Seed"))
+                ,Equal (Var (Arg "sector")) (Const (String "Information Technology"))
+                ,Equal (Var (Arg "stage_com")) (Const (String "Pre-Revenue"))]) 
+            (Const (String "Interesting")) 
+            (If 
+                (And [Equal (Var (Arg "stage")) (Const (String "Series A"))
+                    ,Equal (Var (Arg "sector")) (Const (String "Information Technology"))
+                    ,Equal (Var (Arg "stage_com")) (Const (String "Pre-Profit"))]) 
+                (Const (String "Interesting")) 
+                (If 
+                    (And [Equal (Var (Arg "has_ESG")) (Const (Bool True))
+                        ,Equal (Var (Arg "wants_ESG")) (Const (Bool True))]) 
+                    (Const (String "Interesting")) 
+                    (Const (String "reject")))))
