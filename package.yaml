@@ -1,4 +1,32 @@
+name:                dmn
+
 # add pretty print under dependencies later
 
+language: GHC2021
+
 dependencies:
-  - prettyprint
+- base >= 4.7 && < 5
+- prettyprinter
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+
+library:
+  source-dirs: .
+
+
+executables:
+  dmn-exe:
+    main:                Main.hs
+    dependencies:
+    - dmn
+
