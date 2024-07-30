@@ -42,6 +42,7 @@ data Decision = Decision
 data DecLogic = DecTable -- Add literal expression later
   { decTableId :: Id
   , hitPolicy :: String
+  -- , aggregation :: String -- add once collect is done
   , schema :: Schema
   , rules :: [Rule]
   } deriving Show
@@ -93,7 +94,9 @@ data OutputEntry = OutputEntry
   , sExpr :: String }
   deriving Show
 
-data Condition = ConditionString String | ConditionBool Bool
+data Condition = ConditionString String 
+                | ConditionBool Bool
+                | ConditionNumber (Maybe String) Int
   deriving Show
 
 -- data Operator = Equal | NotEqual | LessThan | GreaterThan deriving Show
@@ -163,18 +166,38 @@ exampleDecision2 = Decision
     { decTableId = "table1"
     , hitPolicy = "U"
     , schema = Schema
-      { sInputSchemas = [InputSchema "input1" (Just "Season") (InputExpr "input1" "String" "season")]
+      { sInputSchemas = [InputSchema "grade" (Just "Grade") (InputExpr "grade" "Number" "grade")]
       , sOutputSchema = OutputSchema "result" (Just "Result") "result" "String" }
-    , rules = [Rule "rule1" [InputEntry "season" (Just (ConditionString "Winter"))] 
-        (OutputEntry "result" "Cold")
-      , Rule "rule2" [InputEntry "season" (Just (ConditionString "Summer"))] 
-        (OutputEntry "result" "Hot")
-      , Rule "rule3" [InputEntry "season" (Just (ConditionString "Spring"))] 
-        (OutputEntry "result" "Warm")
-      , Rule "rule4" [InputEntry "season" (Just (ConditionString "Autumn"))] 
-        (OutputEntry "result" "Cool")
-      , Rule "rule5" [InputEntry "season" Nothing] 
-        (OutputEntry "result" "Unknown")
+    , rules = [Rule "rule1" [InputEntry "grade" (Just (ConditionNumber (Just ">=") 50))] 
+        (OutputEntry "result" "Pass")
+      , Rule "rule2" [InputEntry "grade" (Just (ConditionNumber (Just "<") 50))] 
+        (OutputEntry "result" "Fail")
+      ]
+    }
+  }
+
+exampleDecision3 :: Decision
+exampleDecision3 = Decision
+  {
+    decisionID = "rule order"
+    , decisionName = "Rule Order"
+    , decisionOut = DecOutVar
+    { sDecVarId = "result"
+    , sDecVarName = "result"
+    , sDecVarFEELType = "String" }
+  , decisionInfoReq = [ReqInputEl "age" "age"]
+  , decisionLogic = DecTable
+    { decTableId = "table1"
+    , hitPolicy = "R"
+    , schema = Schema
+      { sInputSchemas = [InputSchema "age" (Just "Age") (InputExpr "age" "Number" "age")]
+      , sOutputSchema = OutputSchema "result" (Just "Result") "result" "String" }
+    , rules = [Rule "rule1" [InputEntry "age" (Just (ConditionNumber (Just ">=") 18))] 
+        (OutputEntry "result" "cars")
+      , Rule "rule2" [InputEntry "age" (Just (ConditionNumber (Just ">") 12))] 
+        (OutputEntry "result" "videogames")
+      , Rule "rule3" [InputEntry "age" Nothing] 
+        (OutputEntry "result" "toys")
       ]
     }
   }

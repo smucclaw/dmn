@@ -13,5 +13,5 @@ import ConvertDMN
 
 main :: IO ()
 main = do
-    let convertedRules = convertDecision exampleDecision
+    let convertedRules = convertDecision exampleDecision3
     print convertedRules
