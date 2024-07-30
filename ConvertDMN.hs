@@ -52,7 +52,9 @@ checkHitPolicy _ rules = [nestedIfRules rules] -- default behavior for other hit
 -- multiple hits - output in form of list ["a", "b", "c"]
 multipleHits :: [Rule] -> [Expr]
 multipleHits [] = error "No rules in decision table"
-multipleHits rules = (map (\rule -> If (combineOneRule rule) (AppendList (ListName "Results") (getOutputEntry $ outputEntry rule)) Nothing) rules)
+multipleHits rules = (map 
+                (\rule -> If (combineOneRule rule) (AppendList (ListName "Results") 
+                (getOutputEntry $ outputEntry rule)) Nothing) rules)
 
 
 -- nested IF different rules 
@@ -168,19 +170,23 @@ rule3 = MkCompiledRule [Arg "age"]
             (Const (String "toys"))
         )]
 
-rulemade :: CompiledRule
+rulemade :: CompiledRule -- running exampleDecision3 produces this
 rulemade = MkCompiledRule [Arg "age"] 
             [InitList (ListName "Results")
             ,If 
                 (MoreThanEqual (Var (Arg "age")) (Const (Number 18))) 
-                (Const (String "cars")) 
+                (AppendList 
+                    (ListName "Results") 
+                    (Const (String "cars"))) 
                 Nothing
             ,If 
                 (MoreThan (Var (Arg "age")) (Const (Number 12))) 
-                (Const (String "videogames")) 
+                (AppendList 
+                    (ListName "Results") 
+                    (Const (String "videogames"))) 
                 Nothing
             ,If 
-                (Const (Bool True)) 
-                (Const (String "toys")) 
+                (Const (Bool True)) -- need to get rid of this
+                (AppendList (ListName "Results") (Const (String "toys")))
                 Nothing
             ]

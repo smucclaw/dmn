@@ -163,6 +163,7 @@ exampleDecision = Decision
 
 
 grade -> overall result <- attendance
+^ Not sure what would be the best way to display a DRD in markdown
 
 Grade = InputEntry 
 
