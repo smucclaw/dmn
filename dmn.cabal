@@ -1,0 +1,37 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           dmn
+version:        0.0.0
+build-type:     Simple
+
+library
+  exposed-modules:
+      ConvertDMN
+      Main
+      PrintProg
+      PrintProgSimala
+      Types
+  other-modules:
+      Paths_dmn
+  hs-source-dirs:
+      ./
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+    , prettyprinter
+  default-language: GHC2021
+
+executable dmn-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_dmn
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+    , dmn
+    , prettyprinter
+  default-language: GHC2021
