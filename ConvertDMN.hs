@@ -7,7 +7,7 @@ import Data.Maybe (mapMaybe)
 import Types
 
 -- define IR
-data CompiledRule = MkCompiledRule [Arg] [Expr] deriving Show
+data CompiledRule = MkCompiledRule Func [Arg] [Expr] deriving Show
 
 data Expr = Var Arg 
             | And [Expr] 
@@ -19,9 +19,12 @@ data Expr = Var Arg
             | MoreThanEqual Expr Expr
             | LessThanEqual Expr Expr
             | Const Val 
+            | Return Val
             | InitList ListName -- list name, initialise
             | AppendList ListName Expr -- target list, what to add
             deriving Show
+
+data Func = Func String deriving Show
 
 data Val = Bool Bool 
             | String String
@@ -37,8 +40,11 @@ data ListName = ListName String deriving Show
         --  InputEntry c d = …`
 
 convertDecision :: Decision -> CompiledRule
-convertDecision Decision { decisionLogic = DecTable { rules = rules, schema = Schema { sInputSchemas = inputs }, hitPolicy = policy } } = 
-    MkCompiledRule 
+convertDecision Decision { decisionLogic = DecTable { rules = rules
+                                                    , schema = Schema { sInputSchemas = inputs }
+                                                    , hitPolicy = policy
+                                                    , decTableId = funcname } } = 
+    MkCompiledRule (Func funcname)
         (map (\InputSchema {sInputSchemaId = id} -> Arg id) inputs) 
         (checkHitPolicy policy rules)
 
@@ -101,30 +107,30 @@ chooseOperator id "<=" val = LessThanEqual (Var (Arg id)) val
 
 -- to get the "Then" of if/then/else
 getOutputEntry :: OutputEntry -> Expr
-getOutputEntry OutputEntry {sExpr = expr} = Const (String expr)
+getOutputEntry OutputEntry {sExpr = expr} = Return (String expr)
 
 
 -- example
 rule1 :: CompiledRule -- target
-rule1 = MkCompiledRule [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG", Arg "wants_ESG"] 
+rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG", Arg "wants_ESG"] 
         [(If 
             (And [ Equal (Var (Arg "stage")) (Const (String "Seed"))
                 , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
                 , Equal (Var (Arg "stage_com")) (Const (String "Pre-Revenue"))
             ])
-            (Const (String "interesting"))
+            (Return (String "interesting"))
             (Just (If 
                 (And [ Equal (Var (Arg "stage")) (Const (String "Series A"))
                     , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
                     , Equal (Var (Arg "stage_com")) (Const (String "Pre-Profit"))
                 ])
-                (Const (String "interesting"))
+                (Return (String "interesting"))
                 (Just (If
                     (And [ Equal (Var (Arg "has_ESG")) (Const (Bool True))
                         , Equal (Var (Arg "wants_ESG")) (Const (Bool True))
                     ])
-                    (Const (String "interesting"))
-                    (Just (Const (String "reject")))
+                    (Return (String "interesting"))
+                    (Just (Return (String "reject")))
                 )
             )))
         )]
@@ -146,47 +152,47 @@ rule1 = MkCompiledRule [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG
 --         )
 
 
-rule3 :: CompiledRule -- alternative rule order hit policy
-rule3 = MkCompiledRule [Arg "age"] 
-        [InitList (ListName "What to advertise")
-        , (If 
-            (MoreThan (Var (Arg "age")) (Const (Number 18)))
-            (AppendList 
-                (ListName "What to advertise")
-                (Const (String "cars"))
-            )
-            (Nothing)
-        )
-        , (If 
-            (MoreThan (Var (Arg "age")) (Const (Number 12)))
-            (AppendList 
-                (ListName "What to advertise")
-                (Const (String "videogames"))
-            )
-            (Nothing)
-        )
-        , (AppendList 
-            (ListName "What to advertise")
-            (Const (String "toys"))
-        )]
+-- rule3 :: CompiledRule -- alternative rule order hit policy
+-- rule3 = MkCompiledRule [Arg "age"] 
+--         [InitList (ListName "What to advertise")
+--         , (If 
+--             (MoreThan (Var (Arg "age")) (Const (Number 18)))
+--             (AppendList 
+--                 (ListName "What to advertise")
+--                 (Const (String "cars"))
+--             )
+--             (Nothing)
+--         )
+--         , (If 
+--             (MoreThan (Var (Arg "age")) (Const (Number 12)))
+--             (AppendList 
+--                 (ListName "What to advertise")
+--                 (Const (String "videogames"))
+--             )
+--             (Nothing)
+--         )
+--         , (AppendList 
+--             (ListName "What to advertise")
+--             (Const (String "toys"))
+--         )]
 
-rulemade :: CompiledRule -- running exampleDecision3 produces this
-rulemade = MkCompiledRule [Arg "age"] 
-            [InitList (ListName "Results")
-            ,If 
-                (MoreThanEqual (Var (Arg "age")) (Const (Number 18))) 
-                (AppendList 
-                    (ListName "Results") 
-                    (Const (String "cars"))) 
-                Nothing
-            ,If 
-                (MoreThan (Var (Arg "age")) (Const (Number 12))) 
-                (AppendList 
-                    (ListName "Results") 
-                    (Const (String "videogames"))) 
-                Nothing
-            ,If 
-                (Const (Bool True)) -- need to get rid of this
-                (AppendList (ListName "Results") (Const (String "toys")))
-                Nothing
-            ]
+-- rulemade :: CompiledRule -- running exampleDecision3 produces this
+-- rulemade = MkCompiledRule [Arg "age"] 
+--             [InitList (ListName "Results")
+--             ,If 
+--                 (MoreThanEqual (Var (Arg "age")) (Const (Number 18))) 
+--                 (AppendList 
+--                     (ListName "Results") 
+--                     (Const (String "cars"))) 
+--                 Nothing
+--             ,If 
+--                 (MoreThan (Var (Arg "age")) (Const (Number 12))) 
+--                 (AppendList 
+--                     (ListName "Results") 
+--                     (Const (String "videogames"))) 
+--                 Nothing
+--             ,If 
+--                 (Const (Bool True)) -- need to get rid of this
+--                 (AppendList (ListName "Results") (Const (String "toys")))
+--                 Nothing
+--             ]

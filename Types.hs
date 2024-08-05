@@ -122,7 +122,7 @@ exampleDecision = Decision
     , ReqInputEl "has_ESG" "has_ESG"
     , ReqInputEl "wants_ESG" "wants_ESG"]
   , decisionLogic = DecTable
-    { decTableId = "table1"
+    { decTableId = "get_opinion"
     , hitPolicy = "F"
     , schema = Schema
       { sInputSchemas = [InputSchema "stage" (Just "Stage") (InputExpr "stage" "String" "stage")

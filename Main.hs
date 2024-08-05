@@ -20,5 +20,5 @@ main = do
     print convertedRules
     print "python ver"
     (print . (<>) line . showProg) convertedRules
-    print "simala ver"
-    (print . (<>) line . showProgSimala) convertedRules
+    -- print "simala ver"
+    -- (print . (<>) line . showProgSimala) convertedRules

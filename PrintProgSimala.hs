@@ -12,7 +12,7 @@ class ShowProgSimala x where
     showProgSimala :: x -> Doc ann
 
 instance ShowProgSimala CompiledRule where
-    showProgSimala (MkCompiledRule (arg:args) (e:es)) = nest nestingDepth
+    showProgSimala (MkCompiledRule f (arg:args) (e:es)) = nest nestingDepth
         (vsep [ pretty "let" 
               , nest nestingDepth (pretty "get_opinion =")
               , indent nestingDepth (pretty "fun (" <+> showProgSimala arg <+> pretty ") =>")
@@ -48,8 +48,6 @@ instance ShowProgSimala Val where
     showProgSimala (String s) = pretty ("'" ++ s)
     showProgSimala (Number n) = pretty n
 
--- looking at this simala, code should i be changing the IR to Or instead of nested Ifs?
--- one hand makes more intuitve sense, however then need the case of checking if the final output is the same or not
 
 -- in simala:
 -- let
