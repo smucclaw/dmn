@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" id="test" name="CCLAW" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.0.0">
+  <inputData id="InputData_1ubs5qi" name="b_stage" />
+  <inputData id="InputData_1m4vhnw" name="b_stage_com" />
+  <inputData id="InputData_15l41gr" name="b_has_esg" />
+  <inputData id="InputData_13gks1u" name="inv_wants_esg" />
+  <decision id="Decision_0hp0520" name="opinion">
+    <informationRequirement id="InformationRequirement_14t801l">
+      <requiredInput href="#InputData_1ubs5qi" />
+    </informationRequirement>
+    <informationRequirement id="InformationRequirement_14cs577">
+      <requiredInput href="#InputData_1m4vhnw" />
+    </informationRequirement>
+    <informationRequirement id="InformationRequirement_002dh5n">
+      <requiredInput href="#InputData_15l41gr" />
+    </informationRequirement>
+    <informationRequirement id="InformationRequirement_1qynvtm">
+      <requiredInput href="#InputData_13gks1u" />
+    </informationRequirement>
+    <decisionTable id="DecisionTable_0marb09" hitPolicy="FIRST">
+      <input id="InputClause_17ptgro" label="b.stage">
+        <inputExpression id="LiteralExpression_1abc991" typeRef="string">
+          <text>b_stage</text>
+        </inputExpression>
+        <inputValues id="UnaryTests_143ni4a">
+          <text>"seed","pre_seed"</text>
+        </inputValues>
+      </input>
+      <input id="InputClause_1j2qa79" label="b.has_esg">
+        <inputExpression id="LiteralExpression_0j563tj" typeRef="boolean" expressionLanguage="feel">
+          <text>b_has_esg</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_1rvicfz" label="inv.wants_esg">
+        <inputExpression id="LiteralExpression_0hckokr" typeRef="boolean">
+          <text>inv_wants_esg</text>
+        </inputExpression>
+      </input>
+      <output id="OutputClause_1e5uafh" label="opinion" name="opinion" typeRef="string">
+        <outputValues id="UnaryTests_0f5txh1">
+          <text>"interesting","reject"</text>
+        </outputValues>
+      </output>
+      <rule id="DecisionRule_1vs028f">
+        <inputEntry id="UnaryTests_0t03ouz">
+          <text>"seed"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0q4r2ys">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1mveap4">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_13n0gqh">
+          <text>"interesting"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0l1l8qw">
+        <inputEntry id="UnaryTests_1a8nr7y">
+          <text>"pre_seed"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0unl7o4">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1sfr675">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0vlo7uz">
+          <text>"interesting"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1wwxo7b">
+        <inputEntry id="UnaryTests_1ygj262">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1ki2n8n">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0aryrix">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0jwqk82">
+          <text>"interesting"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0vl5cx0">
+        <inputEntry id="UnaryTests_1c8br4r">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_120oiu8">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0qzhvbx">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0ivtxsm">
+          <text>"reject"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_0i21c0s">
+      <dmndi:DMNShape id="DMNShape_11svtiq" dmnElementRef="InputData_1ubs5qi">
+        <dc:Bounds height="45" width="125" x="297" y="247" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_1winbuk" dmnElementRef="InputData_1m4vhnw">
+        <dc:Bounds height="45" width="125" x="468" y="248" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_04dl09a" dmnElementRef="InputData_15l41gr">
+        <dc:Bounds height="45" width="125" x="638" y="248" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_0chvo1e" dmnElementRef="InputData_13gks1u">
+        <dc:Bounds height="45" width="125" x="818" y="248" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_01v4cvk" dmnElementRef="InformationRequirement_14t801l">
+        <di:waypoint x="360" y="247" />
+        <di:waypoint x="556" y="200" />
+        <di:waypoint x="556" y="180" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_0xn2214" dmnElementRef="InformationRequirement_14cs577">
+        <di:waypoint x="531" y="248" />
+        <di:waypoint x="592" y="200" />
+        <di:waypoint x="592" y="180" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_19c74se" dmnElementRef="InformationRequirement_002dh5n">
+        <di:waypoint x="701" y="248" />
+        <di:waypoint x="628" y="200" />
+        <di:waypoint x="628" y="180" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_1qx43fq" dmnElementRef="InformationRequirement_1qynvtm">
+        <di:waypoint x="881" y="248" />
+        <di:waypoint x="664" y="200" />
+        <di:waypoint x="664" y="180" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNShape id="DMNShape_03z4luv" dmnElementRef="Decision_0hp0520">
+        <dc:Bounds height="80" width="180" x="520" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

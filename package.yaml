@@ -7,6 +7,7 @@ language: GHC2021
 dependencies:
 - base >= 4.7 && < 5
 - prettyprinter
+- hxt
 
 ghc-options:
 - -Wall
@@ -27,6 +28,7 @@ library:
 executables:
   dmn-exe:
     main:                Main.hs
+    source-dirs:         src
     dependencies:
     - dmn
 

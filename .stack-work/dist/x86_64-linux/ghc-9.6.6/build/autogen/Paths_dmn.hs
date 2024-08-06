@@ -47,7 +47,7 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 bindir     = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/bin"
-libdir     = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/lib/x86_64-linux-ghc-9.6.6/dmn-0.0.0-JJamwgdul342PZGUfcSRH"
+libdir     = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/lib/x86_64-linux-ghc-9.6.6/dmn-0.0.0-HXjXuOqE0bLHbrf8QqWDBL"
 dynlibdir  = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/lib/x86_64-linux-ghc-9.6.6"
 datadir    = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/share/x86_64-linux-ghc-9.6.6/dmn-0.0.0"
 libexecdir = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/libexec/x86_64-linux-ghc-9.6.6/dmn-0.0.0"

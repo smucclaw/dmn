@@ -20,6 +20,16 @@
   (major1) == 4 && (major2) <  18 || \
   (major1) == 4 && (major2) == 18 && (minor) <= 2)
 #endif /* MIN_VERSION_base */
+/* package hxt-9.3.1.22 */
+#ifndef VERSION_hxt
+#define VERSION_hxt "9.3.1.22"
+#endif /* VERSION_hxt */
+#ifndef MIN_VERSION_hxt
+#define MIN_VERSION_hxt(major1,major2,minor) (\
+  (major1) <  9 || \
+  (major1) == 9 && (major2) <  3 || \
+  (major1) == 9 && (major2) == 3 && (minor) <= 1)
+#endif /* MIN_VERSION_hxt */
 /* package prettyprinter-1.7.1 */
 #ifndef VERSION_prettyprinter
 #define VERSION_prettyprinter "1.7.1"
@@ -123,10 +133,10 @@
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_PACKAGE_KEY
-#define CURRENT_PACKAGE_KEY "dmn-0.0.0-JJamwgdul342PZGUfcSRH"
+#define CURRENT_PACKAGE_KEY "dmn-0.0.0-HXjXuOqE0bLHbrf8QqWDBL"
 #endif /* CURRENT_packageKey */
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "dmn-0.0.0-JJamwgdul342PZGUfcSRH"
+#define CURRENT_COMPONENT_ID "dmn-0.0.0-HXjXuOqE0bLHbrf8QqWDBL"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.0.0"

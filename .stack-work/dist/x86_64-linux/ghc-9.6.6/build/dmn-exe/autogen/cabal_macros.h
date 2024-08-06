@@ -30,6 +30,16 @@
   (major1) == 0 && (major2) <  0 || \
   (major1) == 0 && (major2) == 0 && (minor) <= 0)
 #endif /* MIN_VERSION_dmn */
+/* package hxt-9.3.1.22 */
+#ifndef VERSION_hxt
+#define VERSION_hxt "9.3.1.22"
+#endif /* VERSION_hxt */
+#ifndef MIN_VERSION_hxt
+#define MIN_VERSION_hxt(major1,major2,minor) (\
+  (major1) <  9 || \
+  (major1) == 9 && (major2) <  3 || \
+  (major1) == 9 && (major2) == 3 && (minor) <= 1)
+#endif /* MIN_VERSION_hxt */
 /* package prettyprinter-1.7.1 */
 #ifndef VERSION_prettyprinter
 #define VERSION_prettyprinter "1.7.1"
@@ -133,7 +143,7 @@
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "dmn-0.0.0-4cSoCDLkv9SCtb4QuBgYkO-dmn-exe"
+#define CURRENT_COMPONENT_ID "dmn-0.0.0-Ku03bb8z0Qc2eauFxmtUug-dmn-exe"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.0.0"

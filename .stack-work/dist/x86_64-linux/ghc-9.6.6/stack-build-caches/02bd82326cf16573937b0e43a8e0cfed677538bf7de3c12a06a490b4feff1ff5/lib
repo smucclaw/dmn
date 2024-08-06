@@ -1,16 +1,8 @@
 /root/cclaw/dmn/.stack-work/dist/x86_64-linux/ghc-9.6.6/build/autogen/Paths_dmn.hs:
-  hash: 89452b79f5889e140607267d6e21b4d0b8fea96e118b19dc232a12adbfcc41f9
-/root/cclaw/dmn/ConvertDMN.hs:
-  hash: ea792ea915cd2b270e77e67c2003861af11815a1ce8bcdcfd65372bc75255229
-/root/cclaw/dmn/Main.hs:
-  hash: b9bb05f507676ac61673b3b6dcd59aa38f1436a3d902e840548dad8dd2f9e55a
-/root/cclaw/dmn/PrintProg.hs:
-  hash: b807e0c3c8754c804218702857c639ecdc0c4a4f30a59f44ba463831f2cf4325
-/root/cclaw/dmn/PrintProgSimala.hs:
-  hash: 02be23df51d7c1a86094239e0423c6698f6581eb271256f0595cbbbe4f359fb5
-/root/cclaw/dmn/Types.hs:
-  hash: b8e1a9f920805dbb019636c0fd6c20406c3864655a1f26051152957b96f5235b
+  hash: fc7b6448a40290bdf74b42d519aed4bb89b21509178d0f2d5fe5ee57a16d5c55
+/root/cclaw/dmn/TypesVer1.hs:
+  hash: 093553fe94b90887abb93ebee5d0e9640ee34d70fe61e191f37931be8ba86727
 /root/cclaw/dmn/dmn.cabal:
-  hash: e12e21cb087d244669c43095d780f9872886dc7edc485b220a33fe7e814bc79b
+  hash: 27c6067096dd9f71a31ce6d7ff25f73c32719288eb6db946903e19ca55a38fb4
 /root/cclaw/dmn/package.yaml:
-  hash: 70d576c9c62fa27e09fbcb72c0fa40244f33d6c8978f8faf575344813b87c0a7
+  hash: d0f7f4810d17250406ae06b6c68b54f8543d110c5deb459af369a319ff89b750

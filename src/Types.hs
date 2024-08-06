@@ -26,14 +26,12 @@ data Definitions = Definitions
   deriving Show
 
 data DecOutVar = DecOutVar
-  { sDecVarId :: Id
-  , sDecVarName :: DecName
+  { sDecVarName :: DecName
   , sDecVarFEELType :: String  -- Adjusted to String for now
   } deriving Show
 
 data Decision = Decision
-  { decisionID :: Id
-  , decisionName :: DecName
+  { decisionName :: DecName
   , decisionOut :: DecOutVar
   , decisionInfoReq :: [InfoReq]
   , decisionLogic :: DecLogic  -- This is DecTable or Literal Expression
@@ -54,28 +52,23 @@ data Schema = Schema
 
 data InputSchema = InputSchema
   { sInputSchemaId :: Id
-  , sInputLabel :: Maybe Label
   , sInputExprEl :: InputExpr }
   deriving Show
 
 data OutputSchema = OutputSchema
-  { sOutputSchemaId :: Id
-  , sOutputLabel :: Maybe Label
-  , sOutputSchemaVarName :: String
+  { sOutputSchemaVarName :: String
   , sOutputSchemaFEELType :: String } -- Change later
   deriving Show
 
 data InfoReq = ReqInputEl
-  { sReqInputId :: Id
-  , sReqInput :: ReqInput }
+  { sReqInput :: ReqInput } -- get rid of one
   -- Id ReqInput
   deriving Show
 type ReqInput = String
 
 data InputExpr = InputExpr
-  { inputId :: Id
+  { inputExprName :: VarName
   , inputExprFEELType :: String  -- Change to FEEL type later on
-  , inputExprName :: VarName
   } deriving Show
 
 data Rule = Rule
@@ -103,34 +96,32 @@ data Condition = ConditionString String
 
 -- data hitPolicy = 
 
-data Output = Output
-  { outputId :: Id
-  , outputExpression :: String
-  } deriving Show
+-- data Output = Output
+--   { outputId :: Id
+--   , outputExpression :: String
+--   } deriving Show
 
 exampleDecision :: Decision
 exampleDecision = Decision
-  { decisionID = "decision1"
-  , decisionName = "Pitch Decks"
+  { decisionName = "Pitch Decks"
   , decisionOut = DecOutVar
-    { sDecVarId = "output1"
-    , sDecVarName = "opinion"
+    { sDecVarName = "opinion"
     , sDecVarFEELType = "String" }
-  , decisionInfoReq = [ReqInputEl "stage" "stage"
-    , ReqInputEl "sector" "sector"
-    , ReqInputEl "stage_com" "stage_com"
-    , ReqInputEl "has_ESG" "has_ESG"
-    , ReqInputEl "wants_ESG" "wants_ESG"]
+  , decisionInfoReq = [ReqInputEl "stage"
+    , ReqInputEl "sector" 
+    , ReqInputEl "stage_com" 
+    , ReqInputEl "has_ESG" 
+    , ReqInputEl "wants_ESG"]
   , decisionLogic = DecTable
     { decTableId = "get_opinion"
     , hitPolicy = "F"
     , schema = Schema
-      { sInputSchemas = [InputSchema "stage" (Just "Stage") (InputExpr "stage" "String" "stage")
-        , InputSchema "sector" (Just "Sector") (InputExpr "sector" "String" "sector")
-        , InputSchema "stage_com" (Just "Stage_Com") (InputExpr "stage_com" "String" "stage_com")
-        , InputSchema "has_ESG" (Just "Has_ESG") (InputExpr "has_ESG" "Boolean" "has_ESG")
-        , InputSchema "wants_ESG" (Just "Wants_ESG") (InputExpr "wants_ESG" "Boolean" "wants_ESG")]
-      , sOutputSchema = OutputSchema "opinion" (Just "Opinion") "opinion" "String" }
+      { sInputSchemas = [InputSchema "stage" (InputExpr "stage" "String")
+        , InputSchema "sector" (InputExpr "sector" "String")
+        , InputSchema "stage_com" (InputExpr "stage_com" "String")
+        , InputSchema "has_ESG" (InputExpr "has_ESG" "Boolean")
+        , InputSchema "wants_ESG" (InputExpr "wants_ESG" "Boolean")]
+      , sOutputSchema = OutputSchema "opinion" "String" }
     , rules = [Rule "rule1" [InputEntry "stage" (Just (ConditionString "Seed"))
         , InputEntry "sector" (Just (ConditionString "Information Technology"))
         , InputEntry "stage_com" (Just (ConditionString "Pre-Revenue"))] 
@@ -154,20 +145,17 @@ exampleDecision = Decision
 
 exampleDecision2 :: Decision
 exampleDecision2 = Decision
-  {
-    decisionID = "simple"
-  , decisionName = "Simple Decision"
+  { decisionName = "Simple Decision"
   , decisionOut = DecOutVar
-    { sDecVarId = "result"
-    , sDecVarName = "result"
+    { sDecVarName = "result"
     , sDecVarFEELType = "String" }
-  , decisionInfoReq = [ReqInputEl "input1" "season"]
+  , decisionInfoReq = [ReqInputEl "season"]
   , decisionLogic = DecTable
     { decTableId = "table1"
     , hitPolicy = "U"
     , schema = Schema
-      { sInputSchemas = [InputSchema "grade" (Just "Grade") (InputExpr "grade" "Number" "grade")]
-      , sOutputSchema = OutputSchema "result" (Just "Result") "result" "String" }
+      { sInputSchemas = [InputSchema "grade" (InputExpr "grade" "Number")]
+      , sOutputSchema = OutputSchema "result" "String" }
     , rules = [Rule "rule1" [InputEntry "grade" (Just (ConditionNumber (Just ">=") 50))] 
         (OutputEntry "result" "Pass")
       , Rule "rule2" [InputEntry "grade" (Just (ConditionNumber (Just "<") 50))] 
@@ -178,20 +166,17 @@ exampleDecision2 = Decision
 
 exampleDecision3 :: Decision
 exampleDecision3 = Decision
-  {
-    decisionID = "rule order"
-    , decisionName = "Rule Order"
+  { decisionName = "Rule Order"
     , decisionOut = DecOutVar
-    { sDecVarId = "result"
-    , sDecVarName = "result"
+    { sDecVarName = "result"
     , sDecVarFEELType = "String" }
-  , decisionInfoReq = [ReqInputEl "age" "age"]
+  , decisionInfoReq = [ReqInputEl "age"]
   , decisionLogic = DecTable
     { decTableId = "table1"
     , hitPolicy = "R"
     , schema = Schema
-      { sInputSchemas = [InputSchema "age" (Just "Age") (InputExpr "age" "Number" "age")]
-      , sOutputSchema = OutputSchema "result" (Just "Result") "result" "String" }
+      { sInputSchemas = [InputSchema "age" (InputExpr "age" "Number")]
+      , sOutputSchema = OutputSchema "result" "String" }
     , rules = [Rule "rule1" [InputEntry "age" (Just (ConditionNumber (Just ">=") 18))] 
         (OutputEntry "result" "cars")
       , Rule "rule2" [InputEntry "age" (Just (ConditionNumber (Just ">") 12))] 
