@@ -46,12 +46,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/bin"
-libdir     = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/lib/x86_64-linux-ghc-9.6.6/dmn-0.0.0-Ku03bb8z0Qc2eauFxmtUug-dmn-exe"
-dynlibdir  = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/lib/x86_64-linux-ghc-9.6.6"
-datadir    = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/share/x86_64-linux-ghc-9.6.6/dmn-0.0.0"
-libexecdir = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/libexec/x86_64-linux-ghc-9.6.6/dmn-0.0.0"
-sysconfdir = "/root/cclaw/dmn/.stack-work/install/x86_64-linux/02bd82326cf16573937b0e43a8e0cfed677538bf7de3c12a06a490b4feff1ff5/9.6.6/etc"
+bindir     = "/home/andres/repos/well-typed/cclaw/dmn/.stack-work/install/x86_64-linux/fa7df3be2bca71a063db05b7e8a7ffd02cfd8fca4c0f98416b21ceaad9b9b988/9.6.6/bin"
+libdir     = "/home/andres/repos/well-typed/cclaw/dmn/.stack-work/install/x86_64-linux/fa7df3be2bca71a063db05b7e8a7ffd02cfd8fca4c0f98416b21ceaad9b9b988/9.6.6/lib/x86_64-linux-ghc-9.6.6/dmn-0.0.0-FA60CqfFIGiFHzgJiGexDM-dmn-exe"
+dynlibdir  = "/home/andres/repos/well-typed/cclaw/dmn/.stack-work/install/x86_64-linux/fa7df3be2bca71a063db05b7e8a7ffd02cfd8fca4c0f98416b21ceaad9b9b988/9.6.6/lib/x86_64-linux-ghc-9.6.6"
+datadir    = "/home/andres/repos/well-typed/cclaw/dmn/.stack-work/install/x86_64-linux/fa7df3be2bca71a063db05b7e8a7ffd02cfd8fca4c0f98416b21ceaad9b9b988/9.6.6/share/x86_64-linux-ghc-9.6.6/dmn-0.0.0"
+libexecdir = "/home/andres/repos/well-typed/cclaw/dmn/.stack-work/install/x86_64-linux/fa7df3be2bca71a063db05b7e8a7ffd02cfd8fca4c0f98416b21ceaad9b9b988/9.6.6/libexec/x86_64-linux-ghc-9.6.6/dmn-0.0.0"
+sysconfdir = "/home/andres/repos/well-typed/cclaw/dmn/.stack-work/install/x86_64-linux/fa7df3be2bca71a063db05b7e8a7ffd02cfd8fca4c0f98416b21ceaad9b9b988/9.6.6/etc"
 
 getBinDir     = catchIO (getEnv "dmn_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "dmn_libdir")     (\_ -> return libdir)
