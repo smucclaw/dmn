@@ -20,11 +20,6 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 
-
-library:
-  source-dirs: .
-
-
 executables:
   dmn-exe:
     main:                Main.hs
