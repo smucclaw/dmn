@@ -1,4 +1,4 @@
-|F|stage (input)|sector (input)|stage_com (input)|has_ESG (input, bool)|wants_ESG (input, bool)|opinion (output)|
+|F|stage (input, string)|sector (input, string)|stage_com (input, string)|has_ESG (input, bool)|wants_ESG (input, bool)|opinion (output, string)|
 |---|---|---|---|---|---|---|
 |1|Seed|Information Technology|Pre-Revenue|-|-|interesting|
 |2|Series A|Information Technology|Pre-Profit|-|-|interesting|

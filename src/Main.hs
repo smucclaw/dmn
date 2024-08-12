@@ -5,9 +5,9 @@ import ConvertDMN
 import PrintProg
 import PrintProgSimala
 import Prettyprinter
-import FromXML
 import System.IO (readFile)
 import Text.XML.HXT.Core hiding (Schema)
+import FromMD
 
 -- testConvertDecision :: Bool
 -- testConvertDecision = 
@@ -39,10 +39,15 @@ main = do
     --         print "Python version:"
     --         (print . (<>) line . showProg) convertedRules
 
-
-    let convertedRules = convertDecision exampleDecision
+    let markdownTable = "|F|stage (input, string)|sector (input, string)|stage_com (input, string)|has_ESG (input, bool)|wants_ESG (input, bool)|opinion (output, string)|\n|---|---|---|---|---|---|---|\n|1|Seed|Information Technology|Pre-Revenue|-|-|interesting|\n|2|Series A|Information Technology|Pre-Profit|-|-|interesting|\n|3|-|-|-|TRUE|TRUE|interesting|\n|4|-|-|-|-|-|reject|"
+    let decision = convertMDToDMN markdownTable
+    print "Parsed Decision:"
+    print decision
+    putStrLn ""
+    let convertedRules = convertDecision decision
     print convertedRules
+    putStrLn ""
     print "python ver"
     (print . (<>) line . showProg) convertedRules
-    print "simala ver"
-    (print . (<>) line . showProgSimala) convertedRules
+    -- print "simala ver"
+    -- (print . (<>) line . showProgSimala) convertedRules

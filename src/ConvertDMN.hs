@@ -40,10 +40,10 @@ data ListName = ListName String deriving Show
         --  InputEntry c d = …`
 
 convertDecision :: Decision -> CompiledRule
-convertDecision Decision { decisionLogic = DecTable { rules = rules
-                                                    , schema = Schema { sInputSchemas = inputs }
-                                                    , hitPolicy = policy
-                                                    , decTableId = funcname } } = 
+convertDecision Decision { decisionOut = DecOutVar {sDecVarName = funcname}
+                           , decisionLogic = DecTable { rules = rules
+                                                        , schema = Schema { sInputSchemas = inputs }
+                                                        , hitPolicy = policy } } = 
     MkCompiledRule (Func funcname)
         (map (\InputSchema {sInputSchemaId = id} -> Arg id) inputs) 
         (checkHitPolicy policy rules)

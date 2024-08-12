@@ -43,7 +43,7 @@ parseSchema = proc x -> do
 parseInputSchema :: IOSArrow XmlTree InputSchema
 parseInputSchema = proc x -> do
     sInputSchemaId <- getAttrValue "label" -< x
-    sInputExprEl <- getChildren >>> hasName "inputExpression" >>> parseInputExpr -< x
+    inputExprFEELType <- getAttrValue "typeRef" -< x
     returnA -< InputSchema {..}
 
 parseOutputSchema :: IOSArrow XmlTree OutputSchema
@@ -51,12 +51,6 @@ parseOutputSchema = proc x -> do
     sOutputSchemaVarName <- getAttrValue "name" -< x
     sOutputSchemaFEELType <- getAttrValue "typeRef" -< x
     returnA -< OutputSchema {..}
-
-parseInputExpr :: IOSArrow XmlTree InputExpr
-parseInputExpr = proc x -> do
-    inputExprName <- getChildren >>> hasName "text" >>> getText -< x
-    inputExprFEELType <- getAttrValue "typeRef" -< x
-    returnA -< InputExpr {..}
 
 parseRule :: IOSArrow XmlTree Rule
 parseRule = proc x -> do

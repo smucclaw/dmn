@@ -26,3 +26,17 @@ def get_opinion ( stage, sector, stage_com, has_ESG, wants_ESG ):
                 return 'reject'
             
 print (get_opinion('Seed', 'Information Technology', 'Pre-Profit', True, True))
+
+def opinion  ( stage , sector , stage_com , has_ESG , wants_ESG  ):
+    if stage  == 'Seed' and sector  == 'Information Technology' and stage_com  == 'Pre-Revenue' :
+        return 'interesting'
+    else:
+        if stage  == 'Series A' and sector  == 'Information Technology' and stage_com  == 'Pre-Profit' :
+            return 'interesting'
+        else:
+            if has_ESG  == True and wants_ESG  == True :
+                return 'interesting'
+            else:
+                return 'reject'
+            
+print (opinion('Seed', 'Information Technology', 'Pre-Profit', True, True))
