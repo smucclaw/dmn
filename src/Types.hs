@@ -68,6 +68,7 @@ type ReqInput = String
 --   { inputExprName :: VarName
 --   , inputExprFEELType :: String  -- Change to FEEL type later on
 --   } deriving Show
+-- removed as it seems redundant
 
 data Rule = Rule
   { ruleId :: Id

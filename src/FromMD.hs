@@ -44,7 +44,7 @@ parseDecisionOutput header =
 parseHeader :: String -> (String, String)
 parseHeader header = 
     let parts = splitOn "," header
-        name = filter (/= '(') $ head $ splitOn "(" $ head parts
+        name = trim $ filter (/= '(') $ head $ splitOn "(" $ head parts
         feelType = if length parts > 1 then init (last parts) else "String"
     in (name, trim feelType)
 
@@ -76,54 +76,26 @@ parseRule inputSchemaNames i row =
 parseInputEntry :: InputSchema -> String -> InputEntry
 parseInputEntry schema entry = 
     InputEntry { sInputEntryId = sInputSchemaId schema
-               , sMaybeCondition = parseCondition entry
+               , sMaybeCondition = parseCondition (inputExprFEELType schema) entry
                }
 
-parseCondition :: String -> Maybe Condition
-parseCondition "-" = Nothing
-parseCondition s
+parseCondition :: String -> String -> Maybe Condition
+parseCondition _ "-" = Nothing
+parseCondition expectedType s
+    | map toLower expectedType == "bool" = parseBooleanCondition s
+    | map toLower expectedType == "string" = Just (ConditionString s)
+    | otherwise = error $ "Unsupported type: " ++ expectedType
+
+parseBooleanCondition :: String -> Maybe Condition
+parseBooleanCondition s
     | map toLower s == "true"  = Just (ConditionBool True)
     | map toLower s == "false" = Just (ConditionBool False)
-    | otherwise = Just (ConditionString s)
+    | otherwise = error $ "Invalid Boolean value: " ++ s
 
--- currently does not check type
+-- currently does not check numbers
 
 parseOutputEntry :: String -> OutputEntry
 parseOutputEntry s = OutputEntry { sOutputId = "output", sExpr = s }
 
 trim :: String -> String
 trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse
-
-Decision 
-    {decisionOut = DecOutVar 
-        {sDecVarName = "opinion ", sDecVarFEELType = "string"}
-        , decisionInfoReq = [ReqInputEl {sReqInput = "stage "}
-                            ,ReqInputEl {sReqInput = "sector "}
-                            ,ReqInputEl {sReqInput = "stage_com "}
-                            ,ReqInputEl {sReqInput = "has_ESG "}
-                            ,ReqInputEl {sReqInput = "wants_ESG "}]
-        , decisionLogic = DecTable 
-            {hitPolicy = "F"
-            , schema = Schema 
-                {sInputSchemas = [InputSchema {sInputSchemaId = "stage ", inputExprFEELType = "string"}
-                                ,InputSchema {sInputSchemaId = "sector ", inputExprFEELType = "string"}
-                                ,InputSchema {sInputSchemaId = "stage_com ", inputExprFEELType = "string"}
-                                ,InputSchema {sInputSchemaId = "has_ESG ", inputExprFEELType = "bool"}
-                                ,InputSchema {sInputSchemaId = "wants_ESG ", inputExprFEELType = "bool"}]
-                , sOutputSchema = OutputSchema {sOutputSchemaVarName = "opinion ", sOutputSchemaFEELType = "string"}}
-            , rules = [Rule {ruleId = "rule1"
-                            , inputEntries = [InputEntry {sInputEntryId = "stage ", sMaybeCondition = Just (ConditionString "Seed")}
-                                ,InputEntry {sInputEntryId = "sector ", sMaybeCondition = Just (ConditionString "Information Technology")}
-                                ,InputEntry {sInputEntryId = "stage_com ", sMaybeCondition = Just (ConditionString "Pre-Revenue")}
-                                ,InputEntry {sInputEntryId = "has_ESG ", sMaybeCondition = Nothing}
-                                ,InputEntry {sInputEntryId = "wants_ESG ", sMaybeCondition = Nothing}]
-                            , outputEntry = OutputEntry {sOutputId = "output", sExpr = "interesting"}}
-                    ,Rule {ruleId = "rule2"
-                            , inputEntries = [InputEntry {sInputEntryId = "stage ", sMaybeCondition = Just (ConditionString "Series A")}
-                                ,InputEntry {sInputEntryId = "sector ", sMaybeCondition = Just (ConditionString "Information Technology")}
-                                ,InputEntry {sInputEntryId = "stage_com ", sMaybeCondition = Just (ConditionString "Pre-Profit")}
-                                ,InputEntry {sInputEntryId = "has_ESG ", sMaybeCondition = Nothing}
-                                ,InputEntry {sInputEntryId = "wants_ESG ", sMaybeCondition = Nothing}]
-                            , outputEntry = OutputEntry {sOutputId = "output", sExpr = "interesting"}}
-                    ,Rule {ruleId = "rule3", inputEntries = [InputEntry {sInputEntryId = "stage ", sMaybeCondition = Nothing},InputEntry {sInputEntryId = "sector ", sMaybeCondition = Nothing},InputEntry {sInputEntryId = "stage_com ", sMaybeCondition = Nothing},InputEntry {sInputEntryId = "has_ESG ", sMaybeCondition = Just (ConditionBool True)},InputEntry {sInputEntryId = "wants_ESG ", sMaybeCondition = Just (ConditionBool True)}], outputEntry = OutputEntry {sOutputId = "output", sExpr = "interesting"}}
-                    ,Rule {ruleId = "rule4", inputEntries = [InputEntry {sInputEntryId = "stage ", sMaybeCondition = Nothing},InputEntry {sInputEntryId = "sector ", sMaybeCondition = Nothing},InputEntry {sInputEntryId = "stage_com ", sMaybeCondition = Nothing},InputEntry {sInputEntryId = "has_ESG ", sMaybeCondition = Nothing},InputEntry {sInputEntryId = "wants_ESG ", sMaybeCondition = Nothing}], outputEntry = OutputEntry {sOutputId = "output", sExpr = "reject"}}]}}
