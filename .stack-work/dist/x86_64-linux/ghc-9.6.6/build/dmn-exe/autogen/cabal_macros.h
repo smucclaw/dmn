@@ -51,15 +51,35 @@
   (major1) == 1 && (major2) == 7 && (minor) <= 1)
 #endif /* MIN_VERSION_prettyprinter */
 
-/* tool gcc-11 */
+/* tool alex-3.4.0.1 */
+#ifndef TOOL_VERSION_alex
+#define TOOL_VERSION_alex "3.4.0.1"
+#endif /* TOOL_VERSION_alex */
+#ifndef MIN_TOOL_VERSION_alex
+#define MIN_TOOL_VERSION_alex(major1,major2,minor) (\
+  (major1) <  3 || \
+  (major1) == 3 && (major2) <  4 || \
+  (major1) == 3 && (major2) == 4 && (minor) <= 0)
+#endif /* MIN_TOOL_VERSION_alex */
+/* tool doctest-0.22.2 */
+#ifndef TOOL_VERSION_doctest
+#define TOOL_VERSION_doctest "0.22.2"
+#endif /* TOOL_VERSION_doctest */
+#ifndef MIN_TOOL_VERSION_doctest
+#define MIN_TOOL_VERSION_doctest(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  22 || \
+  (major1) == 0 && (major2) == 22 && (minor) <= 2)
+#endif /* MIN_TOOL_VERSION_doctest */
+/* tool gcc-13.3.0 */
 #ifndef TOOL_VERSION_gcc
-#define TOOL_VERSION_gcc "11"
+#define TOOL_VERSION_gcc "13.3.0"
 #endif /* TOOL_VERSION_gcc */
 #ifndef MIN_TOOL_VERSION_gcc
 #define MIN_TOOL_VERSION_gcc(major1,major2,minor) (\
-  (major1) <  11 || \
-  (major1) == 11 && (major2) <  0 || \
-  (major1) == 11 && (major2) == 0 && (minor) <= 0)
+  (major1) <  13 || \
+  (major1) == 13 && (major2) <  3 || \
+  (major1) == 13 && (major2) == 3 && (minor) <= 0)
 #endif /* MIN_TOOL_VERSION_gcc */
 /* tool ghc-9.6.6 */
 #ifndef TOOL_VERSION_ghc
@@ -91,6 +111,16 @@
   (major1) == 2 && (major2) <  29 || \
   (major1) == 2 && (major2) == 29 && (minor) <= 2)
 #endif /* MIN_TOOL_VERSION_haddock */
+/* tool happy-1.20.1.1 */
+#ifndef TOOL_VERSION_happy
+#define TOOL_VERSION_happy "1.20.1.1"
+#endif /* TOOL_VERSION_happy */
+#ifndef MIN_TOOL_VERSION_happy
+#define MIN_TOOL_VERSION_happy(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  20 || \
+  (major1) == 1 && (major2) == 20 && (minor) <= 1)
+#endif /* MIN_TOOL_VERSION_happy */
 /* tool hpc-0.68 */
 #ifndef TOOL_VERSION_hpc
 #define TOOL_VERSION_hpc "0.68"
@@ -131,19 +161,19 @@
   (major1) == 9 && (major2) <  6 || \
   (major1) == 9 && (major2) == 6 && (minor) <= 6)
 #endif /* MIN_TOOL_VERSION_runghc */
-/* tool strip-2.38 */
+/* tool strip-2.42 */
 #ifndef TOOL_VERSION_strip
-#define TOOL_VERSION_strip "2.38"
+#define TOOL_VERSION_strip "2.42"
 #endif /* TOOL_VERSION_strip */
 #ifndef MIN_TOOL_VERSION_strip
 #define MIN_TOOL_VERSION_strip(major1,major2,minor) (\
   (major1) <  2 || \
-  (major1) == 2 && (major2) <  38 || \
-  (major1) == 2 && (major2) == 38 && (minor) <= 0)
+  (major1) == 2 && (major2) <  42 || \
+  (major1) == 2 && (major2) == 42 && (minor) <= 0)
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "dmn-0.0.0-Ku03bb8z0Qc2eauFxmtUug-dmn-exe"
+#define CURRENT_COMPONENT_ID "dmn-0.0.0-FA60CqfFIGiFHzgJiGexDM-dmn-exe"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.0.0"

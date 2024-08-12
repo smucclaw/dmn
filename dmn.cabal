@@ -8,20 +8,6 @@ name:           dmn
 version:        0.0.0
 build-type:     Simple
 
-library
-  exposed-modules:
-      TypesVer1
-  other-modules:
-      Paths_dmn
-  hs-source-dirs:
-      ./
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-  build-depends:
-      base >=4.7 && <5
-    , hxt
-    , prettyprinter
-  default-language: GHC2021
-
 executable dmn-exe
   main-is: Main.hs
   other-modules:
@@ -37,7 +23,6 @@ executable dmn-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , dmn
     , hxt
     , prettyprinter
   default-language: GHC2021
