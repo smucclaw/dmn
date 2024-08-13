@@ -3,7 +3,7 @@ module FromMD where
 
 import Types
 import Data.List.Split (splitOn)
-import Data.Char (toLower)
+import Data.Char (toLower, isDigit)
 
 -- Main function to convert markdown table to Decision
 convertMDToDMN :: String -> Decision
@@ -84,6 +84,7 @@ parseCondition _ "-" = Nothing
 parseCondition expectedType s
     | map toLower expectedType == "bool" = parseBooleanCondition s
     | map toLower expectedType == "string" = Just (ConditionString s)
+    | map toLower expectedType == "number" = parseNumberCondition s
     | otherwise = error $ "Unsupported type: " ++ expectedType
 
 parseBooleanCondition :: String -> Maybe Condition
@@ -92,7 +93,10 @@ parseBooleanCondition s
     | map toLower s == "false" = Just (ConditionBool False)
     | otherwise = error $ "Invalid Boolean value: " ++ s
 
--- currently does not check numbers
+parseNumberCondition :: String -> Maybe Condition
+parseNumberCondition s =
+    let (op, numStr) = span (not . isDigit) s
+    in Just (ConditionNumber (if null op then Nothing else Just op) (read numStr))
 
 parseOutputEntry :: String -> OutputEntry
 parseOutputEntry s = OutputEntry { sOutputId = "output", sExpr = s }

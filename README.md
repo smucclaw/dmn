@@ -1,5 +1,5 @@
 # dmn
-Decision Model &amp; Notation to L4
+Decision Model &amp; Notation (in Markdown and XML) to L4
 
 # Types.hs
 List of types in DMN:
@@ -8,7 +8,6 @@ List of types in DMN:
 * **Decision**: Represents a single decision with various attributes.
 * **DecTableOrLitExpr**: Represents either a decision table or a literal expression.
 * **Schema**: Represents the schema of a decision table, including input and output schemas.
-* **InputExprEl**: Represents an element of an input expression with its FEEL type.
 * **InputSchema**: Represents the schema of an input element.
 * **OutputSchema**: Represents the schema of an output element.
 * **InfoReq**: Represents an information requirement for a decision.
@@ -16,9 +15,19 @@ List of types in DMN:
 * **InputEntry**: Represents an entry in a decision table's input column.
 * **Condition**: Represents a condition, which is a FEEL expression.
 * **OutputEntry**: Represents an entry in a decision table's output column.
-* **XMLText**: A newtype wrapper for strings to represent XML text.
 
 Currently not using FEEL expressions yet
+
+1. Parsing from MD
+// issues noticed so far:
+// lack of ability to specify limited inputs (ie any input can be entered with no form of checking)
+
+// specify information in brackets - (input/output, type (default type is string))
+
+2. Parsing from XML
+3. DMN data structure representation
+4. Intermediate representation
+5. Simala
 
 # Various Hit Policies
 ## Single hit policies
@@ -49,7 +58,7 @@ Multiple rules can be satisfied BUT they must generate the same output - nested 
 |2|-|"probation"|"refused"|
 |3|>0|"not probation"|"accepted"|
 
-## Multiple hit policies
+## Multiple hit policies - Not yet implemented
 ### Rule Order (R)
 Returns all in hit order (list) - unnested ifs
 * eg if age > 18, returns: "Cars", "Videogames", "Toys"
@@ -97,27 +106,23 @@ Returns all in any order (list) - unnested ifs
 ```haskell
 exampleDecision :: Decision
 exampleDecision = Decision
-  { decisionID = "decision1"
-  , decisionName = "Pitch Decks"
-  , decisionOut = DecOutVar
-    { sDecVarId = "output1"
-    , sDecVarName = "opinion"
+  { decisionOut = DecOutVar
+    { sDecVarName = "opinion"
     , sDecVarFEELType = "String" }
-  , decisionInfoReq = [ReqInputEl "stage" "stage"
-    , ReqInputEl "sector" "sector"
-    , ReqInputEl "stage_com" "stage_com"
-    , ReqInputEl "has_ESG" "has_ESG"
-    , ReqInputEl "wants_ESG" "wants_ESG"]
+  , decisionInfoReq = [ReqInputEl "stage"
+    , ReqInputEl "sector" 
+    , ReqInputEl "stage_com" 
+    , ReqInputEl "has_ESG" 
+    , ReqInputEl "wants_ESG"]
   , decisionLogic = DecTable
-    { decTableId = "table1"
-    , hitPolicy = "F"
+    { hitPolicy = "F"
     , schema = Schema
-      { sInputSchemas = [InputSchema "stage" (Just "Stage") (InputExpr "stage" "String" "stage")
-        , InputSchema "sector" (Just "Sector") (InputExpr "sector" "String" "sector")
-        , InputSchema "stage_com" (Just "Stage_Com") (InputExpr "stage_com" "String" "stage_com")
-        , InputSchema "has_ESG" (Just "Has_ESG") (InputExpr "has_ESG" "Boolean" "has_ESG")
-        , InputSchema "wants_ESG" (Just "Wants_ESG") (InputExpr "wants_ESG" "Boolean" "wants_ESG")]
-      , sOutputSchema = OutputSchema "opinion" (Just "Opinion") "opinion" "String" }
+      { sInputSchemas = [InputSchema "stage" "String"
+        , InputSchema "sector" "String"
+        , InputSchema "stage_com" "String"
+        , InputSchema "has_ESG" "Boolean"
+        , InputSchema "wants_ESG" "Boolean"]
+      , sOutputSchema = OutputSchema "opinion" "String" }
     , rules = [Rule "rule1" [InputEntry "stage" (Just (ConditionString "Seed"))
         , InputEntry "sector" (Just (ConditionString "Information Technology"))
         , InputEntry "stage_com" (Just (ConditionString "Pre-Revenue"))] 
