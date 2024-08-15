@@ -6,8 +6,8 @@ import Data.List.Split (splitOn)
 import Data.Char (toLower, isDigit)
 
 -- Main function to convert markdown table to Decision
-convertMDToDMN :: String -> Decision
-convertMDToDMN tableString = parseDecisionTable tableString
+parseMDToDMN :: String -> Decision
+parseMDToDMN tableString = parseDecisionTable tableString
 
 parseDecisionTable :: String -> Decision
 parseDecisionTable input = 
@@ -76,30 +76,28 @@ parseRule inputSchemaNames i row =
 parseInputEntry :: InputSchema -> String -> InputEntry
 parseInputEntry schema entry = 
     InputEntry { sInputEntryId = sInputSchemaId schema
-               , sMaybeCondition = parseCondition (inputExprFEELType schema) entry
+               , sMaybeCondition = parseCondition entry
                }
 
-parseCondition :: String -> String -> Maybe Condition
-parseCondition _ "-" = Nothing
-parseCondition expectedType s
-    | map toLower expectedType == "bool" = parseBooleanCondition s
-    | map toLower expectedType == "string" = Just (ConditionString s)
-    | map toLower expectedType == "number" = parseNumberCondition s
-    | otherwise = error $ "Unsupported type: " ++ expectedType
-
-parseBooleanCondition :: String -> Maybe Condition
-parseBooleanCondition s
+parseCondition :: String -> Maybe Condition
+parseCondition "-" = Nothing
+parseCondition "" = Nothing
+parseCondition s
     | map toLower s == "true"  = Just (ConditionBool True)
     | map toLower s == "false" = Just (ConditionBool False)
-    | otherwise = error $ "Invalid Boolean value: " ++ s
+    | all isDigit s = Just (ConditionInt Nothing (read s))
+    | head s == '"' && last s == '"' = Just (ConditionString (init (tail s)))
+    | otherwise = parseIntCondition s
 
-parseNumberCondition :: String -> Maybe Condition
-parseNumberCondition s =
+parseIntCondition :: String -> Maybe Condition
+parseIntCondition s =
     let (op, numStr) = span (not . isDigit) s
-    in Just (ConditionNumber (if null op then Nothing else Just op) (read numStr))
+    in Just (ConditionInt (Just op) (read numStr))
 
 parseOutputEntry :: String -> OutputEntry
-parseOutputEntry s = OutputEntry { sOutputId = "output", sExpr = s }
+parseOutputEntry s
+    | head s == '"' && last s == '"' = OutputEntry { sOutputId = "output", sExpr = init (tail s) }
+    | otherwise = error ("Invalid output entry: " ++ s)
 
 trim :: String -> String
 trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse

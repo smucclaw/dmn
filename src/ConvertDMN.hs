@@ -28,7 +28,7 @@ data Func = Func String deriving Show
 
 data Val = Bool Bool 
             | String String
-            | Number Int 
+            | Int Int 
             deriving Show
 
 data Arg = Arg String deriving Show
@@ -93,10 +93,10 @@ checkCondition InputEntry {sMaybeCondition = Just (ConditionString val), ..} = -
     Just (Equal (Var (Arg sInputEntryId)) (Const (String val)))
 checkCondition InputEntry {sMaybeCondition = Just (ConditionBool val), ..} = -- bool
     Just (Equal (Var (Arg sInputEntryId)) (Const (Bool val)))
-checkCondition InputEntry {sMaybeCondition = Just (ConditionNumber Nothing val), ..} = -- number with no operator, default to Equal
-    Just (Equal (Var (Arg sInputEntryId)) (Const (Number val)))
-checkCondition InputEntry {sMaybeCondition = Just (ConditionNumber (Just op) val), ..} = -- number with operator
-    Just (chooseOperator sInputEntryId op (Const (Number val)))
+checkCondition InputEntry {sMaybeCondition = Just (ConditionInt Nothing val), ..} = -- number with no operator, default to Equal
+    Just (Equal (Var (Arg sInputEntryId)) (Const (Int val)))
+checkCondition InputEntry {sMaybeCondition = Just (ConditionInt (Just op) val), ..} = -- number with operator
+    Just (chooseOperator sInputEntryId op (Const (Int val)))
 checkCondition _ = Nothing
 
 chooseOperator :: String -> String -> Expr -> Expr

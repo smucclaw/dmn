@@ -88,7 +88,7 @@ data OutputEntry = OutputEntry
 
 data Condition = ConditionString String 
                 | ConditionBool Bool
-                | ConditionNumber (Maybe String) Int
+                | ConditionInt (Maybe String) Int
   deriving Show
 
 -- data Operator = Equal | NotEqual | LessThan | GreaterThan deriving Show
@@ -149,11 +149,11 @@ exampleDecision2 = Decision
   , decisionLogic = DecTable
     { hitPolicy = "U"
     , schema = Schema
-      { sInputSchemas = [InputSchema "grade" "Number"]
+      { sInputSchemas = [InputSchema "grade" "Int"]
       , sOutputSchema = OutputSchema "result" "String" }
-    , rules = [Rule "rule1" [InputEntry "grade" (Just (ConditionNumber (Just ">=") 50))] 
+    , rules = [Rule "rule1" [InputEntry "grade" (Just (ConditionInt (Just ">=") 50))] 
         (OutputEntry "result" "Pass")
-      , Rule "rule2" [InputEntry "grade" (Just (ConditionNumber (Just "<") 50))] 
+      , Rule "rule2" [InputEntry "grade" (Just (ConditionInt (Just "<") 50))] 
         (OutputEntry "result" "Fail")
       ]
     }
@@ -168,11 +168,11 @@ exampleDecision3 = Decision
   , decisionLogic = DecTable
     { hitPolicy = "R"
     , schema = Schema
-      { sInputSchemas = [InputSchema "age" "Number"]
+      { sInputSchemas = [InputSchema "age" "Int"]
       , sOutputSchema = OutputSchema "result" "String" }
-    , rules = [Rule "rule1" [InputEntry "age" (Just (ConditionNumber (Just ">=") 18))] 
+    , rules = [Rule "rule1" [InputEntry "age" (Just (ConditionInt (Just ">=") 18))] 
         (OutputEntry "result" "cars")
-      , Rule "rule2" [InputEntry "age" (Just (ConditionNumber (Just ">") 12))] 
+      , Rule "rule2" [InputEntry "age" (Just (ConditionInt (Just ">") 12))] 
         (OutputEntry "result" "videogames")
       , Rule "rule3" [InputEntry "age" Nothing] 
         (OutputEntry "result" "toys")

@@ -29,6 +29,7 @@ executable dmn-exe
       FromXML
       PrintProg
       PrintProgSimala
+      TypeChecking
       Types
       Paths_dmn
   hs-source-dirs:

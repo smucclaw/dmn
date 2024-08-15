@@ -49,4 +49,4 @@ instance ShowProg [Arg] where
 instance ShowProg Val where
     showProg (Bool b) = pretty b
     showProg (String s) = pretty ("'" ++ s ++ "'")
-    showProg (Number n) = pretty n
+    showProg (Int n) = pretty n

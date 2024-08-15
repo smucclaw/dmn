@@ -46,7 +46,7 @@ instance ShowProgSimala Arg where
 instance ShowProgSimala Val where
     showProgSimala (Bool b) = pretty b
     showProgSimala (String s) = pretty ("'" ++ s)
-    showProgSimala (Number n) = pretty n
+    showProgSimala (Int n) = pretty n
 
 
 -- in simala:
