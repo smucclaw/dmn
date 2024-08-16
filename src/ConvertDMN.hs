@@ -18,6 +18,7 @@ data Expr = Var Arg
             | LessThan Expr Expr
             | MoreThanEqual Expr Expr
             | LessThanEqual Expr Expr
+            | Range Bracket Bracket
             | Const Val 
             | Return Val
             | InitList ListName -- list name, initialise
@@ -25,6 +26,8 @@ data Expr = Var Arg
             deriving Show
 
 data Func = Func String deriving Show
+
+data Bracket = Inclusive Expr | Exclusive Expr deriving Show
 
 data Val = Bool Bool 
             | String String
@@ -97,7 +100,17 @@ checkCondition InputEntry {sMaybeCondition = Just (ConditionInt Nothing val), ..
     Just (Equal (Var (Arg sInputEntryId)) (Const (Int val)))
 checkCondition InputEntry {sMaybeCondition = Just (ConditionInt (Just op) val), ..} = -- number with operator
     Just (chooseOperator sInputEntryId op (Const (Int val)))
+checkCondition InputEntry {sMaybeCondition = Just (ConditionRange open num1 num2 close), ..} = -- range condition
+    let startBracket = bracket (head open) (Const (Int num1))
+        endBracket = bracket (head close) (Const (Int num2))
+    in Just (Range startBracket endBracket)
 checkCondition _ = Nothing
+
+bracket :: Char -> Expr -> Bracket
+bracket '[' expr = Inclusive expr
+bracket ']' expr = Inclusive expr
+bracket '(' expr = Exclusive expr
+bracket ')' expr = Exclusive expr
 
 chooseOperator :: String -> String -> Expr -> Expr
 chooseOperator id ">" val = MoreThan (Var (Arg id)) val
@@ -135,6 +148,7 @@ rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "sta
             )))
         )]
 
+
 -- rule2 :: CompiledRule -- for rule order hit policy
 -- rule2 = MkCompiledRule [Arg "age"] -- if i do InitList ListName [Expr] and keep MkCompiledRule to one expr- not sure which is better?
 --         (InitList 
@@ -151,30 +165,6 @@ rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "sta
 --             ]
 --         )
 
-
--- rule3 :: CompiledRule -- alternative rule order hit policy
--- rule3 = MkCompiledRule [Arg "age"] 
---         [InitList (ListName "What to advertise")
---         , (If 
---             (MoreThan (Var (Arg "age")) (Const (Number 18)))
---             (AppendList 
---                 (ListName "What to advertise")
---                 (Const (String "cars"))
---             )
---             (Nothing)
---         )
---         , (If 
---             (MoreThan (Var (Arg "age")) (Const (Number 12)))
---             (AppendList 
---                 (ListName "What to advertise")
---                 (Const (String "videogames"))
---             )
---             (Nothing)
---         )
---         , (AppendList 
---             (ListName "What to advertise")
---             (Const (String "toys"))
---         )]
 
 -- rulemade :: CompiledRule -- running exampleDecision3 produces this
 -- rulemade = MkCompiledRule [Arg "age"] 

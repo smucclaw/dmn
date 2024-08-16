@@ -3,6 +3,7 @@ module TypeChecking where
 
 import Types
 import Data.Maybe (isJust)
+import Data.Char (isDigit)
 
 typeCheck :: Decision -> Either String Decision
 typeCheck decision = 
@@ -29,14 +30,14 @@ checkInputEntry schema entry =
 
 checkOutputEntry :: OutputSchema -> OutputEntry -> String
 checkOutputEntry schema entry =
-    case matchesType (sOutputSchemaFEELType schema) (ConditionString (sExpr entry)) of
+    case sOutputSchemaFEELType schema == sOutputFEELType entry of
         True -> ""
-        False -> "Type mismatch in output for " ++ sOutputSchemaVarName schema ++
-                 ": expected " ++ sOutputSchemaFEELType schema ++ 
-                 ", got " ++ sExpr entry
+        False -> "Type mismatch in output: expected " ++ sOutputSchemaFEELType schema ++ 
+                 ", got " ++ sOutputFEELType entry
 
 matchesType :: String -> Condition -> Bool
 matchesType "string" (ConditionString _) = True
 matchesType "bool" (ConditionBool _) = True
 matchesType "int" (ConditionInt _ _) = True
+matchesType "int" (ConditionRange _ _ _ _) = True
 matchesType _ _ = False

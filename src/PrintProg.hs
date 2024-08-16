@@ -38,9 +38,15 @@ instance ShowProg Expr where
     showProg (MoreThanEqual e1 e2) = showProg e1 <+> pretty ">=" <+> showProg e2
     showProg (LessThan e1 e2) = showProg e1 <+> pretty "<" <+> showProg e2
     showProg (LessThanEqual e1 e2) = showProg e1 <+> pretty "<=" <+> showProg e2
+    showProg (Range e1 e2) = pretty "range(" <+> showProg e1 <+> pretty "," <+> showProg e2 <+> pretty ")"
     showProg (Const val) = showProg val
     showProg (Return val) = pretty "return" <+> showProg val 
     showProg _ = pretty "erorr??"
+
+
+instance ShowProg Bracket where
+    showProg (Inclusive e) = showProg e
+    showProg (Exclusive e) = pretty "this program cant handle exclusive values mb"
 
 instance ShowProg [Arg] where
     -- showProg (Arg a) = pretty a

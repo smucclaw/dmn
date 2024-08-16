@@ -32,7 +32,7 @@ parseMDTable input =
         body = map parseLine (drop 2 rows)
     in (headers, body)
     where 
-        parseLine = map trim . filter (not . null) . splitOn "|"
+        parseLine line = init (tail (map trim (splitOn "|" line)))
         trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse
 
 parseDecisionOutput :: String -> DecOutVar
@@ -86,18 +86,35 @@ parseCondition s
     | map toLower s == "true"  = Just (ConditionBool True)
     | map toLower s == "false" = Just (ConditionBool False)
     | all isDigit s = Just (ConditionInt Nothing (read s))
+    | (head s == '[' || head s == '(') && (last s == ']' || last s == ')') = parseRangeCondition s
     | head s == '"' && last s == '"' = Just (ConditionString (init (tail s)))
     | otherwise = parseIntCondition s
 
 parseIntCondition :: String -> Maybe Condition
-parseIntCondition s =
-    let (op, numStr) = span (not . isDigit) s
+parseIntCondition i =
+    let (op, numStr) = span (not . isDigit) i
     in Just (ConditionInt (Just op) (read numStr))
 
+parseRangeCondition :: String -> Maybe Condition
+parseRangeCondition r = 
+    let openBracket = [head r]
+        innerPart = init (tail r)
+        parts = splitOn ".." innerPart
+        num1 = read (head parts)
+        num2 = read (last parts)
+        closeBracket = [last r]
+    in Just (ConditionRange openBracket num1 num2 closeBracket)
+
 parseOutputEntry :: String -> OutputEntry
-parseOutputEntry s
-    | head s == '"' && last s == '"' = OutputEntry { sOutputId = "output", sExpr = init (tail s) }
-    | otherwise = error ("Invalid output entry: " ++ s)
+parseOutputEntry s = OutputEntry { sOutputId = "output", sExpr = init (tail (s)), sOutputFEELType = parseOutputType s }
+
+parseOutputType :: String -> String
+parseOutputType s
+    | all isDigit s = "Int"
+    | map toLower s == "true" || map toLower s == "false" = "Bool"
+    | head s == '"' && last s == '"' = "String"
+    | (head s == '[' || head s == '(') && (last s == ']' || last s == ')') = "Int"
+    | otherwise = "Error"
 
 trim :: String -> String
 trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse

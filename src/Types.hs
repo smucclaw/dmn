@@ -83,12 +83,14 @@ data InputEntry = InputEntry
 
 data OutputEntry = OutputEntry
   { sOutputId :: Id
-  , sExpr :: String }
+  , sExpr :: String
+  , sOutputFEELType :: String }
   deriving Show
 
 data Condition = ConditionString String 
                 | ConditionBool Bool
                 | ConditionInt (Maybe String) Int
+                | ConditionRange String Int Int String
   deriving Show
 
 -- data Operator = Equal | NotEqual | LessThan | GreaterThan deriving Show
@@ -122,20 +124,20 @@ exampleDecision = Decision
     , rules = [Rule "rule1" [InputEntry "stage" (Just (ConditionString "Seed"))
         , InputEntry "sector" (Just (ConditionString "Information Technology"))
         , InputEntry "stage_com" (Just (ConditionString "Pre-Revenue"))] 
-        (OutputEntry "opinion" "Interesting")
+        (OutputEntry "opinion" "Interesting" "String")
       , Rule "rule2" [InputEntry "stage" (Just (ConditionString "Series A"))
         , InputEntry "sector" (Just (ConditionString "Information Technology"))
         , InputEntry "stage_com" (Just (ConditionString "Pre-Profit"))] 
-        (OutputEntry "opinion" "Interesting")
+        (OutputEntry "opinion" "Interesting" "String")
       , Rule "rule3" [InputEntry "has_ESG" (Just (ConditionBool True))
         , InputEntry "wants_ESG" (Just (ConditionBool True))] 
-        (OutputEntry "opinion" "Interesting")
+        (OutputEntry "opinion" "Interesting" "String")
       , Rule "rule4" [InputEntry "input1" Nothing
         , InputEntry "sector" Nothing
         , InputEntry "stage_com" Nothing
         , InputEntry "has_ESG" Nothing
         , InputEntry "wants_ESG" Nothing] 
-      (OutputEntry "opinion" "reject")
+      (OutputEntry "opinion" "reject" "String")
       ]
     }
   }
@@ -152,12 +154,30 @@ exampleDecision2 = Decision
       { sInputSchemas = [InputSchema "grade" "Int"]
       , sOutputSchema = OutputSchema "result" "String" }
     , rules = [Rule "rule1" [InputEntry "grade" (Just (ConditionInt (Just ">=") 50))] 
-        (OutputEntry "result" "Pass")
+        (OutputEntry "result" "Pass" "String")
       , Rule "rule2" [InputEntry "grade" (Just (ConditionInt (Just "<") 50))] 
-        (OutputEntry "result" "Fail")
+        (OutputEntry "result" "Fail" "String")
       ]
     }
   }
+
+gradesDecision :: Decision
+gradesDecision = Decision
+  { decisionOut = DecOutVar "grade" "String"
+  , decisionInfoReq = [ReqInputEl "mark"]
+  , decisionLogic = DecTable
+    { hitPolicy = "U"
+    , schema = Schema
+      { sInputSchemas = [InputSchema "mark" "Int"]
+      , sOutputSchema = OutputSchema "grade" "String" }
+    , rules = [Rule "rule1" [InputEntry "mark" (Just (ConditionInt (Just ">=") 70))] 
+        (OutputEntry "grade" "A" "String")
+      , Rule "rule2" [InputEntry "mark" (Just (ConditionRange "[" 60 70 ")"))] 
+        (OutputEntry "grade" "B" "String")
+      , Rule "rule3" [InputEntry "mark" (Just (ConditionRange "[" 50 60 ")"))]
+        (OutputEntry "grade" "C" "String")
+    ]}}
+
 
 exampleDecision3 :: Decision
 exampleDecision3 = Decision
@@ -171,11 +191,11 @@ exampleDecision3 = Decision
       { sInputSchemas = [InputSchema "age" "Int"]
       , sOutputSchema = OutputSchema "result" "String" }
     , rules = [Rule "rule1" [InputEntry "age" (Just (ConditionInt (Just ">=") 18))] 
-        (OutputEntry "result" "cars")
+        (OutputEntry "result" "cars" "String")
       , Rule "rule2" [InputEntry "age" (Just (ConditionInt (Just ">") 12))] 
-        (OutputEntry "result" "videogames")
+        (OutputEntry "result" "videogames" "String") 
       , Rule "rule3" [InputEntry "age" Nothing] 
-        (OutputEntry "result" "toys")
+        (OutputEntry "result" "toys" "String")
       ]
     }
   }

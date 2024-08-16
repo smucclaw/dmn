@@ -3,6 +3,11 @@ Decision Model &amp; Notation (in Markdown and XML) to L4 (Simala)
 
 Currently handles only single-hit policies and one decision table.
 
+## Usage
+```
+stack run inputfile.md
+```
+
 ## Composed of:
 ### 1. Parsing from MD
 Parser that takes markdown inputs and parses them to the data structure defined in Types.hs.
@@ -189,7 +194,7 @@ Returns all in any order (list) - unnested ifs
 
 # Examples
 ## Multiple tables
-|U|Mark|Grade|
+|U|Mark (input, int)|Grade (string)|
 |---|---|---|
 |1|>=70|"A"|
 |2|[60..70)|"B"|
@@ -198,12 +203,12 @@ Returns all in any order (list) - unnested ifs
 |5|[30..40)|"E"|
 |6|[20..30)|"F"|
 
-|U|Attended|Attendance Pass|
+|U|Attended (bool)|Attendance Pass (bool)|
 |---|---|---|
 |1|true|true|
 |2|false|false|
 
-|F|Grade|Attendance Pass|Overall Result|
+|F|Grade (string)|Attendance Pass (bool)|Overall Result (bool)|
 |---|---|---|---|
 |1|-|false|"fail"|
 |2|"D", "E", "F"|-|"fail"|
