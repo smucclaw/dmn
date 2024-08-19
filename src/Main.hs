@@ -3,13 +3,13 @@ module Main where
 import Types
 import ConvertDMN
 import PrintProg
-import PrintProgSimala
 import Prettyprinter
 import System.Environment (getArgs)
 import System.IO (readFile)
 import Text.XML.HXT.Core hiding (Schema)
 import FromMD
 import TypeChecking
+import TranslateToSimala
 
 main :: IO ()
 main = do
@@ -36,6 +36,10 @@ main = do
                     -- translate to python
                     putStrLn "python ver"
                     (print . (<>) line . showProg) convertedDecision
+                    -- translate to simala
+                    putStrLn "simala ver"
+                    let simalaDMN = translateToSimala convertedDecision
+                    print simalaDMN
         _ -> putStrLn "Usage: stack run <input-file>"
 
     -- let markdownTable = "|U|Mark (input, number)|Result (output, string)|\n\

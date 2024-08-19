@@ -9,16 +9,39 @@ version:        0.0.0
 build-type:     Simple
 
 library
+  exposed-modules:
+      Base
+      Base.Map
+      Base.Pretty
+      Base.Set
+      Base.Text
+      Simala.Eval.Monad
+      Simala.Eval.Type
+      Simala.Expr.Evaluator
+      Simala.Expr.Parser
+      Simala.Expr.Render
+      Simala.Expr.Type
+      Simala.Repl
+      Util.RevList
   other-modules:
       Paths_dmn
   hs-source-dirs:
       ./
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+      simala/src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -XDerivingStrategies -XDerivingVia -XOverloadedRecordDot -XOverloadedStrings -XOverloadedLabels
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , containers
+    , haskeline
     , hxt
+    , megaparsec
+    , mtl
+    , optics
+    , parser-combinators
     , prettyprinter
     , split
+    , text
   default-language: GHC2021
 
 executable dmn-exe
@@ -28,19 +51,27 @@ executable dmn-exe
       FromMD
       FromXML
       PrintProg
-      PrintProgSimala
+      TranslateToSimala
       TypeChecking
       Types
       Paths_dmn
   hs-source-dirs:
       src
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -XDerivingStrategies -XDerivingVia -XOverloadedRecordDot -XOverloadedStrings -XOverloadedLabels
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , containers
     , dmn
+    , haskeline
     , hxt
+    , megaparsec
+    , mtl
+    , optics
+    , parser-combinators
     , prettyprinter
     , split
+    , text
   default-language: GHC2021
 
 test-suite myproject-test
@@ -50,12 +81,20 @@ test-suite myproject-test
       Paths_dmn
   hs-source-dirs:
       test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -XDerivingStrategies -XDerivingVia -XOverloadedRecordDot -XOverloadedStrings -XOverloadedLabels -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , containers
     , dmn
+    , haskeline
     , hspec
     , hxt
+    , megaparsec
+    , mtl
+    , optics
+    , parser-combinators
     , prettyprinter
     , split
+    , text
   default-language: GHC2021

@@ -9,7 +9,14 @@ dependencies:
 - prettyprinter
 - hxt
 - split
-
+- containers
+- optics
+- text
+- mtl
+- aeson
+- haskeline
+- megaparsec
+- parser-combinators
 
 ghc-options:
 - -Wall
@@ -21,9 +28,17 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+- -XDerivingStrategies
+- -XDerivingVia
+- -XOverloadedRecordDot
+- -XOverloadedStrings
+- -XOverloadedLabels
 
 library:
-  source-dirs: .
+  source-dirs: 
+  - .
+  - simala/src
+  
 
 executables:
   dmn-exe:
@@ -44,3 +59,7 @@ tests:
     - dmn
     - hspec
   
+packages:
+- .
+- location:
+    directory: simala/src
