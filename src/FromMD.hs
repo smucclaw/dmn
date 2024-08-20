@@ -4,6 +4,7 @@ module FromMD where
 import Types
 import Data.List.Split (splitOn)
 import Data.Char (toLower, isDigit)
+import Data.List (isInfixOf)
 
 -- Main function to convert markdown table to Decision
 parseMDToDMN :: String -> Decision
@@ -12,18 +13,23 @@ parseMDToDMN tableString = parseDecisionTable tableString
 parseDecisionTable :: String -> Decision
 parseDecisionTable input = 
   let (headers, body) = parseMDTable input
-      inputSchemaNames = parseInputSchemas (init (tail headers))
-  in Decision { decisionOut = parseDecisionOutput (last headers)
+      (inputHeaders, outputHeaders) = separateHeaders (tail headers)
+      inputSchemaNames = parseInputSchemas inputHeaders
+      outputSchemaNames = parseOutputSchema outputHeaders
+  in Decision { decisionOut = parseDecisionOutput (last headers) -- need to fix this
     , decisionInfoReq = parseInfoReqs (init (tail headers))
     , decisionLogic = DecTable 
         { hitPolicy = head headers
         , schema = Schema 
             { sInputSchemas = inputSchemaNames
-            , sOutputSchema = parseOutputSchema (last headers) -- rn taking output as last column only, need to fix
+            , sOutputSchema = outputSchemaNames
             }
-        , rules = parseRules body inputSchemaNames
+        , rules = parseRules body inputSchemaNames outputSchemaNames
     }
   }
+  where 
+    separateHeaders :: [String] -> ([String], [String])
+    separateHeaders headers = span (isInfixOf "input") headers
 
 parseMDTable :: String -> ([String], [[String]]) -- produces a tuple of headers (schema) and body (rules)
 parseMDTable input = 
@@ -58,19 +64,19 @@ parseInputSchemas = map (\h -> let (name, feelType) = parseHeader h
                                         , inputExprFEELType = feelType
                                         })
 
-parseOutputSchema :: String -> OutputSchema
-parseOutputSchema header = 
-    let (name, feelType) = parseHeader header
-    in OutputSchema { sOutputSchemaVarName = name, sOutputSchemaFEELType = feelType }
+parseOutputSchema :: [String] -> [OutputSchema]
+parseOutputSchema headers = 
+    map (\header -> let (name, feelType) = parseHeader header
+                    in OutputSchema { sOutputSchemaVarName = name, sOutputSchemaFEELType = feelType }) headers
 
-parseRules :: [[String]] -> [InputSchema] -> [Rule]
-parseRules rows inputSchemaNames = zipWith (parseRule inputSchemaNames) [1..] rows
+parseRules :: [[String]] -> [InputSchema] -> [OutputSchema] -> [Rule]
+parseRules rows inputSchemaNames outputSchemaNames = zipWith (parseRule inputSchemaNames outputSchemaNames) [1..] rows
 
-parseRule :: [InputSchema] -> Int -> [String] -> Rule
-parseRule inputSchemaNames i row = 
+parseRule :: [InputSchema] -> [OutputSchema] -> Int -> [String] -> Rule
+parseRule inputSchemaNames outputSchemaNames i row = 
     Rule { ruleId = "rule" ++ show i
-         , inputEntries = zipWith parseInputEntry inputSchemaNames (tail (init row))
-         , outputEntry = parseOutputEntry (last row)
+         , inputEntries = zipWith parseInputEntry inputSchemaNames (take ((length inputSchemaNames) + 1) (tail row))
+         , outputEntry = zipWith parseOutputEntry outputSchemaNames (drop ((length inputSchemaNames) + 1) row)
          }
 
 parseInputEntry :: InputSchema -> String -> InputEntry
@@ -105,8 +111,9 @@ parseRangeCondition r =
         closeBracket = [last r]
     in Just (ConditionRange openBracket num1 num2 closeBracket)
 
-parseOutputEntry :: String -> OutputEntry
-parseOutputEntry s = OutputEntry { sOutputId = "output", sExpr = init (tail (s)), sOutputFEELType = parseOutputType s }
+parseOutputEntry :: OutputSchema -> String -> OutputEntry
+parseOutputEntry schema entry = 
+    OutputEntry { sOutputId = sOutputSchemaVarName schema, sExpr = entry, sOutputFEELType = parseOutputType entry }
 
 parseOutputType :: String -> String
 parseOutputType s

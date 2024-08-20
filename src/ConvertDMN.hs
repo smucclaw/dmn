@@ -20,7 +20,7 @@ data Expr = Var Arg
             | LessThanEqual Expr Expr
             | Range Bracket Bracket
             | Const Val 
-            | Return Val
+            | Return [Val]
             | InitList ListName -- list name, initialise
             | AppendList ListName Expr -- target list, what to add
             deriving Show
@@ -55,28 +55,28 @@ checkHitPolicy :: String -> [Rule] -> [Expr]
 checkHitPolicy "U" rules = [nestedIfRules rules] -- unique
 checkHitPolicy "F" rules = [nestedIfRules rules] -- first
 checkHitPolicy "A" rules = [nestedIfRules rules] -- any
-checkHitPolicy "R" rules = InitList (ListName "Results") : multipleHits rules -- rule order
+-- checkHitPolicy "R" rules = InitList (ListName "Results") : multipleHits rules -- rule order
 checkHitPolicy _ rules = [nestedIfRules rules] -- default behavior for other hit policies
 
 -- multiple hits - output in form of list ["a", "b", "c"]
-multipleHits :: [Rule] -> [Expr]
-multipleHits [] = error "No rules in decision table"
-multipleHits rules = (map 
-                (\rule -> If (combineOneRule rule) (AppendList (ListName "Results") 
-                (getOutputEntry $ outputEntry rule)) Nothing) rules)
+-- multipleHits :: [Rule] -> [Expr]
+-- multipleHits [] = error "No rules in decision table"
+-- multipleHits rules = (map 
+--                 (\rule -> If (combineOneRule rule) (AppendList (ListName "Results") 
+--                 (getOutputEntry $ outputEntry rule)) Nothing) rules)
 
 
 -- nested IF different rules 
 nestedIfRules :: [Rule] -> Expr
 nestedIfRules [] = error "No rules in decision table"
-nestedIfRules [rule] = getOutputEntry $ outputEntry rule
+nestedIfRules [rule] = getOutputEntries (outputEntry rule)
 nestedIfRules (rule:rules) = 
     case rules of
         [lastRule] -> If (combineOneRule rule)
-                         (getOutputEntry $ outputEntry rule)
-                         (Just (getOutputEntry $ outputEntry lastRule))
+                         (getOutputEntries $ outputEntry rule)
+                         (Just (getOutputEntries $ outputEntry lastRule))
         _ -> If (combineOneRule rule)
-                (getOutputEntry $ outputEntry rule)
+                (getOutputEntries $ outputEntry rule)
                 (Just (nestedIfRules rules))
 
 -- AND all the conditions in a rule together
@@ -119,8 +119,16 @@ chooseOperator id ">=" val = MoreThanEqual (Var (Arg id)) val
 chooseOperator id "<=" val = LessThanEqual (Var (Arg id)) val
 
 -- to get the "Then" of if/then/else
-getOutputEntry :: OutputEntry -> Expr
-getOutputEntry OutputEntry {sExpr = expr} = Return (String expr)
+getOutputEntries :: [OutputEntry] -> Expr
+getOutputEntries outputs = Return (map getOutputEntry outputs)
+
+getOutputEntry :: OutputEntry -> Val
+getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} = 
+    case feelType of
+        "String" -> String expr
+        "Int" -> Int (read expr)
+        "Bool" -> Bool (read expr)
+        _ -> String expr
 
 
 -- example
@@ -131,19 +139,19 @@ rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "sta
                 , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
                 , Equal (Var (Arg "stage_com")) (Const (String "Pre-Revenue"))
             ])
-            (Return (String "interesting"))
+            (Return [String "interesting"])
             (Just (If 
                 (And [ Equal (Var (Arg "stage")) (Const (String "Series A"))
                     , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
                     , Equal (Var (Arg "stage_com")) (Const (String "Pre-Profit"))
                 ])
-                (Return (String "interesting"))
+                (Return [String "interesting"])
                 (Just (If
                     (And [ Equal (Var (Arg "has_ESG")) (Const (Bool True))
                         , Equal (Var (Arg "wants_ESG")) (Const (Bool True))
                     ])
-                    (Return (String "interesting"))
-                    (Just (Return (String "reject")))
+                    (Return [String "interesting"])
+                    (Just (Return [String "reject"]))
                 )
             )))
         )]

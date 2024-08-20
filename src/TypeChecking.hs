@@ -3,7 +3,7 @@ module TypeChecking where
 
 import Types
 import Data.Maybe (isJust)
-import Data.Char (isDigit)
+import Data.Char (isDigit, toLower)
 
 typeCheck :: Decision -> Either String Decision
 typeCheck decision = 
@@ -15,14 +15,14 @@ typeCheck decision =
 checkRule :: Schema -> Rule -> [String] -- check each rule
 checkRule schema rule = 
     let inputErrors = zipWith checkInputEntry (sInputSchemas schema) (inputEntries rule)
-        outputError = checkOutputEntry (sOutputSchema schema) (outputEntry rule)
-    in filter (not . null) $ inputErrors ++ [outputError]
+        outputErrors = zipWith checkOutputEntry (sOutputSchema schema) (outputEntry rule)
+    in filter (not . null) $ inputErrors ++ outputErrors
 
 checkInputEntry :: InputSchema -> InputEntry -> String -- check individual entries
 checkInputEntry schema entry = 
     case sMaybeCondition entry of
         Nothing -> ""
-        Just condition -> case matchesType (inputExprFEELType schema) condition of
+        Just condition -> case matchesType (map toLower (inputExprFEELType schema)) condition of
             True -> ""
             False -> "Type mismatch in rule for " ++ sInputSchemaId schema ++ 
                      ": expected " ++ inputExprFEELType schema ++ 
@@ -30,7 +30,7 @@ checkInputEntry schema entry =
 
 checkOutputEntry :: OutputSchema -> OutputEntry -> String
 checkOutputEntry schema entry =
-    case sOutputSchemaFEELType schema == sOutputFEELType entry of
+    case map toLower (sOutputSchemaFEELType schema) == map toLower (sOutputFEELType entry) of
         True -> ""
         False -> "Type mismatch in output: expected " ++ sOutputSchemaFEELType schema ++ 
                  ", got " ++ sOutputFEELType entry

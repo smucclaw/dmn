@@ -41,7 +41,7 @@ instance ShowProg Expr where
     showProg (LessThanEqual e1 e2) = showProg e1 <+> pretty (T.pack "<=") <+> showProg e2
     showProg (Range e1 e2) = pretty (T.pack "range(") <+> showProg e1 <+> pretty (T.pack ",") <+> showProg e2 <+> pretty (T.pack ")")
     showProg (Const val) = showProg val
-    showProg (Return val) = pretty (T.pack "return") <+> showProg val 
+    showProg (Return vals) = pretty (T.pack "return") <+> showProg vals
     showProg _ = pretty (T.pack "erorr??")
 
 
@@ -53,7 +53,10 @@ instance ShowProg [Arg] where
     -- showProg (Arg a) = pretty a
     showProg args = hsep (punctuate (pretty (T.pack ",")) (map (\(Arg a) -> pretty a) args))
 
+instance ShowProg [Val] where
+    showProg vals = hsep (punctuate (pretty (T.pack ",")) (map showProg vals))
+
 instance ShowProg Val where
     showProg (Bool b) = pretty b
-    showProg (String s) = pretty (T.pack ("'" ++ s ++ "'"))
+    showProg (String s) = pretty s
     showProg (Int n) = pretty n

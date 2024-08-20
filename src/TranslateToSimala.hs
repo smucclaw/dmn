@@ -27,7 +27,7 @@ compileExpr expr
     | LessThanEqual e1 e2 <- expr = Simala.Builtin Simala.Le [compileExpr e1, compileExpr e2]
     | Range e1 e2 <- expr = compileRange e1 e2
     | Const val <- expr = compileVal val
-    | Return val <- expr = compileVal val
+    | Return vals <- expr = Simala.List (map compileVal vals)
 
 compileRange :: Bracket -> Bracket -> Simala.Expr 
 compileRange (Inclusive e1) (Inclusive e2) = 

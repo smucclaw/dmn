@@ -38,12 +38,18 @@ library:
   source-dirs: 
   - .
   - simala/src
-  
 
 executables:
   dmn-exe:
     main:                Main.hs
     source-dirs:         src
+    other-modules:
+    - ConvertDMN
+    - FromMD
+    - PrintProg
+    - TranslateToSimala
+    - TypeChecking
+    - Types
     dependencies:
     - dmn
 

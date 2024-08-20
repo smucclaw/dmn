@@ -1,12 +1,20 @@
 # dmn to l4
-Decision Model &amp; Notation (in Markdown and XML) to L4 (Simala)
 
-Currently handles only single-hit policies and one decision table.
+This code takes a single DMN table as an input and converts it into Simala.
+
+A list of all transpilations and their current status
+|Target|Input/Output|Status|
+|---|---|---|
+|DMN (Markdown)|Input|Currently handles only single-hit policies and one decision table.
+|XML|Input|In progress|
+|Simala|Output|unverified|
+|Python|Output|FEEL expressions are limited|
 
 ## Usage
 ```
 stack run inputfile.md
 ```
+
 
 ## Composed of:
 ### 1. Parsing from MD
