@@ -40,7 +40,7 @@ main = do
                     putStrLn "simala ver"
                     let simalaDMN = translateToSimala convertedDecision
                     print simalaDMN
-        _ -> putStrLn "Usage: stack run <input-file>"
+        _ -> putStrLn "Please enter as: stack run <input-file>"
 
     -- let markdownTable = "|U|Mark (input, number)|Result (output, string)|\n\
     --                     \|---|---|---|\n\

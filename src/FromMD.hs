@@ -113,7 +113,9 @@ parseRangeCondition r =
 
 parseOutputEntry :: OutputSchema -> String -> OutputEntry
 parseOutputEntry schema entry = 
-    OutputEntry { sOutputId = sOutputSchemaVarName schema, sExpr = entry, sOutputFEELType = parseOutputType entry }
+    OutputEntry { sOutputId = sOutputSchemaVarName schema, sExpr = trimmedEntry, sOutputFEELType = parseOutputType entry }
+    where
+        trimmedEntry = filter (/= '\"') entry
 
 parseOutputType :: String -> String
 parseOutputType s

@@ -21,6 +21,7 @@ library
       Simala.Expr.Parser
       Simala.Expr.Render
       Simala.Expr.Type
+      Simala.Json.Parser
       Simala.Repl
       Util.RevList
   other-modules:

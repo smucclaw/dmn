@@ -4,6 +4,7 @@ module PrintProg where
 import ConvertDMN
 import Prettyprinter (Doc, pretty, (<+>), vsep, hsep, indent, punctuate)
 import qualified Data.Text as T
+import Data.Char (toLower)
 
 -- indentation: number of blank spaces
 nestingDepth :: Int
@@ -21,10 +22,10 @@ instance ShowProg CompiledRule where
                                             , indent nestingDepth (showProg e)])
 
 instance ShowProg Func where
-    showProg (Func f) = pretty f
+    showProg (Func f) = pretty (T.map toLower (T.pack f))
 
 instance ShowProg Expr where
-    showProg (Var (Arg v)) = pretty v
+    showProg (Var (Arg v)) = pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack v)))
     showProg (And exprs) = hsep (punctuate (pretty (T.pack " and")) (map showProg exprs))
     showProg (Equal e1 e2) = showProg e1 <+> pretty (T.pack "==") <+> showProg e2
     showProg (If c t (Just e)) = vsep [ pretty (T.pack "if") <+> showProg c <+> pretty (T.pack ":")
@@ -47,16 +48,15 @@ instance ShowProg Expr where
 
 instance ShowProg Bracket where
     showProg (Inclusive e) = showProg e
-    showProg (Exclusive e) = pretty (T.pack "this program cant handle exclusive values mb")
+    showProg (Exclusive e) = pretty (T.pack "this program cant handle exclusive values")
 
 instance ShowProg [Arg] where
-    -- showProg (Arg a) = pretty a
-    showProg args = hsep (punctuate (pretty (T.pack ",")) (map (\(Arg a) -> pretty a) args))
+    showProg args = hsep (punctuate (pretty (T.pack ",")) (map (\(Arg a) -> pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack a)))) args))
 
 instance ShowProg [Val] where
     showProg vals = hsep (punctuate (pretty (T.pack ",")) (map showProg vals))
 
 instance ShowProg Val where
     showProg (Bool b) = pretty b
-    showProg (String s) = pretty s
+    showProg (String s) = pretty (T.pack ("'" ++ s ++ "'"))
     showProg (Int n) = pretty n
