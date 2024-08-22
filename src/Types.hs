@@ -9,21 +9,21 @@ type DecName = String  -- Decision Name
 
 type DRD = [Decision]
 
-data Definitions = Definitions
-  { sXmlns :: String
-  , sXmlnsDmndi :: String
-  , sXmlnsDc :: String
-  , sXmlnsModeler :: String
-  , sXmlnsDi :: String
-  , sDefId :: Id
-  , sDefName :: String
-  , sNamespace :: String
-  , sExporter :: String
-  , sExporterVersion :: String
-  , sModelerExPlat :: String
-  , sModelerExPlatVer :: String
-  , sDecisions :: [Decision] }
-  deriving Show
+-- data Definitions = Definitions
+--   { sXmlns :: String
+--   , sXmlnsDmndi :: String
+--   , sXmlnsDc :: String
+--   , sXmlnsModeler :: String
+--   , sXmlnsDi :: String
+--   , sDefId :: Id
+--   , sDefName :: String
+--   , sNamespace :: String
+--   , sExporter :: String
+--   , sExporterVersion :: String
+--   , sModelerExPlat :: String
+--   , sModelerExPlatVer :: String
+--   , sDecisions :: [Decision] }
+--   deriving Show
 
 data DecOutVar = DecOutVar
   { sDecVarName :: DecName
