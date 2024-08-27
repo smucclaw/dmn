@@ -5,8 +5,11 @@ module ConvertDMN where
 import Data.List (foldl')
 import Data.Maybe (mapMaybe)
 import Types
+import qualified Data.Map as Map
 
 -- define IR
+data CompiledDRD = DRD [CompiledRule] [ProcessedRule] deriving Show
+
 data CompiledRule = MkCompiledRule Func [Arg] [Expr] deriving Show
 
 data Expr = Var Arg 
@@ -38,16 +41,28 @@ data Arg = Arg String deriving Show
 
 data ListName = ListName String deriving Show
 
--- InputEntrytoExpr :: InputEntry { sInputEntryId :: Id, sMaybeCondition :: Maybe Condition }
--- e.g. `InputEntry a b = …`
-        --  InputEntry c d = …`
+-- does this make sense??
+data ProcessedRule = ProcessedRule Func [Parameter] deriving Show
+
+data Parameter = Input Arg Expr
+                | Output Expr deriving Show
+
+
+type Vars = Map.Map String Val
+
+convertDRD :: DRD -> CompiledDRD
+convertDRD (decisions, entries) = 
+    let compiledDecisions = map convertDecision decisions
+        vars = Map.empty :: Vars
+        processedEntries = map (convertEntry compiledRules vars) entries
+    in DRD compiledDecisions processedEntries
 
 convertDecision :: Decision -> CompiledRule
-convertDecision Decision { decisionOut = DecOutVar {sDecVarName = funcname}
-                           , decisionLogic = DecTable { rules = rules
+convertDecision Decision { decisionLogic = DecTable { tableID = tableid
+                                                        , rules = rules
                                                         , schema = Schema { sInputSchemas = inputs }
                                                         , hitPolicy = policy } } = 
-    MkCompiledRule (Func funcname)
+    MkCompiledRule (Func tableid)
         (map (\InputSchema {sInputSchemaId = id} -> Arg id) inputs) 
         (checkHitPolicy policy rules)
 
@@ -131,6 +146,33 @@ getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} =
         _ -> String expr
 
 
+-- for processed rules
+convertEntry :: [CompiledRule] -> Vars -> Entry -> ProcessedRule
+convertEntry compiledRules vars (Entry id inputs outputs) = 
+    case find (\(MkCompiledRule (Func funcId) _ _) -> funcId == id) compiledRules of
+        Just (MkCompiledRule _ args _) -> 
+            let updatedOutputVars = foldr (\(varName, value) acc -> Map.insert varName value acc) outputVars outputs 
+-- slightly confused, not sure if i should be inserting the values into compiled rule and then putting here? or if i just store the variable name for now
+            in ProcessedRule (Func id) ((zipWith (convertInput updatedOutputVars) args inputs) ++ convertOutputs updatedOutputVars outputs)
+            -- ProcessedRule (Func id) ((zipWith convertInputs args inputs) ++ convertOutputs outputs)
+        Nothing -> error "Table not found for entry" ++ id
+    where 
+        convertOutputs vars = map (\param -> Output (Var (Arg param))) -- output is always a variable
+
+convertInput :: Vars -> Arg -> String -> Parameter
+convertInput outputVars arg param =
+    case param of
+        '"':rest -> Input arg (Const (String (init rest)))
+        "true"   -> Input arg (Const (Bool True))
+        "false"  -> Input arg (Const (Bool False))
+        num | all isDigit num -> Input arg (Const (Int (read num)))
+        var      -> if Map.member var outputVars
+                    then Input arg (Var (Arg var))
+                    else error ("Input variable " ++ var ++ " does not correspond to any output variable")
+
+exampleDRD :: DRD
+exampleDRD = DRD [rule1] [processedrule1]
+
 -- example
 rule1 :: CompiledRule -- target
 rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG", Arg "wants_ESG"] 
@@ -156,6 +198,17 @@ rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "sta
             )))
         )]
 
+rule2 :: CompiledRule
+rule2 = MkCompiledRule (Func "simple") [Arg "opinion"]
+        [If (Equal (Var (Arg "opinion")) (Const (String "interesting")))
+            (Return [String "good"])
+            (Just (Return [String "bad"]))]
+
+processedrule1 :: ProcessedRule
+processedrule1 = ProcessedRule (Func "get_opinion") [(Input (Arg "stage") (Const (String "Seed"))), (Output (Var (Arg "opinion")))]
+
+processedrule2 :: ProcessedRule
+processedrule2 = ProcessedRule (Func "simple") [(Input (Arg "opinion") (Const (String "interesting"))), (Output (Var (Arg "result")))]
 
 -- rule2 :: CompiledRule -- for rule order hit policy
 -- rule2 = MkCompiledRule [Arg "age"] -- if i do InitList ListName [Expr] and keep MkCompiledRule to one expr- not sure which is better?

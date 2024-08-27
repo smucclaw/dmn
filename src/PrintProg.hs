@@ -22,7 +22,7 @@ instance ShowProg CompiledRule where
                                             , indent nestingDepth (showProg e)])
 
 instance ShowProg Func where
-    showProg (Func f) = pretty (T.map toLower (T.pack f))
+    showProg (Func f) =  pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack f)))
 
 instance ShowProg Expr where
     showProg (Var (Arg v)) = pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack v)))

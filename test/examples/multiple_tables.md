@@ -8,19 +8,14 @@
 | 6           |                        | >8                  | false                    | "Stew"                         |
 | 7           |                        |                     | true                     | "Pasta"                        |
 
-| F   | Dish (input, string) | Children (input, bool) | Beverages (output, string) |
-| 1   | -------------------- | ---------------------- | -------------------------- |
-| 2   | "Spareribs"          | -                      | "beer"                     |
-| 3   | "Stew"               | -                      | "wine"                     |
-| 4   | "Roastbeef"          | -                      | "soda"                     |
-| 5   | "Steak"              | -                      | "lemonade"                 |
-| 6   |                      | true                   | "apple juice"              |
+| F (Table B) | Dish (input, string) | Children (input, bool) | Beverages (output, string) |
+|-------------|----------------------|------------------------|----------------------------|
+| 1           | "Spareribs"          | -                      | "beer"                     |
+| 2           | "Stew"               | -                      | "wine"                     |
+| 3           | "Roastbeef"          | -                      | "soda"                     |
+| 4           | "Steak"              | -                      | "lemonade"                 |
+| 5           |                      | true                   | "apple juice"              |
 
-A.Out1 --> B.In2
 A("Fall", 5, true, d)
-B(d, false, b)
-C("foo", 5, s, i)
 
-d = Ap("Fall", 5, true) 
-Table C (in string, in int, out string, out int)
-(s, i) = C("foo", 5)
+B(d, false, b)
