@@ -5,12 +5,36 @@ module ConvertDMN where
 import Data.List (foldl')
 import Data.Maybe (mapMaybe)
 import Types
+import Data.Char (isDigit)
 import qualified Data.Map as Map
 
 -- define IR
-data CompiledDRD = DRD [CompiledRule] [ProcessedRule] deriving Show
+data CompiledDRD = 
+    DRD [CompiledRule] [Call] deriving Show
 
-data CompiledRule = MkCompiledRule Func [Arg] [Expr] deriving Show
+data CompiledRule = 
+    MkCompiledRule Func [Arg] [Expr] deriving Show
+
+data Call = 
+    MkCall Func [Argument] deriving Show
+
+data Argument = 
+    ValArgument Val 
+    | VarArgument Arg deriving Show -- outputs should always be variables
+
+data TableSignature =
+    MkTableSignature Func [ColumnSignature] [ColumnSignature] deriving Show -- inputs and then outputs
+
+data ColumnSignature = 
+    MkColumnSignature Arg Type deriving Show
+
+data Type = 
+    StringType
+    | IntType
+    | BoolType
+    deriving Show
+
+type Vars = Map.Map String Val
 
 data Expr = Var Arg 
             | And [Expr] 
@@ -41,22 +65,53 @@ data Arg = Arg String deriving Show
 
 data ListName = ListName String deriving Show
 
--- does this make sense??
-data ProcessedRule = ProcessedRule Func [Parameter] deriving Show
-
-data Parameter = Input Arg Expr
-                | Output Expr deriving Show
-
-
-type Vars = Map.Map String Val
 
 convertDRD :: DRD -> CompiledDRD
 convertDRD (decisions, entries) = 
     let compiledDecisions = map convertDecision decisions
-        vars = Map.empty :: Vars
-        processedEntries = map (convertEntry compiledRules vars) entries
-    in DRD compiledDecisions processedEntries
+        -- vars = Map.empty :: Vars
+        -- calls = map (convertEntry compiledRules vars) entries
+        compiledTables = map convertTableSignature decisions
+        compiledCalls = map (\entry -> findTable compiledTables entry) entries
+    in DRD compiledDecisions compiledCalls
 
+-- for tables
+convertTableSignature :: Decision -> TableSignature
+convertTableSignature Decision {decisionLogic = DecTable{tableID = id, schema = Schema {..}}} = 
+    MkTableSignature (Func id) (map convertInputSchema sInputSchemas) (map convertOutputSchema sOutputSchema)
+
+convertInputSchema :: InputSchema -> ColumnSignature
+convertInputSchema InputSchema {..} = MkColumnSignature (Arg sInputSchemaId) (convertType inputExprFEELType)
+
+convertOutputSchema :: OutputSchema -> ColumnSignature
+convertOutputSchema OutputSchema {..} = MkColumnSignature (Arg sOutputSchemaVarName) (convertType sOutputSchemaFEELType)
+
+convertType :: String -> Type
+convertType "String" = StringType
+convertType "Int" = IntType
+convertType "Bool" = BoolType
+convertType _ = error "Type not supported" 
+
+-- for calls
+findTable :: [TableSignature] -> Entry -> Call
+findTable tables Entry {..} =
+    case filter (\(MkTableSignature (Func funcId) _ _) -> funcId == tableId) tables of
+        [table] -> convertCall table Entry {..}
+        _ -> error "Table not found"
+
+convertCall :: TableSignature -> Entry -> Call
+convertCall (MkTableSignature func inputcolumns outputcolumns) (Entry id inputs outputs) = 
+    MkCall func (map convertArgument inputs ++ map convertArgument outputs)
+
+convertArgument :: String -> Argument
+convertArgument param 
+                | param == "True"  = ValArgument (Bool True)
+                | param == "False" = ValArgument (Bool False)
+                | all isDigit param = ValArgument (Int (read param))
+                | head param == '"' && last param == '"' = ValArgument (String (init (tail param)))
+                | otherwise = VarArgument (Arg param)
+
+-- for rules
 convertDecision :: Decision -> CompiledRule
 convertDecision Decision { decisionLogic = DecTable { tableID = tableid
                                                         , rules = rules
@@ -146,32 +201,31 @@ getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} =
         _ -> String expr
 
 
--- for processed rules
-convertEntry :: [CompiledRule] -> Vars -> Entry -> ProcessedRule
-convertEntry compiledRules vars (Entry id inputs outputs) = 
-    case find (\(MkCompiledRule (Func funcId) _ _) -> funcId == id) compiledRules of
-        Just (MkCompiledRule _ args _) -> 
-            let updatedOutputVars = foldr (\(varName, value) acc -> Map.insert varName value acc) outputVars outputs 
--- slightly confused, not sure if i should be inserting the values into compiled rule and then putting here? or if i just store the variable name for now
-            in ProcessedRule (Func id) ((zipWith (convertInput updatedOutputVars) args inputs) ++ convertOutputs updatedOutputVars outputs)
-            -- ProcessedRule (Func id) ((zipWith convertInputs args inputs) ++ convertOutputs outputs)
-        Nothing -> error "Table not found for entry" ++ id
-    where 
-        convertOutputs vars = map (\param -> Output (Var (Arg param))) -- output is always a variable
+-- convertEntry :: [CompiledRule] -> Vars -> Entry -> ProcessedRule
+-- convertEntry compiledRules vars (Entry id inputs outputs) = 
+--     case find (\(MkCompiledRule (Func funcId) _ _) -> funcId == id) compiledRules of
+--         Just (MkCompiledRule _ args _) -> 
+--             let updatedOutputVars = foldr (\(varName, value) acc -> Map.insert varName value acc) outputVars outputs 
+-- -- slightly confused, not sure if i should be inserting the values into compiled rule and then putting here? or if i just store the variable name for now
+--             in ProcessedRule (Func id) ((zipWith (convertInput updatedOutputVars) args inputs) ++ convertOutputs updatedOutputVars outputs)
+--             -- ProcessedRule (Func id) ((zipWith convertInputs args inputs) ++ convertOutputs outputs)
+--         Nothing -> error "Table not found for entry" ++ id
+--     where 
+--         convertOutputs vars = map (\param -> Output (Var (Arg param))) -- output is always a variable
 
-convertInput :: Vars -> Arg -> String -> Parameter
-convertInput outputVars arg param =
-    case param of
-        '"':rest -> Input arg (Const (String (init rest)))
-        "true"   -> Input arg (Const (Bool True))
-        "false"  -> Input arg (Const (Bool False))
-        num | all isDigit num -> Input arg (Const (Int (read num)))
-        var      -> if Map.member var outputVars
-                    then Input arg (Var (Arg var))
-                    else error ("Input variable " ++ var ++ " does not correspond to any output variable")
+-- convertInput :: Vars -> Arg -> String -> Parameter
+-- convertInput outputVars arg param =
+--     case param of
+--         '"':rest -> Input arg (Const (String (init rest)))
+--         "true"   -> Input arg (Const (Bool True))
+--         "false"  -> Input arg (Const (Bool False))
+--         num | all isDigit num -> Input arg (Const (Int (read num)))
+--         var      -> if Map.member var outputVars
+--                     then Input arg (Var (Arg var))
+--                     else error ("Input variable " ++ var ++ " does not correspond to any output variable")
 
-exampleDRD :: DRD
-exampleDRD = DRD [rule1] [processedrule1]
+exampleDRD :: CompiledDRD
+exampleDRD = DRD [rule1] [call1, call2]
 
 -- example
 rule1 :: CompiledRule -- target
@@ -204,11 +258,13 @@ rule2 = MkCompiledRule (Func "simple") [Arg "opinion"]
             (Return [String "good"])
             (Just (Return [String "bad"]))]
 
-processedrule1 :: ProcessedRule
-processedrule1 = ProcessedRule (Func "get_opinion") [(Input (Arg "stage") (Const (String "Seed"))), (Output (Var (Arg "opinion")))]
+call1 :: Call
+call1 = 
+    MkCall (Func "get_opinion") 
+    [ValArgument (String "Seed"), ValArgument (String "Information Technology"), ValArgument (String "Pre-Revenue"), ValArgument (Bool True), ValArgument (Bool True), VarArgument (Arg "opinion")]
 
-processedrule2 :: ProcessedRule
-processedrule2 = ProcessedRule (Func "simple") [(Input (Arg "opinion") (Const (String "interesting"))), (Output (Var (Arg "result")))]
+call2 :: Call
+call2 = MkCall (Func "simple") [VarArgument (Arg "opinion"), VarArgument (Arg "result")]
 
 -- rule2 :: CompiledRule -- for rule order hit policy
 -- rule2 = MkCompiledRule [Arg "age"] -- if i do InitList ListName [Expr] and keep MkCompiledRule to one expr- not sure which is better?

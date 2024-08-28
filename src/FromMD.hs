@@ -151,10 +151,10 @@ parseEntry :: [(Id, Schema)] -> String -> Entry
 parseEntry schemas entry = 
     let [table, rest] = splitOn "(" entry
         params = splitOn "," (init rest) -- remove the trailing ')'
-        maybeSchema = lookup table (fst schemas) -- finds corresponding tableid
+        maybeSchema = lookup table schemas -- finds corresponding tableid
     in case maybeSchema of
         Just schema -> categorizeEntry table params schema
-        Nothing -> "Error: Table " ++ table ++ " not yet declared"
+        Nothing -> error ("Error: Table " ++ table ++ " not yet declared")
     where 
         categorizeEntry :: Id -> [String] -> Schema -> Entry
         categorizeEntry tableId params Schema{sInputSchemas=inputs, sOutputSchema=outputs} =

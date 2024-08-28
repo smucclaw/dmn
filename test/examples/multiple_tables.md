@@ -1,20 +1,20 @@
-| U (Table A) | season (input, string) | guests (input, int) | veg guests (input, bool) | Dish (output, string)          |
-| ----------- | ---------------------- | ------------------- | ------------------------ | ------------------------------ |
-| 1           | "Fall"                 | <=8                 | false                    | "Spareribs"                    |
-| 2           | "Winter"               | <=8                 | false                    | "Roastbeef"                    |
-| 3           | "Spring"               | <=4                 | false                    | "Fancy Steak"                  |
-| 4           | "Spring"               | [5..8]              | false                    | "Stew"                         |
-| 5           | "Summer"               | <=8                 | false                    | "Light salad and a nice steak" |
-| 6           |                        | >8                  | false                    | "Stew"                         |
-| 7           |                        |                     | true                     | "Pasta"                        |
+|U (A)|season (input, String)|guests (input, Int)|veg guests (input, Bool)|Dish (output, String)|
+|---|---|---|---|---|
+|1|"Fall"|<=8|false| "Spareribs"|
+|2|"Winter"|<=8|false|"Roastbeef"|
+|3|"Spring"|<=4|false|"Fancy Steak"|
+|4|"Spring"|[5..8]|false|"Stew"|
+|5|"Summer"|<=8|false|"Light salad and a nice steak"|
+|6|-|>8|false|"Stew"|
+|7|||true|"Pasta"|
 
-| F (Table B) | Dish (input, string) | Children (input, bool) | Beverages (output, string) |
+|F (B)| Dish (input, String) | Children (input, Bool) | Beverages (output, String) |
 |-------------|----------------------|------------------------|----------------------------|
-| 1           | "Spareribs"          | -                      | "beer"                     |
-| 2           | "Stew"               | -                      | "wine"                     |
-| 3           | "Roastbeef"          | -                      | "soda"                     |
-| 4           | "Steak"              | -                      | "lemonade"                 |
-| 5           |                      | true                   | "apple juice"              |
+|1|"Spareribs"|false|"beer"|
+|2|"Stew"|false|"wine"|
+|3|"Roastbeef"|false|"soda"|
+|4|"Steak"||"lemonade"|
+|5||true|"apple juice"|
 
 A("Fall", 5, true, d)
 

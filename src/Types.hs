@@ -20,7 +20,7 @@ type DRD = ([Decision], [Entry])
 data Entry = Entry
   { tableId :: Id
   , inputParams :: [String]
-  , outputParama :: [String]
+  , outputParams :: [String]
   } deriving Show
 
 -- data Definitions = Definitions
@@ -119,8 +119,8 @@ data Condition = ConditionString String
 
 exampleDRD :: DRD
 exampleDRD = ([exampleDecision, exampleDecision2]
-  , [Entry "table1" ["stage", "sector", "stage_com", "has_ESG", "wants_ESG", "opinion"]
-  , Entry "table2" ["grade"], "result"])
+  , [Entry "table1" ["stage", "sector", "stage_com", "has_ESG", "wants_ESG"] ["opinion"]
+  , Entry "table2" ["grade"] ["result"]])
 
 exampleDecision :: Decision
 exampleDecision = Decision

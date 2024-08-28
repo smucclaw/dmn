@@ -1,4 +1,4 @@
-| U (Table of results) | Mark (input, int) | Grade (output, string) | result (output, string) |
+| U (results) | Mark (input, Int) | Grade (output, String) | result (output, String) |
 | -------------------- | ----------------- | ---------------------- | ----------------------- |
 | 1                    | >=70              | "A"                    | "pass"                  |
 | 2                    | [60..69]          | "B"                    | "pass"                  |
@@ -6,3 +6,5 @@
 | 4                    | [40..49]          | "D"                    | "fail"                  |
 | 5                    | [30..39]          | "E"                    | "fail"                  |
 | 6                    | [20..29]          | "F"                    | "fail"                  |
+
+results(72, g, r)

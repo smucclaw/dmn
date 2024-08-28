@@ -17,29 +17,39 @@ main = do
     case args of
         [inputFile] -> do
             content <- readFile inputFile
-            let markdownTable = content
-            putStrLn markdownTable
+            putStrLn content
+            
+            putStrLn ""
 
-            let parsedDecision = parseMDToDMN markdownTable
-            print parsedDecision
+            let parsedDRD = parseMDToDMN content
+            print parsedDRD
+            putStrLn ""
+
+            let convertedDRD = convertDRD parsedDRD
+            print convertedDRD
+            putStrLn ""
+
+            putStrLn "python ver"
+            (print . (<>) line . showProg) convertedDRD
+
             -- type checking
-            case typeCheck parsedDecision of
-                Left errors -> do
-                    putStrLn "Error occurred during type checking:"
-                    putStrLn errors
-                -- convert to IR
-                Right checkedDecision -> do
-                    putStrLn "Type checking passed."
-                    let convertedDecision = convertDecision checkedDecision
-                    print convertedDecision
-                    putStrLn ""
-                    -- translate to python
-                    putStrLn "python ver"
-                    (print . (<>) line . showProg) convertedDecision
-                    -- translate to simala
-                    putStrLn "simala ver"
-                    let simalaDMN = translateToSimala convertedDecision
-                    print simalaDMN
+            -- case typeCheck parsedDecision of
+            --     Left errors -> do
+            --         putStrLn "Error occurred during type checking:"
+            --         putStrLn errors
+            --     -- convert to IR
+            --     Right checkedDecision -> do
+            --         putStrLn "Type checking passed."
+            --         let convertedDecision = convertDecision checkedDecision
+            --         print convertedDecision
+            --         putStrLn ""
+            --         -- translate to python
+            --         putStrLn "python ver"
+            --         (print . (<>) line . showProg) convertedDecision
+            --         -- translate to simala
+            --         putStrLn "simala ver"
+            --         let simalaDMN = translateToSimala convertedDecision
+            --         print simalaDMN
         _ -> putStrLn "Please enter as: stack run <input-file>"
 
     -- let markdownTable = "|U|Mark (input, number)|Result (output, string)|\n\
