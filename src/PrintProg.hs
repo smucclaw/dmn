@@ -26,7 +26,12 @@ instance ShowProg CompiledRule where
                                             , indent nestingDepth (showProg e)])
 
 instance ShowProg Call where
-    showProg (MkCall f arguments) = hsep [showProg f, pretty (T.pack "("), showProg arguments, pretty (T.pack ")")]
+    showProg (MkCall f inputs outputs) = hsep [showProg outputs
+                                            , pretty (T.pack "=")
+                                            , showProg f
+                                            , pretty (T.pack "(")
+                                            , showProg inputs
+                                            , pretty (T.pack ")")]
 
 instance ShowProg Func where
     showProg (Func f) =  pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack f)))

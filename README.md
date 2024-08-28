@@ -228,3 +228,50 @@ grade -> overall result <- attendance
 
 Grade = InputEntry 
 
+CURRENT PROGRESS: 
+- single tables working well
+  - multiple inputs
+  - multiple outputs
+  - table names should be declared in the same cell as the hit policy (altho i need to change it to **handle spaces in names**)
+  - Feel expressions current accepted include: Bool, Int (including ranges/intervals), and String
+  - null inputs (in table declaration) can be represented as '-' or simply left blank; however inputs taken in during calls cannot have null inputs - check dmn documentation if this is true?
+  - this transpiles to python, and to some extent simala
+  - type checking implemented for rule/function/table declaration, ensures that entries into columns match the type declared in the column header
+- python translation of MkCalls works for 2 tables - more not yet tested
+
+TO WORK ON NEXT:
+- translation to simala based on prev conversations (look up stuctural recursion?)
+  - this should end up looking like this:
+```hs
+mkLets :: [(Name, Expr)] -> Expr -> Expr
+mkLets []             e  = e
+mkLets ((n, e1) : ds) e2 = Let Transparent n e1 (mkLets ds e2)
+```
+- attempt to do more research/learn how Decl works, and whether that would be more appropriate
+- type check function calls
+  - call types are the same as rules types
+  - no recursion
+  - ???
+- testing and running finished simala translation
+  - it should then be in the form of:
+```hs
+let
+  `Table A` = fun (inputs) => ...
+in let
+  `Table B` = fun (inputs) => ...
+in let
+  r1 = `Table A` ({ season = "Fall", guests = 5, `veg guests` = true })
+in let
+  d = r1.Dish
+in let
+  r2 = `Table B` ({ Dish = d, Children = false })
+in let
+  b = r2.Beverages
+in let
+  r3 = `Table C` ({ ... })
+in
+  r3
+```
+was mentioned that the final return should just be the entire result of the function call?
+- (lower priority) addition of all possible feel expressions, including date, time, possibly functions?, lists? as seen in [the drools documentation](https://docs.drools.org/latest/drools-docs/drools/DMN/index.html#dmn-feel-data-types-ref_dmn-models)
+- think of a way to limit the inputs to certain values only? eg for stage in pitchdecks, it can only be seed, pre-seed etc

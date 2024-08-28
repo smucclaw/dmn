@@ -16,7 +16,7 @@ data CompiledRule =
     MkCompiledRule Func [Arg] [Expr] deriving Show
 
 data Call = 
-    MkCall Func [Argument] deriving Show
+    MkCall Func [Argument] [Argument] deriving Show -- func name, inputs, outputs
 
 data Argument = 
     ValArgument Val 
@@ -101,7 +101,7 @@ findTable tables Entry {..} =
 
 convertCall :: TableSignature -> Entry -> Call
 convertCall (MkTableSignature func inputcolumns outputcolumns) (Entry id inputs outputs) = 
-    MkCall func (map convertArgument inputs ++ map convertArgument outputs)
+    MkCall func (map convertArgument inputs) (map convertArgument outputs)
 
 convertArgument :: String -> Argument
 convertArgument param 
@@ -261,10 +261,10 @@ rule2 = MkCompiledRule (Func "simple") [Arg "opinion"]
 call1 :: Call
 call1 = 
     MkCall (Func "get_opinion") 
-    [ValArgument (String "Seed"), ValArgument (String "Information Technology"), ValArgument (String "Pre-Revenue"), ValArgument (Bool True), ValArgument (Bool True), VarArgument (Arg "opinion")]
+    [ValArgument (String "Seed"), ValArgument (String "Information Technology"), ValArgument (String "Pre-Revenue"), ValArgument (Bool True), ValArgument (Bool True)] [VarArgument (Arg "opinion")]
 
 call2 :: Call
-call2 = MkCall (Func "simple") [VarArgument (Arg "opinion"), VarArgument (Arg "result")]
+call2 = MkCall (Func "simple") [VarArgument (Arg "opinion")] [VarArgument (Arg "result")]
 
 -- rule2 :: CompiledRule -- for rule order hit policy
 -- rule2 = MkCompiledRule [Arg "age"] -- if i do InitList ListName [Expr] and keep MkCompiledRule to one expr- not sure which is better?
