@@ -228,7 +228,8 @@ grade -> overall result <- attendance
 
 Grade = InputEntry 
 
-CURRENT PROGRESS: 
+# STATUS
+## CURRENT PROGRESS: 
 - single tables working well
   - multiple inputs
   - multiple outputs
@@ -239,7 +240,7 @@ CURRENT PROGRESS:
   - type checking implemented for rule/function/table declaration, ensures that entries into columns match the type declared in the column header
 - python translation of MkCalls works for 2 tables - more not yet tested
 
-TO WORK ON NEXT:
+## TO WORK ON NEXT:
 - translation to simala based on prev conversations (look up stuctural recursion?)
   - this should end up looking like this:
 ```hs

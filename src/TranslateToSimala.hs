@@ -1,18 +1,29 @@
 module TranslateToSimala where
 
-import ConvertDMN (CompiledRule(..), Expr(..), Func(..), Arg(..), Bracket(..), Val(..))
+import ConvertDMN
 import qualified Simala.Expr.Type as Simala
 import qualified Data.Text as T
 
-translateToSimala :: CompiledRule -> Simala.Expr -- (Fun Transparency [Name] Expr)
-translateToSimala (MkCompiledRule (Func funcName) args exprs) = 
+translateToSimala :: CompiledDRD -> Simala.Decl
+
+
+--- mkLets :: [(Name, Expr)] -> Expr -> Expr
+-- mkLets []             e  = e
+-- mkLets ((n, e1) : ds) e2 = Let Transparent n e1 (mkLets ds e2)
+
+translateToSimala 
+
+translateRule :: CompiledRule -> Simala.Expr -- (Fun Transparency [Name] Expr)
+translateRule (MkCompiledRule (Func funcName) args exprs) = 
         Simala.Fun Simala.Transparent (map argToName args) (compileBody exprs)
     where
         argToName (Arg a) = T.pack a
 
 compileBody :: [ConvertDMN.Expr] -> Simala.Expr
 compileBody [expr] = compileExpr expr
-compileBody exprs = Simala.List (map compileExpr exprs)
+compileBody exprs = Simala.Record (Simala.Row (map compileExpr exprs))
+
+-- type Row a = [(Name, a)]
 
 compileExpr :: ConvertDMN.Expr -> Simala.Expr
 compileExpr expr 
@@ -27,7 +38,7 @@ compileExpr expr
     | LessThanEqual e1 e2 <- expr = Simala.Builtin Simala.Le [compileExpr e1, compileExpr e2]
     | Range e1 e2 <- expr = compileRange e1 e2
     | Const val <- expr = compileVal val
-    | Return vals <- expr = Simala.List (map compileVal vals)
+    | Return vals <- expr = Simala.Record (map compileVal vals)
 
 compileRange :: Bracket -> Bracket -> Simala.Expr 
 compileRange (Inclusive e1) (Inclusive e2) = 
