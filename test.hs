@@ -1,28 +1,26 @@
 
 -- produced
 simalarule1 :: Simala.Expr
-simalarule1 = Let --expr 
-    (NonRec -- decl
-        Transparent 
-        "PitchDecks" -- name
-        (Fun -- expr
-            Transparent ["stage","sector","stage_com","has_ESG","wants_ESG"] -- [Name]
-            (Builtin IfThenElse -- expr
-                [Builtin And [Builtin Eq [Var "stage",Var "Seed"]
-                            ,Builtin Eq [Var "sector",Var "Information Technology"]
-                            ,Builtin Eq [Var "stage_com",Var "Pre-Revenue"]]
-                ,Record [("test",Var "interesting")]
+simalarule1 = Let 
+    (NonRec Transparent "PitchDecks" 
+        (Fun Transparent ["stage","sector","stage_com","has_ESG","wants_ESG"] 
+            (Builtin IfThenElse 
+                [Builtin And 
+                    [Builtin Eq [Var "stage",Atom "Seed"]
+                    ,Builtin Eq [Var "sector",Atom "Information Technology"]
+                    ,Builtin Eq [Var "stage_com",Atom "Pre-Revenue"]]
+                ,Record [("opinion",Atom "interesting")]
                 ,Builtin IfThenElse 
-                    [Builtin And [Builtin Eq [Var "stage",Var "Series A"]
-                                ,Builtin Eq [Var "sector",Var "Information Technology"]
-                                ,Builtin Eq [Var "stage_com",Var "Pre-Profit"]]
-                    ,Record [("test",Var "interesting")]
+                    [Builtin And [Builtin Eq [Var "stage",Atom "Series A"],Builtin Eq [Var "sector",Atom "Information Technology"],Builtin Eq [Var "stage_com",Atom "Pre-Profit"]]
+                    ,Record [("opinion",Atom "interesting")]
                     ,Builtin IfThenElse 
-                        [Builtin And [Builtin Eq [Var "has_ESG",Lit (BoolLit True)]
-                                    ,Builtin Eq [Var "wants_ESG",Lit (BoolLit True)]]
-                        ,Record [("test",Var "interesting")]
-                        ,Record [("test",Var "reject")]]]]))) 
-    Undefined -- expr
+                        [Builtin And [Builtin Eq [Var "has_ESG",Lit (BoolLit True)],Builtin Eq [Var "wants_ESG",Lit (BoolLit True)]]
+                        ,Record [("opinion",Atom "interesting")]
+                        ,Record [("opinion",Atom "reject")]]]]))) 
+    (Let 
+        (NonRec Transparent "r1" 
+            (App (Var "PitchDecks") [Atom "Seed",Var " \"a\"",Var " \"n\"",Var " true",Var " true"])) 
+        (Var "r1"))
 
 -- wants
 -- let
@@ -30,7 +28,9 @@ simalarule1 = Let --expr
 -- in let
 --  r1 = A({stage = "seed", sector = "information technology", stage_com = "pre-revenue", has_ESG = true, wants_ESG = true})
 -- in
---  r1
+--  d = r1.opinion
+-- in
+--  d 
 
 simalarule2 :: Simala.Expr
 simalarule2 = Let
@@ -63,4 +63,23 @@ simalarule2 = Let
                  Lit (BoolLit True),
                  Lit (BoolLit True)]))
     -- in
-        (Project (Var "r1") "opinion")))
+        (Let 
+            (NonRec Transparent "d" (Project (Var "r1") "opinion"))
+            (Var "d")))
+
+
+
+let
+    `Table A` = fun (inputs) => ...
+in let
+    `Table B` = fun (inputs) => ...
+in let
+    d = `Table A` ("Fall", 5, true)
+in let 
+    b = B(d, false) 
+in
+    b
+
+let (x, y) = T("pasta", 3) in
+let z = S("foo", x) in
+z

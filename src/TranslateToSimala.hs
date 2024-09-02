@@ -3,13 +3,38 @@ module TranslateToSimala where
 import ConvertDMN
 import qualified Simala.Expr.Type as Simala
 import qualified Data.Text as T
+import Data.Char (toLower)
+import Data.List (find)
+
 
 translateToSimala :: CompiledDRD -> Simala.Expr -- should be Let Decl (in) Expr
 translateToSimala (DRD rules calls) = 
-    let ruleDecls = map translateRule rules
-        -- callDecls = translateCalls calls
+    let ruleDecls = map translateRule rules -- shld pass down the column signatures for outputs
+        callDecls = concat $ zipWith (transateCalls rules) calls [0..]
+        lastExpr = extractLastExpr (last callDecls)
+        -- recordProjection = createRecordProjection (last callDecls) ruleDecls
     -- in Simala.mkLet ruleDecls (Simala.mkLet callDecls Simala.Undefined)
-    in Simala.mkLet ruleDecls Simala.Undefined
+    in Simala.mkLet (ruleDecls ++ callDecls) lastExpr
+    where 
+        extractLastExpr (Simala.NonRec _ name _) = Simala.Var name
+
+findRuleByFuncName :: [CompiledRule] -> T.Text -> Maybe CompiledRule
+findRuleByFuncName rules funcName = 
+    find (\(MkCompiledRule (MkTableSignature (Func name) _ _) _ _) -> name == (T.unpack funcName)) rules
+
+transateCalls :: [CompiledRule] -> Call -> Int -> [Simala.Decl]
+transateCalls rules call index = 
+    case findRuleByFuncName rules (T.pack $ callFuncName call) of
+        Just rule -> translateCall call index (map extractName (out rule))
+        Nothing -> error "Corresponding function not found"
+    where
+        callFuncName (MkCall (Func name) _ _) = name
+        out (MkCompiledRule (MkTableSignature (Func funcName) _ outColumns) _ _) = outColumns
+
+
+-- createRecordProjection :: Simala.Decl -> [Simala.Decl] -> Simala.Decl
+-- createRecordProjection (Simala.NonRec _ callname (Simala.App (Var tablename) [_])) decls = 
+--     Simala.Project (Simala.Var callname) (findOutputName tablename decls)
 
 translateRule :: CompiledRule -> Simala.Decl -- decl = NonRec (Fun Transparency [Name] Expr) in parser is: NonRec <$> transparency <*> name <* symbol "=" <*> expr
 translateRule (MkCompiledRule (MkTableSignature (Func funcName) inputs outputs) args exprs) = 
@@ -17,13 +42,17 @@ translateRule (MkCompiledRule (MkTableSignature (Func funcName) inputs outputs) 
     where
         argToName (Arg a) = T.pack a
 
--- translateCalls :: [Call] -> [Simala.Decl]
--- translateCalls calls = map translateCall calls
+translateCall :: Call -> Int -> [T.Text] -> [Simala.Decl]
+translateCall (MkCall (Func funcName) inputs outputs) index fieldNames = 
+    let outputArgs = map (\(VarArgument (Arg s)) -> T.pack s) outputs
+        baseDecl = Simala.NonRec Simala.Transparent (T.pack ("r" ++ show index)) (Simala.App (Simala.Var (T.pack funcName)) (map compileApp inputs))
+        projections = zipWith (\outputArg fieldName -> Simala.NonRec Simala.Transparent outputArg (Simala.Project (Simala.Var (T.pack ("r" ++ show index))) fieldName)) outputArgs fieldNames
+    in baseDecl : projections
 
--- translateCall :: Call -> Simala.Decl
--- translateCall (MkCall (Func funcName) inputs outputs) index = 
---     let callExpr = Simala.App (Simala.Var (T.pack funcName)) (map translateArgument inputs)
-
+-- fix name evenetually
+compileApp :: Argument -> Simala.Expr
+compileApp (ValArgument a) = compileVal a
+compileApp (VarArgument (Arg a)) = Simala.Var (T.pack a)
 
 compileBody :: [ConvertDMN.Expr] -> [ColumnSignature] -> Simala.Expr
 compileBody [expr] outputs = compileExpr expr outputs

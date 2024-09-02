@@ -5,4 +5,4 @@
 |3||||TRUE|TRUE|"interesting"|
 |4||||||"reject"|
 
-PitchDecks("Seed", "a", "n", true, true, o)
+PitchDecks("Seed", "Information Technology", "hey", true, true, o)

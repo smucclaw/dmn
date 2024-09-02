@@ -19,7 +19,3 @@
 A("Fall", 5, true, d)
 
 B(d, false, b)
-
-let (x, y) = T("pasta", 3) in
-let z = S("foo", x) in
-z
