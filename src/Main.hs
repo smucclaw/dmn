@@ -31,6 +31,11 @@ main = do
 
             putStrLn "python ver"
             (print . (<>) line . showProg) convertedDRD
+            putStrLn ""
+
+            putStrLn "simala ver"
+            let simalaDMN = translateToSimala convertedDRD
+            print simalaDMN
 
             -- type checking
             -- case typeCheck parsedDecision of

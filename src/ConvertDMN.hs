@@ -12,8 +12,12 @@ import qualified Data.Map as Map
 data CompiledDRD = 
     DRD [CompiledRule] [Call] deriving Show
 
+-- data CompiledRule = 
+--     MkCompiledRule Func [Arg] [Expr] deriving Show
+
 data CompiledRule = 
-    MkCompiledRule Func [Arg] [Expr] deriving Show
+    MkCompiledRule TableSignature [Arg] [Expr] deriving Show
+-- TODO: fix this so that i no longer need [arg] since its inside tablesignature
 
 data Call = 
     MkCall Func [Argument] [Argument] deriving Show -- func name, inputs, outputs
@@ -68,10 +72,10 @@ data ListName = ListName String deriving Show
 
 convertDRD :: DRD -> CompiledDRD
 convertDRD (decisions, entries) = 
-    let compiledDecisions = map convertDecision decisions
+    let compiledTables = map convertTableSignature decisions
         -- vars = Map.empty :: Vars
         -- calls = map (convertEntry compiledRules vars) entries
-        compiledTables = map convertTableSignature decisions
+        compiledDecisions = zipWith convertDecision decisions compiledTables
         compiledCalls = map (\entry -> findTable compiledTables entry) entries
     in DRD compiledDecisions compiledCalls
 
@@ -112,12 +116,12 @@ convertArgument param
                 | otherwise = VarArgument (Arg param)
 
 -- for rules
-convertDecision :: Decision -> CompiledRule
+convertDecision :: Decision -> TableSignature -> CompiledRule
 convertDecision Decision { decisionLogic = DecTable { tableID = tableid
                                                         , rules = rules
                                                         , schema = Schema { sInputSchemas = inputs }
-                                                        , hitPolicy = policy } } = 
-    MkCompiledRule (Func tableid)
+                                                        , hitPolicy = policy } } table = 
+    MkCompiledRule table
         (map (\InputSchema {sInputSchemaId = id} -> Arg id) inputs) 
         (checkHitPolicy policy rules)
 
@@ -224,47 +228,47 @@ getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} =
 --                     then Input arg (Var (Arg var))
 --                     else error ("Input variable " ++ var ++ " does not correspond to any output variable")
 
-exampleDRD :: CompiledDRD
-exampleDRD = DRD [rule1] [call1, call2]
+-- exampleDRD :: CompiledDRD
+-- exampleDRD = DRD [rule1] [call1, call2]
 
--- example
-rule1 :: CompiledRule -- target
-rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG", Arg "wants_ESG"] 
-        [(If 
-            (And [ Equal (Var (Arg "stage")) (Const (String "Seed"))
-                , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
-                , Equal (Var (Arg "stage_com")) (Const (String "Pre-Revenue"))
-            ])
-            (Return [String "interesting"])
-            (Just (If 
-                (And [ Equal (Var (Arg "stage")) (Const (String "Series A"))
-                    , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
-                    , Equal (Var (Arg "stage_com")) (Const (String "Pre-Profit"))
-                ])
-                (Return [String "interesting"])
-                (Just (If
-                    (And [ Equal (Var (Arg "has_ESG")) (Const (Bool True))
-                        , Equal (Var (Arg "wants_ESG")) (Const (Bool True))
-                    ])
-                    (Return [String "interesting"])
-                    (Just (Return [String "reject"]))
-                )
-            )))
-        )]
+-- -- example
+-- rule1 :: CompiledRule -- target
+-- rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG", Arg "wants_ESG"] 
+--         [(If 
+--             (And [ Equal (Var (Arg "stage")) (Const (String "Seed"))
+--                 , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
+--                 , Equal (Var (Arg "stage_com")) (Const (String "Pre-Revenue"))
+--             ])
+--             (Return [String "interesting"])
+--             (Just (If 
+--                 (And [ Equal (Var (Arg "stage")) (Const (String "Series A"))
+--                     , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
+--                     , Equal (Var (Arg "stage_com")) (Const (String "Pre-Profit"))
+--                 ])
+--                 (Return [String "interesting"])
+--                 (Just (If
+--                     (And [ Equal (Var (Arg "has_ESG")) (Const (Bool True))
+--                         , Equal (Var (Arg "wants_ESG")) (Const (Bool True))
+--                     ])
+--                     (Return [String "interesting"])
+--                     (Just (Return [String "reject"]))
+--                 )
+--             )))
+--         )]
 
-rule2 :: CompiledRule
-rule2 = MkCompiledRule (Func "simple") [Arg "opinion"]
-        [If (Equal (Var (Arg "opinion")) (Const (String "interesting")))
-            (Return [String "good"])
-            (Just (Return [String "bad"]))]
+-- rule2 :: CompiledRule
+-- rule2 = MkCompiledRule ((Func "simple")) [Arg "opinion"]
+--         [If (Equal (Var (Arg "opinion")) (Const (String "interesting")))
+--             (Return [String "good"])
+--             (Just (Return [String "bad"]))]
 
-call1 :: Call
-call1 = 
-    MkCall (Func "get_opinion") 
-    [ValArgument (String "Seed"), ValArgument (String "Information Technology"), ValArgument (String "Pre-Revenue"), ValArgument (Bool True), ValArgument (Bool True)] [VarArgument (Arg "opinion")]
+-- call1 :: Call
+-- call1 = 
+--     MkCall (Func "get_opinion") 
+--     [ValArgument (String "Seed"), ValArgument (String "Information Technology"), ValArgument (String "Pre-Revenue"), ValArgument (Bool True), ValArgument (Bool True)] [VarArgument (Arg "opinion")]
 
-call2 :: Call
-call2 = MkCall (Func "simple") [VarArgument (Arg "opinion")] [VarArgument (Arg "result")]
+-- call2 :: Call
+-- call2 = MkCall (Func "simple") [VarArgument (Arg "opinion")] [VarArgument (Arg "result")]
 
 -- rule2 :: CompiledRule -- for rule order hit policy
 -- rule2 = MkCompiledRule [Arg "age"] -- if i do InitList ListName [Expr] and keep MkCompiledRule to one expr- not sure which is better?
