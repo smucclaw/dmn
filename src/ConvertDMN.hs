@@ -5,7 +5,7 @@ module ConvertDMN where
 import Data.List (foldl')
 import Data.Maybe (mapMaybe)
 import Types
-import Data.Char (isDigit)
+import Data.Char (isDigit, toLower)
 import qualified Data.Map as Map
 
 -- define IR
@@ -109,8 +109,8 @@ convertCall (MkTableSignature func inputcolumns outputcolumns) (Entry id inputs 
 
 convertArgument :: String -> Argument
 convertArgument param 
-                | param == "True"  = ValArgument (Bool True)
-                | param == "False" = ValArgument (Bool False)
+                | map toLower param == "true"  = ValArgument (Bool True)
+                | map toLower param == "false" = ValArgument (Bool False)
                 | all isDigit param = ValArgument (Int (read param))
                 | head param == '"' && last param == '"' = ValArgument (String (init (tail param)))
                 | otherwise = VarArgument (Arg param)
@@ -201,7 +201,9 @@ getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} =
     case feelType of
         "String" -> String expr
         "Int" -> Int (read expr)
-        "Bool" -> Bool (read expr)
+        "Bool" -> case map toLower expr of
+                    "true" -> Bool True
+                    "false" -> Bool False
         _ -> String expr
 
 

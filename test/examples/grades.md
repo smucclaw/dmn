@@ -7,4 +7,5 @@
 | 5                    | [30..39]          | "E"                    | "fail"                  |
 | 6                    | [20..29]          | "F"                    | "fail"                  |
 
+
 results(72, grade, result)

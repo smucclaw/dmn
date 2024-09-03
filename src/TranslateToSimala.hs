@@ -49,7 +49,7 @@ translateCall (MkCall (Func funcName) inputs outputs) index fieldNames =
         projections = zipWith (\outputArg fieldName -> Simala.NonRec Simala.Transparent outputArg (Simala.Project (Simala.Var (T.pack ("r" ++ show index))) fieldName)) outputArgs fieldNames
     in baseDecl : projections
 
--- fix name evenetually
+-- fix name eventually
 compileApp :: Argument -> Simala.Expr
 compileApp (ValArgument a) = compileVal a
 compileApp (VarArgument (Arg a)) = Simala.Var (T.pack a)

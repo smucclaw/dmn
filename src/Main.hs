@@ -25,36 +25,42 @@ main = do
             print parsedDRD
             putStrLn ""
 
-            let convertedDRD = convertDRD parsedDRD
-            print convertedDRD
-            putStrLn ""
+            -- let convertedDRD = convertDRD parsedDRD
+            -- print convertedDRD
+            -- putStrLn ""
 
-            putStrLn "python ver"
-            (print . (<>) line . showProg) convertedDRD
-            putStrLn ""
+            -- putStrLn "python ver"
+            -- (print . (<>) line . showProg) convertedDRD
+            -- putStrLn ""
 
-            putStrLn "simala ver"
-            let simalaDMN = translateToSimala convertedDRD
-            print simalaDMN
+            -- putStrLn "simala ver"
+            -- let simalaDMN = translateToSimala convertedDRD
+            -- print simalaDMN
 
             -- type checking
-            -- case typeCheck parsedDecision of
-            --     Left errors -> do
-            --         putStrLn "Error occurred during type checking:"
-            --         putStrLn errors
-            --     -- convert to IR
-            --     Right checkedDecision -> do
-            --         putStrLn "Type checking passed."
-            --         let convertedDecision = convertDecision checkedDecision
-            --         print convertedDecision
-            --         putStrLn ""
-            --         -- translate to python
-            --         putStrLn "python ver"
-            --         (print . (<>) line . showProg) convertedDecision
-            --         -- translate to simala
-            --         putStrLn "simala ver"
-            --         let simalaDMN = translateToSimala convertedDecision
-            --         print simalaDMN
+            case typeCheck parsedDRD of
+                Left errors -> do
+                    putStrLn "Error occurred during type checking:"
+                    putStrLn errors
+
+                -- convert to IR
+                Right checkedDRD -> do
+                    putStrLn "Type checking passed."
+                    putStrLn ""
+                    
+                    let convertedDRD = convertDRD checkedDRD
+                    print convertedDRD
+                    putStrLn ""
+
+                    -- translate to python
+                    putStrLn "python ver"
+                    (print . (<>) line . showProg) convertedDRD
+                    putStrLn ""
+
+                    -- translate to simala
+                    putStrLn "simala ver"
+                    let simalaDMN = translateToSimala convertedDRD
+                    print simalaDMN
         _ -> putStrLn "Please enter as: stack run <input-file>"
 
     -- let markdownTable = "|U|Mark (input, number)|Result (output, string)|\n\

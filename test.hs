@@ -130,13 +130,13 @@ Let
         (Let (NonRec Transparent "r0" -- r0 = TableA("Fall", 5, true)
             (App 
                 (Var "TableA") 
-                [Atom "Fall",Var " 5",Var " true"])) 
-            (Let (NonRec Transparent " d" -- d = r0.Dish
+                [Atom "Fall",Var "5",Var "true"])) 
+            (Let (NonRec Transparent "d" -- d = r0.Dish
                 (Project (Var "r0") "Dish")) 
                 (Let (NonRec Transparent "r1" -- r1 = TableB(d, false)
                     (App 
                         (Var "TableB") 
                         [Var "d",Var " false"])) 
-                    (Let (NonRec Transparent " b" -- b = r1.Beverages
+                    (Let (NonRec Transparent "b" -- b = r1.Beverages
                         (Project (Var "r1") "Beverages")) 
-                        (Var " b"))))))
+                        (Var "b"))))))
