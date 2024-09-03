@@ -7,7 +7,21 @@ type VarName = String  -- Assuming XMLText is just String for simplicity
 type Label = String
 type DecName = String  -- Decision Name
 
-type DRD = [Decision]
+type DRD = ([Decision], [Entry])
+-- type DRD = [Decision]
+
+-- data DRDConnection = DRDConnection
+--   { sourceTable :: Id
+--   , targetTable :: Id
+--   , sourceOutputs :: [String]
+--   , targetInputs :: [String]
+--   } deriving Show
+
+data Entry = Entry
+  { tableId :: Id
+  , inputParams :: [String]
+  , outputParams :: [String]
+  } deriving Show
 
 -- data Definitions = Definitions
 --   { sXmlns :: String
@@ -37,7 +51,8 @@ data Decision = Decision
   } deriving Show
 
 data DecLogic = DecTable -- Add literal expression later
-  { hitPolicy :: String
+  { tableID :: Id
+  , hitPolicy :: String
   -- , aggregation :: String -- add once collect is done
   , schema :: Schema
   , rules :: [Rule]
@@ -102,6 +117,11 @@ data Condition = ConditionString String
 --   , outputExpression :: String
 --   } deriving Show
 
+exampleDRD :: DRD
+exampleDRD = ([exampleDecision, exampleDecision2]
+  , [Entry "table1" ["stage", "sector", "stage_com", "has_ESG", "wants_ESG"] ["opinion"]
+  , Entry "table2" ["grade"] ["result"]])
+
 exampleDecision :: Decision
 exampleDecision = Decision
   { decisionOut = DecOutVar
@@ -113,7 +133,8 @@ exampleDecision = Decision
     , ReqInputEl "has_ESG" 
     , ReqInputEl "wants_ESG"]
   , decisionLogic = DecTable
-    { hitPolicy = "F"
+    { tableID = "table1"
+    , hitPolicy = "F"
     , schema = Schema
       { sInputSchemas = [InputSchema "stage" "String"
         , InputSchema "sector" "String"
@@ -149,7 +170,8 @@ exampleDecision2 = Decision
     , sDecVarFEELType = "String" }
   , decisionInfoReq = [ReqInputEl "season"]
   , decisionLogic = DecTable
-    { hitPolicy = "U"
+    { tableID = "table2"
+    , hitPolicy = "U"
     , schema = Schema
       { sInputSchemas = [InputSchema "grade" "Int"]
       , sOutputSchema = [OutputSchema "result" "String"] }

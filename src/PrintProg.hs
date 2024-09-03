@@ -13,16 +13,31 @@ nestingDepth = 4
 class ShowProg x where
     showProg :: x -> Doc ann
 
+instance ShowProg CompiledDRD where
+    showProg (DRD rules calls) = vsep [ vsep (map showProg rules)
+                                         , vsep (map showProg calls)]
+
 instance ShowProg CompiledRule where
-    showProg (MkCompiledRule f args (e:es)) = (vsep [ hsep [pretty (T.pack "def")
-                                                            , showProg f 
+    showProg (MkCompiledRule table args (e:es)) = (vsep [ hsep [pretty (T.pack "def")
+                                                            , showProg table
                                                             , pretty (T.pack "(")
                                                             , showProg args
                                                             , pretty (T.pack "):") ]
                                             , indent nestingDepth (showProg e)])
 
+instance ShowProg TableSignature where
+    showProg (MkTableSignature f inputs outputs) = showProg f
+
+instance ShowProg Call where
+    showProg (MkCall f inputs outputs) = hsep [showProg outputs
+                                            , pretty (T.pack "=")
+                                            , showProg f
+                                            , pretty (T.pack "(")
+                                            , showProg inputs
+                                            , pretty (T.pack ")")]
+
 instance ShowProg Func where
-    showProg (Func f) = pretty (T.map toLower (T.pack f))
+    showProg (Func f) =  pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack f)))
 
 instance ShowProg Expr where
     showProg (Var (Arg v)) = pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack v)))
@@ -51,7 +66,10 @@ instance ShowProg Bracket where
     showProg (Exclusive e) = pretty (T.pack "this program cant handle exclusive values")
 
 instance ShowProg [Arg] where
-    showProg args = hsep (punctuate (pretty (T.pack ",")) (map (\(Arg a) -> pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack a)))) args))
+    showProg args = hsep (punctuate (pretty (T.pack ",")) (map showProg args))
+
+instance ShowProg Arg where
+    showProg (Arg a) = pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.strip (T.pack a))))
 
 instance ShowProg [Val] where
     showProg vals = hsep (punctuate (pretty (T.pack ",")) (map showProg vals))
@@ -60,3 +78,10 @@ instance ShowProg Val where
     showProg (Bool b) = pretty b
     showProg (String s) = pretty (T.pack ("'" ++ s ++ "'"))
     showProg (Int n) = pretty n
+
+instance ShowProg [Argument] where
+    showProg args = hsep (punctuate (pretty (T.pack ",")) (map showProg args))
+
+instance ShowProg Argument where
+    showProg (ValArgument v) = showProg v
+    showProg (VarArgument e) = showProg e

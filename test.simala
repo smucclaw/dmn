@@ -1,0 +1,35 @@
+let 
+    TableB = fun (Dish,Children) => 
+        if Dish == 'Spareribs && Children == false 
+            then {Beverages = 'beer} 
+        else if Dish == 'Stew && Children == false 
+            then {Beverages = 'wine} 
+        else if Dish == 'Roastbeef && Children == false 
+            then {Beverages = 'soda} 
+        else if Dish == 'Steak 
+            then {Beverages = 'lemonade} 
+        else {Beverages = '`apple juice`} 
+in let 
+    TableA = fun (season,guests,`veg guests`) => 
+        if and(season == 'Fall,guests <= 8,`veg guests` == false) 
+            then {Dish = 'Spareribs} 
+        else if and(season == 'Winter,guests <= 8,`veg guests` == false) 
+            then {Dish = 'Roastbeef} 
+        else if and(season == 'Spring,guests <= 4,`veg guests` == false) 
+            then {Dish = '`Fancy Steak`} 
+        else if and(season == 'Spring,5 >= 5 && 8 <= 8,`veg guests` == false)
+            then {Dish = 'Stew} 
+        else if and(season == 'Summer,guests <= 8,`veg guests` == false) 
+            then {Dish = '`Light salad and a nice steak`} 
+        else if guests > 8 && `veg guests` == false 
+            then {Dish = 'Stew} 
+        else {Dish = 'Pasta} 
+in let 
+    r0 = TableA('Fall,5,true) 
+in let 
+    d = r0.Dish 
+in let 
+    r1 = TableB(d,false) 
+in let 
+    b = r1.Beverages 
+in b

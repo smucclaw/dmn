@@ -17,28 +17,49 @@ main = do
     case args of
         [inputFile] -> do
             content <- readFile inputFile
-            let markdownTable = content
-            putStrLn markdownTable
+            putStrLn content
+            
+            putStrLn ""
 
-            let parsedDecision = parseMDToDMN markdownTable
-            print parsedDecision
+            let parsedDRD = parseMDToDMN content
+            print parsedDRD
+            putStrLn ""
+
+            -- let convertedDRD = convertDRD parsedDRD
+            -- print convertedDRD
+            -- putStrLn ""
+
+            -- putStrLn "python ver"
+            -- (print . (<>) line . showProg) convertedDRD
+            -- putStrLn ""
+
+            -- putStrLn "simala ver"
+            -- let simalaDMN = translateToSimala convertedDRD
+            -- print simalaDMN
+
             -- type checking
-            case typeCheck parsedDecision of
+            case typeCheck parsedDRD of
                 Left errors -> do
                     putStrLn "Error occurred during type checking:"
                     putStrLn errors
+
                 -- convert to IR
-                Right checkedDecision -> do
+                Right checkedDRD -> do
                     putStrLn "Type checking passed."
-                    let convertedDecision = convertDecision checkedDecision
-                    print convertedDecision
                     putStrLn ""
+                    
+                    let convertedDRD = convertDRD checkedDRD
+                    print convertedDRD
+                    putStrLn ""
+
                     -- translate to python
                     putStrLn "python ver"
-                    (print . (<>) line . showProg) convertedDecision
+                    (print . (<>) line . showProg) convertedDRD
+                    putStrLn ""
+
                     -- translate to simala
                     putStrLn "simala ver"
-                    let simalaDMN = translateToSimala convertedDecision
+                    let simalaDMN = translateToSimala convertedDRD
                     print simalaDMN
         _ -> putStrLn "Please enter as: stack run <input-file>"
 

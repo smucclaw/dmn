@@ -2,14 +2,28 @@
 module FromMD where
 
 import Types
-import Data.List.Split (splitOn)
-import Data.Char (toLower, isDigit)
+import Data.List.Split (splitOn, splitWhen)
+import Data.Char (toLower, isDigit, isSpace)
 import Data.List (isInfixOf)
 
--- Main function to convert markdown table to Decision
-parseMDToDMN :: String -> Decision
-parseMDToDMN tableString = parseDecisionTable tableString
+parseMDToDMN :: String -> DRD
+parseMDToDMN markdown = 
+    let sections = splitOn "\n\n" markdown
+        (tables, entries) = separateTablesAndConnections sections
+        decisions = map parseDecisionTable tables
+        schemas = [(tableID (decisionLogic d), schema (decisionLogic d)) | d <- decisions] 
+        entryList = parseEntries (unlines entries) schemas
+    in (decisions, entryList)
 
+separateTablesAndConnections :: [String] -> ([String], [String]) -- split depending on "|" or not
+separateTablesAndConnections = foldr categorize ([], [])
+  where
+    categorize section (tables, connections) =
+      case section of
+        (firstChar:_) | firstChar == '|' -> (tables ++ [section], connections)
+        _ -> (tables, connections ++ [section])
+
+-- Main function to convert a singular markdown table to Decision
 parseDecisionTable :: String -> Decision
 parseDecisionTable input = 
   let (headers, body) = parseMDTable input
@@ -19,7 +33,8 @@ parseDecisionTable input =
   in Decision { decisionOut = parseDecisionOutput (last headers) -- need to fix this
     , decisionInfoReq = parseInfoReqs (init (tail headers))
     , decisionLogic = DecTable 
-        { hitPolicy = head headers
+        { tableID = takeWhile (/= ')') (drop 1 (dropWhile (/= '(') (head headers)))
+        , hitPolicy = take 1 (dropWhile isSpace (head headers))
         , schema = Schema 
             { sInputSchemas = inputSchemaNames
             , sOutputSchema = outputSchemaNames
@@ -127,3 +142,35 @@ parseOutputType s
 
 trim :: String -> String
 trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse
+
+-- ie inputs and outputs that are manually entered in each table
+parseEntries :: String -> [(Id, Schema)] -> [Entry]
+parseEntries entries schemas = map (parseEntry schemas) (lines entries)
+
+parseEntry :: [(Id, Schema)] -> String -> Entry
+parseEntry schemas entry = 
+    case splitOn "(" entry of
+        [table, rest] -> 
+            let params = map trim (splitOn "," (init rest)) -- remove the trailing ')'
+                maybeSchema = lookup table schemas -- finds corresponding tableid
+            in case maybeSchema of
+                Just schema -> categorizeEntry table params schema
+                Nothing -> error ("Error: Table " ++ table ++ " not yet declared")
+        _ -> error ("Error: Invalid entry format: " ++ entry)
+    where 
+        categorizeEntry :: Id -> [String] -> Schema -> Entry
+        categorizeEntry tableId params Schema{sInputSchemas=inputs, sOutputSchema=outputs} =
+            let numInputs = length inputs
+                numOutputs = length outputs
+                (inputParams, outputParams) = splitAt numInputs params
+            in Entry 
+                { tableId = tableId
+                , inputParams = inputParams
+                , outputParams = outputParams
+                }
+
+
+parseSchema :: String -> [String] -> ([String], [String])
+parseSchema table inout = 
+    let [input, output] = splitOn "|" (last inout)
+    in (splitOn "," input, splitOn "," output)
