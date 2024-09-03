@@ -61,7 +61,10 @@ compileBody exprs outputs = Simala.List (map (`compileExpr` outputs) exprs)
 compileExpr :: ConvertDMN.Expr -> [ColumnSignature] -> Simala.Expr
 compileExpr expr outputs
     | Var (Arg v) <- expr = Simala.Var (T.pack v)
-    | And exprs <- expr = Simala.Builtin Simala.And (map (`compileExpr` outputs) exprs)
+    | And exprs <- expr = 
+        case exprs of
+            [singleExpr] -> compileExpr singleExpr outputs
+            _ -> Simala.Builtin Simala.And (map (`compileExpr` outputs) exprs)
     | Or exprs <- expr = Simala.Builtin Simala.Or (map (`compileExpr` outputs) exprs)
     | Equal e1 e2 <- expr = Simala.Builtin Simala.Eq [compileExpr e1 outputs, compileExpr e2 outputs]
     | If c t (Just e) <- expr = Simala.Builtin Simala.IfThenElse [compileExpr c outputs, compileExpr t outputs, compileExpr e outputs] -- find a better way to do this...

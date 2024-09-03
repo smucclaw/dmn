@@ -1,4 +1,4 @@
-|U (A)|season (input, String)|guests (input, Int)|veg guests (input, Bool)|Dish (output, String)|
+|U (TableA)|season (input, String)|guests (input, Int)|veg guests (input, Bool)|Dish (output, String)|
 |---|---|---|---|---|
 |1|"Fall"|<=8|false| "Spareribs"|
 |2|"Winter"|<=8|false|"Roastbeef"|
@@ -8,7 +8,7 @@
 |6|-|>8|false|"Stew"|
 |7|||true|"Pasta"|
 
-|F (B)| Dish (input, String) | Children (input, Bool) | Beverages (output, String) |
+|F (TableB)| Dish (input, String) | Children (input, Bool) | Beverages (output, String) |
 |-------------|----------------------|------------------------|----------------------------|
 |1|"Spareribs"|false|"beer"|
 |2|"Stew"|false|"wine"|
@@ -16,6 +16,5 @@
 |4|"Steak"||"lemonade"|
 |5||true|"apple juice"|
 
-A("Fall", 5, true, d)
-
-B(d, false, b)
+TableA("Fall", 5, true, d)
+TableB(d, false, b)

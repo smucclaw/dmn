@@ -149,12 +149,14 @@ parseEntries entries schemas = map (parseEntry schemas) (lines entries)
 
 parseEntry :: [(Id, Schema)] -> String -> Entry
 parseEntry schemas entry = 
-    let [table, rest] = splitOn "(" entry
-        params = splitOn "," (init rest) -- remove the trailing ')'
-        maybeSchema = lookup table schemas -- finds corresponding tableid
-    in case maybeSchema of
-        Just schema -> categorizeEntry table params schema
-        Nothing -> error ("Error: Table " ++ table ++ " not yet declared")
+    case splitOn "(" entry of
+        [table, rest] -> 
+            let params = map trim (splitOn "," (init rest)) -- remove the trailing ')'
+                maybeSchema = lookup table schemas -- finds corresponding tableid
+            in case maybeSchema of
+                Just schema -> categorizeEntry table params schema
+                Nothing -> error ("Error: Table " ++ table ++ " not yet declared")
+        _ -> error ("Error: Invalid entry format: " ++ entry)
     where 
         categorizeEntry :: Id -> [String] -> Schema -> Entry
         categorizeEntry tableId params Schema{sInputSchemas=inputs, sOutputSchema=outputs} =
