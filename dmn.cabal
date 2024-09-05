@@ -34,6 +34,7 @@ library
       aeson
     , base >=4.7 && <5
     , containers
+    , directory
     , haskeline
     , hxt
     , megaparsec
@@ -41,6 +42,7 @@ library
     , optics
     , parser-combinators
     , prettyprinter
+    , process
     , split
     , text
   default-language: GHC2021
@@ -54,6 +56,7 @@ executable dmn-exe
       TranslateToSimala
       TypeChecking
       Types
+      RenderPretty
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -XDerivingStrategies -XDerivingVia -XOverloadedRecordDot -XOverloadedStrings -XOverloadedLabels
@@ -61,6 +64,7 @@ executable dmn-exe
       aeson
     , base >=4.7 && <5
     , containers
+    , directory
     , dmn
     , haskeline
     , hxt
@@ -69,6 +73,7 @@ executable dmn-exe
     , optics
     , parser-combinators
     , prettyprinter
+    , process
     , split
     , text
   default-language: GHC2021
@@ -85,6 +90,7 @@ test-suite myproject-test
       aeson
     , base >=4.7 && <5
     , containers
+    , directory
     , dmn
     , haskeline
     , hspec
@@ -94,6 +100,7 @@ test-suite myproject-test
     , optics
     , parser-combinators
     , prettyprinter
+    , process
     , split
     , text
   default-language: GHC2021

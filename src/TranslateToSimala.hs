@@ -46,28 +46,10 @@ translateRule :: CompiledRule -> Simala.Decl
 translateRule rule@(MkCompiledRule (MkTableSignature (Func funcName) inputs _) args exprs) = 
     Simala.NonRec Simala.Transparent (T.pack funcName) (Simala.Fun Simala.Transparent [argName] (compileBody rule exprs))
     where
-        argName = T.pack $ "arg_" ++ funcName
+        argName = T.pack $ "input_" ++ funcName
         compileBody :: CompiledRule -> [ConvertDMN.Expr] -> Simala.Expr
         compileBody r [expr] = compileExpr r argName expr
         compileBody r exprs = Simala.List (map (compileExpr r argName) exprs)
-
--- compileExpr :: CompiledRule -> T.Text -> ConvertDMN.Expr -> Simala.Expr
--- compileExpr expr outputs
---     | Var (Arg v) <- expr = Simala.Var (T.pack v)
---     | And exprs <- expr = 
---         case exprs of
---             [singleExpr] -> compileExpr singleExpr outputs
---             _ -> Simala.Builtin Simala.And (map (`compileExpr` outputs) exprs)
---     | Or exprs <- expr = Simala.Builtin Simala.Or (map (`compileExpr` outputs) exprs)
---     | Equal e1 e2 <- expr = Simala.Builtin Simala.Eq [compileExpr e1 outputs, compileExpr e2 outputs]
---     | If c t (Just e) <- expr = Simala.Builtin Simala.IfThenElse [compileExpr c outputs, compileExpr t outputs, compileExpr e outputs] -- find a better way to do this...
---     | MoreThan e1 e2 <- expr = Simala.Builtin Simala.Gt [compileExpr e1 outputs, compileExpr e2 outputs]
---     | MoreThanEqual e1 e2 <- expr = Simala.Builtin Simala.Ge [compileExpr e1 outputs, compileExpr e2 outputs]
---     | LessThan e1 e2 <- expr = Simala.Builtin Simala.Lt [compileExpr e1 outputs, compileExpr e2 outputs]
---     | LessThanEqual e1 e2 <- expr = Simala.Builtin Simala.Le [compileExpr e1 outputs, compileExpr e2 outputs]
---     | Range e1 e2 <- expr = compileRange e1 e2
---     | Const val <- expr = compileVal val
---     | Return vals <- expr = Simala.Record [(extractName output, compileVal val) | (output, val) <- zip outputs vals]  -- other cases
 
 compileExpr :: CompiledRule -> T.Text -> ConvertDMN.Expr -> Simala.Expr
 compileExpr rule@(MkCompiledRule (MkTableSignature _ inputs outputs) _ _) argName expr = case expr of
@@ -107,13 +89,13 @@ compileApp (VarArgument (Arg a)) = Simala.Var (T.pack a)
 
 compileRange :: CompiledRule -> T.Text -> Bracket -> Bracket -> Simala.Expr 
 compileRange rule argName (Inclusive e1) (Inclusive e2) = 
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [compileExpr rule argName e1, Simala.Var argName], Simala.Builtin Simala.Le [Simala.Var argName, compileExpr rule argName e2]]
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Le [Simala.Var argName, compileExpr rule argName e2]]
 compileRange rule argName (Inclusive e1) (Exclusive e2) =
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [compileExpr rule argName e1, Simala.Var argName], Simala.Builtin Simala.Lt [Simala.Var argName, compileExpr rule argName e2]]
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Lt [Simala.Var argName, compileExpr rule argName e2]]
 compileRange rule argName (Exclusive e1) (Inclusive e2) =
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [compileExpr rule argName e1, Simala.Var argName], Simala.Builtin Simala.Le [Simala.Var argName, compileExpr rule argName e2]]
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Le [Simala.Var argName, compileExpr rule argName e2]]
 compileRange rule argName (Exclusive e1) (Exclusive e2) =
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [compileExpr rule argName e1, Simala.Var argName], Simala.Builtin Simala.Lt [Simala.Var argName, compileExpr rule argName e2]]
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Lt [Simala.Var argName, compileExpr rule argName e2]]
 
 compileVal :: Val -> (Simala.Expr)
 compileVal val = case val of

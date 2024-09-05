@@ -5,12 +5,15 @@ import ConvertDMN
 import PrintProg
 import Prettyprinter
 import System.Environment (getArgs)
-import System.IO (readFile)
+import System.IO (readFile, writeFile)
+import System.Directory (setCurrentDirectory, getCurrentDirectory)
+import System.Process (callCommand)
+import System.Environment (unsetEnv)
 import Text.XML.HXT.Core hiding (Schema)
 import FromMD
 import TypeChecking
 import TranslateToSimala
-import Simala.Expr.Render (render)
+import RenderPretty (render)
 import Base.Pretty
 import qualified Data.Text.IO as T
 
@@ -68,6 +71,13 @@ main = do
 
                     -- translate to simala
                     putStrLn "simala ver"
+                    let simalaProg = render simalaDMN
                     T.putStrLn $ render simalaDMN
+
+                    setCurrentDirectory "/root/cclaw/dmn/simala"
+
+                    T.writeFile "try.simala" simalaProg
+                    unsetEnv "GHC_PACKAGE_PATH"
+                    callCommand "cabal run simala -- try.simala"
 
         _ -> putStrLn "Please enter as: stack run <input-file>"

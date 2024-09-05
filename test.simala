@@ -49,4 +49,4 @@ in TableB({d, false})
 let results = fun (input_result) =>
     if a.mark >= 72 
     && 
-in results({72})
+in results({mark = 72})

@@ -22,14 +22,14 @@ Parser that takes markdown inputs and parses them to the data structure defined 
 
 Input form:
 ```
-|F|b.stage (input, string)|b.sector (input, string)|b.stage_com (input, string)|b.has_ESG (input, bool)|inv.wants_ESG (input, bool)|opinion (output, string)
+|F|b.stage (input, String)|b.sector (input, String)|b.stage_com (input, String)|b.has_ESG (input, Bool)|inv.wants_ESG (input, Bool)|opinion (output, String)
 |---|---|---|---|---|---|---|
 |1|Seed|Information Technology|Pre-Revenue|||interesting|
 |2|Series A|Information Technology|Pre-Profit|||interesting|
 |3||||TRUE|TRUE|interesting|
 |4||||||reject|
 ```
-
+Types should be capitalised in specification.
 dashes can also be used to represent a null input.
 
 issues noticed so far:

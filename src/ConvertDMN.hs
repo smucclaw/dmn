@@ -91,10 +91,11 @@ convertOutputSchema :: OutputSchema -> ColumnSignature
 convertOutputSchema OutputSchema {..} = MkColumnSignature (Arg sOutputSchemaVarName) (convertType sOutputSchemaFEELType)
 
 convertType :: String -> Type
-convertType "String" = StringType
-convertType "Int" = IntType
-convertType "Bool" = BoolType
-convertType _ = error "Type not supported" 
+convertType str = case map toLower str of
+    "string" -> StringType
+    "int" -> IntType
+    "bool" -> BoolType
+    _ -> error "Type not supported"
 
 -- for calls
 findTable :: [TableSignature] -> Entry -> Call
