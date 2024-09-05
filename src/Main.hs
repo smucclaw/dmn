@@ -10,6 +10,9 @@ import Text.XML.HXT.Core hiding (Schema)
 import FromMD
 import TypeChecking
 import TranslateToSimala
+import Simala.Expr.Render (render)
+import Base.Pretty
+import qualified Data.Text.IO as T
 
 main :: IO ()
 main = do
@@ -57,41 +60,14 @@ main = do
                     (print . (<>) line . showProg) convertedDRD
                     putStrLn ""
 
-                    -- translate to simala
-                    putStrLn "simala ver"
+                    -- translate to simala ast
+                    putStrLn "simala ast"
                     let simalaDMN = translateToSimala convertedDRD
                     print simalaDMN
+                    putStrLn ""
+
+                    -- translate to simala
+                    putStrLn "simala ver"
+                    T.putStrLn $ render simalaDMN
+
         _ -> putStrLn "Please enter as: stack run <input-file>"
-
-    -- let markdownTable = "|U|Mark (input, number)|Result (output, string)|\n\
-    --                     \|---|---|---|\n\
-    --                     \|1|>=50|\"Pass\"|\n\
-    --                     \|2|<50|\"Fail\"|"
-    
-    -- content <- readFile "input.md"
-    -- let markdownTable = content
-    -- putStrLn markdownTable
-
-    -- -- parsing markdown to types structure 
-    -- let parsedDecision = parseMDToDMN markdownTable
-    -- print "Parsed Decision:"
-    -- print parsedDecision
-    -- putStrLn ""
-
-    -- -- type checking
-    -- case typeCheck parsedDecision of
-    --     Left errors -> do
-    --         putStrLn "Error occured during type checking:"
-    --         putStrLn errors
-    --     -- convert to IR
-    --     Right checkedDecision -> do
-    --         putStrLn "Type checking passed."
-    --         let convertedDecision = convertDecision checkedDecision
-    --         print convertedDecision
-    --         putStrLn ""
-    --         -- translate to python
-    --         print "python ver"
-    --         (print . (<>) line . showProg) convertedDecision
-
-    -- print "simala ver"
-    -- (print . (<>) line . showProgSimala) convertedRules

@@ -1,1 +1,36 @@
-let TableB = fun (Dish,Dessert,Children) => if and(Dish == 'Spareribs,Dessert == 'Cake,Children == false) then {Beverages = 'beer} else if Dish == 'Stew && Children == false then {Beverages = 'wine} else if Dish == 'Roastbeef && Children == false then {Beverages = 'soda} else if Dish == 'Steak then {Beverages = 'lemonade} else {Beverages = '`apple juice`} in let TableA = fun (season,guests,`veg guests`) => if and(season == 'Fall,guests <= 8,`veg guests` == false) then {Dish = 'Spareribs,Dessert = 'Cake} else if and(season == 'Winter,guests <= 8,`veg guests` == false) then {Dish = 'Roastbeef,Dessert = 'Brownie} else if and(season == 'Spring,guests <= 4,`veg guests` == false) then {Dish = '`Fancy Steak`,Dessert = 'Pie} else if (5 >= 5 && 8 <= 8) && `veg guests` == false then {Dish = 'Stew,Dessert = 'Pie} else if and(season == 'Summer,guests <= 8,`veg guests` == false) then {Dish = '`Light salad and a nice steak`,Dessert = '`Ice cream`} else if guests > 8 && `veg guests` == false then {Dish = 'Stew,Dessert = 'Cake} else {Dish = 'Pasta,Dessert = 'Cake} in let r0 = TableA('Fall,5,true) in let dish = r0.Dish in let dessert = r0.Dessert in let r1 = TableB(dish,dessert,false) in let beverage = r1.Beverages in beverage
+let 
+    TableC = fun (Beverages) => 
+        if Beverages == 'beer then {Alcoholic = true} 
+        else if Beverages == 'wine then {Alcoholic = true}
+        else if Beverages == 'soda then {Alcoholic = false} 
+        else if Beverages == 'lemonade then {Alcoholic = false} 
+        else {Alcoholic = false} 
+in let 
+    TableB = fun (Dish,Dessert,Children) => 
+        if and(Dish == 'Spareribs,Dessert == 'Cake,Children == false) then {Beverages = 'beer} 
+        else if Dish == 'Stew && Children == false then {Beverages = 'wine} 
+        else if Dish == 'Roastbeef && Children == false then {Beverages = 'soda} 
+        else if Dish == 'Steak then {Beverages = 'lemonade} 
+        else {Beverages = '`apple juice`} 
+in let 
+    TableA = fun (season,guests,`veg guests`) => 
+        if and(season == 'Fall,guests <= 8,`veg guests` == false) then {Dish = 'Spareribs,Dessert = 'Cake} 
+        else if and(season == 'Winter,guests <= 8,`veg guests` == false) then {Dish = 'Roastbeef,Dessert = 'Brownie} 
+        else if and(season == 'Spring,guests <= 4,`veg guests` == false) then {Dish = '`Fancy Steak`,Dessert = 'Pie} 
+        else if (5 >= 5 && 8 <= 8) && `veg guests` == false then {Dish = 'Stew,Dessert = 'Pie} 
+        else if and(season == 'Summer,guests <= 8,`veg guests` == false) then {Dish = '`Light salad and a nice steak`,Dessert = '`Ice cream`} 
+        else if guests > 8 && `veg guests` == false then {Dish = 'Stew,Dessert = 'Cake} 
+        else {Dish = 'Pasta,Dessert = 'Cake} in let r0 = TableC(beverage) 
+in let 
+    alc = r0.Alcoholic 
+in let 
+    r1 = TableB(dish,dessert,false) 
+in let 
+    beverage = r1.Beverages 
+in let 
+    r2 = TableA('Fall,5,true) 
+in let 
+    dish = r2.Dish 
+in let 
+    dessert = r2.Dessert 
+in dessert
