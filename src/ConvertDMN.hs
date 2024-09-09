@@ -49,7 +49,7 @@ data Expr = Var Arg
             | LessThan Expr Expr
             | MoreThanEqual Expr Expr
             | LessThanEqual Expr Expr
-            | Range Bracket Bracket
+            | Range Bracket Bracket Expr
             | Const Val 
             | Return [Val]
             | InitList ListName -- list name, initialise
@@ -178,7 +178,7 @@ checkCondition InputEntry {sMaybeCondition = Just (ConditionInt (Just op) val), 
 checkCondition InputEntry {sMaybeCondition = Just (ConditionRange open num1 num2 close), ..} = -- range condition
     let startBracket = bracket (head open) (Const (Int num1))
         endBracket = bracket (head close) (Const (Int num2))
-    in Just (Range startBracket endBracket)
+    in Just (Range startBracket endBracket (Var (Arg sInputEntryId)))
 checkCondition _ = Nothing
 
 bracket :: Char -> Expr -> Bracket

@@ -65,7 +65,7 @@ compileExpr rule@(MkCompiledRule (MkTableSignature _ inputs outputs) _ _) argNam
     MoreThanEqual e1 e2 -> Simala.Builtin Simala.Ge [compileExpr rule argName e1, compileExpr rule argName e2]
     LessThan e1 e2 -> Simala.Builtin Simala.Lt [compileExpr rule argName e1, compileExpr rule argName e2]
     LessThanEqual e1 e2 -> Simala.Builtin Simala.Le [compileExpr rule argName e1, compileExpr rule argName e2]
-    Range e1 e2 -> compileRange rule argName e1 e2
+    Range e1 e2 v -> compileRange rule argName e1 e2 v
     Const val -> compileVal val
     Return vals -> Simala.Record [(extractName output, compileVal val) | (output, val) <- zip outputs vals]  -- other cases
 
@@ -87,15 +87,15 @@ compileApp :: Argument -> Simala.Expr
 compileApp (ValArgument a) = compileVal a
 compileApp (VarArgument (Arg a)) = Simala.Var (T.pack a)
 
-compileRange :: CompiledRule -> T.Text -> Bracket -> Bracket -> Simala.Expr 
-compileRange rule argName (Inclusive e1) (Inclusive e2) = 
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Le [Simala.Var argName, compileExpr rule argName e2]]
-compileRange rule argName (Inclusive e1) (Exclusive e2) =
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Lt [Simala.Var argName, compileExpr rule argName e2]]
-compileRange rule argName (Exclusive e1) (Inclusive e2) =
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Le [Simala.Var argName, compileExpr rule argName e2]]
-compileRange rule argName (Exclusive e1) (Exclusive e2) =
-    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [Simala.Var argName, compileExpr rule argName e1], Simala.Builtin Simala.Lt [Simala.Var argName, compileExpr rule argName e2]]
+compileRange :: CompiledRule -> T.Text -> Bracket -> Bracket -> ConvertDMN.Expr -> Simala.Expr 
+compileRange rule argName (Inclusive e1) (Inclusive e2) v = 
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [compileExpr rule argName v, compileExpr rule argName e1], Simala.Builtin Simala.Le [compileExpr rule argName v, compileExpr rule argName e2]]
+compileRange rule argName (Inclusive e1) (Exclusive e2) v =
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Ge [compileExpr rule argName v, compileExpr rule argName e1], Simala.Builtin Simala.Lt [compileExpr rule argName v, compileExpr rule argName e2]]
+compileRange rule argName (Exclusive e1) (Inclusive e2) v =
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [compileExpr rule argName v, compileExpr rule argName e1], Simala.Builtin Simala.Le [compileExpr rule argName v, compileExpr rule argName e2]]
+compileRange rule argName (Exclusive e1) (Exclusive e2) v =
+    Simala.Builtin Simala.And [Simala.Builtin Simala.Gt [compileExpr rule argName v, compileExpr rule argName e1], Simala.Builtin Simala.Lt [compileExpr rule argName v, compileExpr rule argName e2]]
 
 compileVal :: Val -> (Simala.Expr)
 compileVal val = case val of
