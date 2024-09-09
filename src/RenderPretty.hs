@@ -100,7 +100,7 @@ renderBuiltin p Ne         [e1, e2]     = renderBinop  4 " /= " p e1 e2
 renderBuiltin p And        exprs        = parensIf (p > 3) (indentText 2 (Data.Text.intercalate "\n&& " (map (renderAtPrio 3) exprs)))
 renderBuiltin p Or         [e1, e2]     = renderBinopr 2 " || " p e1 e2
 renderBuiltin p IfThenElse [e1, e2, e3] =
-  parensIf (p > 0) ("if " <> render e1 <> "then " <> render e2 <> " \nelse\n" <> indentText 2 (render e3))
+  parensIf (p > 0) ("if " <> render e1 <> " then " <> render e2 <> " \nelse\n" <> indentText 2 (render e3))
 renderBuiltin _ b          es           = render b <> renderArgs es
 
 renderBinopl :: (Render a1, Render a2) => Int -> Text -> Int -> a1 -> a2 -> Text

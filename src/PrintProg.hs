@@ -47,15 +47,11 @@ instance ShowProg Expr where
               , indent nestingDepth (showProg t)
               , pretty (T.pack "else:")
               , indent nestingDepth (showProg e)
-            --   , pretty "then" <+> showProg t
-            --   , pretty "else"
-            --   , nest nestingDepth (showProg e)
               ]
     showProg (MoreThan e1 e2) = showProg e1 <+> pretty (T.pack ">") <+> showProg e2
     showProg (MoreThanEqual e1 e2) = showProg e1 <+> pretty (T.pack ">=") <+> showProg e2
     showProg (LessThan e1 e2) = showProg e1 <+> pretty (T.pack "<") <+> showProg e2
     showProg (LessThanEqual e1 e2) = showProg e1 <+> pretty (T.pack "<=") <+> showProg e2
-    -- showProg (Range e1 e2) = pretty (T.pack "range(") <+> showProg e1 <+> pretty (T.pack ",") <+> showProg e2 <+> pretty (T.pack ")")
     showProg (Range e1 e2 e3) = showProg e3 <+> pretty (T.pack ">") <> showProg e1 <+> pretty (T.pack "and") <+> showProg e3 <+> pretty (T.pack "<") <> showProg e2
     showProg (Const val) = showProg val
     showProg (Return vals) = pretty (T.pack "return") <+> showProg vals

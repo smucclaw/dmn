@@ -8,14 +8,6 @@ type Label = String
 type DecName = String  -- Decision Name
 
 type DRD = ([Decision], [Entry])
--- type DRD = [Decision]
-
--- data DRDConnection = DRDConnection
---   { sourceTable :: Id
---   , targetTable :: Id
---   , sourceOutputs :: [String]
---   , targetInputs :: [String]
---   } deriving Show
 
 data Entry = Entry
   { tableId :: Id
@@ -41,7 +33,7 @@ data Entry = Entry
 
 data DecOutVar = DecOutVar
   { sDecVarName :: DecName
-  , sDecVarFEELType :: String  -- Adjusted to String for now
+  , sDecVarFEELType :: String 
   } deriving Show
 
 data Decision = Decision
@@ -50,7 +42,7 @@ data Decision = Decision
   , decisionLogic :: DecLogic  -- This is DecTable or Literal Expression
   } deriving Show
 
-data DecLogic = DecTable -- Add literal expression later
+data DecLogic = DecTable -- TODO: Add literal expression
   { tableID :: Id
   , hitPolicy :: String
   -- , aggregation :: String -- add once collect is done
@@ -70,20 +62,13 @@ data InputSchema = InputSchema
 
 data OutputSchema = OutputSchema
   { sOutputSchemaVarName :: String
-  , sOutputSchemaFEELType :: String } -- Change later
+  , sOutputSchemaFEELType :: String } 
   deriving Show
 
 data InfoReq = ReqInputEl
-  { sReqInput :: ReqInput } -- get rid of one
-  -- Id ReqInput
+  { sReqInput :: ReqInput }
   deriving Show
 type ReqInput = String
-
--- data InputExpr = InputExpr
---   { inputExprName :: VarName
---   , inputExprFEELType :: String  -- Change to FEEL type later on
---   } deriving Show
--- removed as it seems redundant
 
 data Rule = Rule
   { ruleId :: Id
@@ -107,15 +92,6 @@ data Condition = ConditionString String
                 | ConditionInt (Maybe String) Int
                 | ConditionRange String Int Int String
   deriving Show
-
--- data Operator = Equal | NotEqual | LessThan | GreaterThan deriving Show
-
--- data hitPolicy = 
-
--- data Output = Output
---   { outputId :: Id
---   , outputExpression :: String
---   } deriving Show
 
 exampleDRD :: DRD
 exampleDRD = ([exampleDecision, exampleDecision2]
@@ -182,24 +158,6 @@ exampleDecision2 = Decision
       ]
     }
   }
-
--- gradesDecision :: Decision
--- gradesDecision = Decision
---   { decisionOut = DecOutVar "grade" "String"
---   , decisionInfoReq = [ReqInputEl "mark"]
---   , decisionLogic = DecTable
---     { hitPolicy = "U"
---     , schema = Schema
---       { sInputSchemas = [InputSchema "mark" "Int"]
---       , sOutputSchema = OutputSchema "grade" "String" }
---     , rules = [Rule "rule1" [InputEntry "mark" (Just (ConditionInt (Just ">=") 70))] 
---         (OutputEntry "grade" "A" "String")
---       , Rule "rule2" [InputEntry "mark" (Just (ConditionRange "[" 60 70 ")"))] 
---         (OutputEntry "grade" "B" "String")
---       , Rule "rule3" [InputEntry "mark" (Just (ConditionRange "[" 50 60 ")"))]
---         (OutputEntry "grade" "C" "String")
---     ]}}
-
 
 -- exampleDecision3 :: Decision
 -- exampleDecision3 = Decision

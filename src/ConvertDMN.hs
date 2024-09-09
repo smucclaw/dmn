@@ -158,8 +158,8 @@ nestedIfRules (rule:rules) =
 combineOneRule :: Rule -> Expr
 combineOneRule Rule { inputEntries = [entry] } = 
     case checkCondition entry of
-        Just expr -> expr  -- If only one condition and it's valid, return it directly
-        Nothing -> Const (Bool True) -- should change it to a Maybe Expr so that 
+        Just expr -> expr 
+        Nothing -> Const (Bool True) 
 combineOneRule Rule { inputEntries = entries } = 
     case mapMaybe checkCondition entries of
         [] -> Const (Bool True)
@@ -207,72 +207,6 @@ getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} =
                     "false" -> Bool False
         _ -> String expr
 
-
--- convertEntry :: [CompiledRule] -> Vars -> Entry -> ProcessedRule
--- convertEntry compiledRules vars (Entry id inputs outputs) = 
---     case find (\(MkCompiledRule (Func funcId) _ _) -> funcId == id) compiledRules of
---         Just (MkCompiledRule _ args _) -> 
---             let updatedOutputVars = foldr (\(varName, value) acc -> Map.insert varName value acc) outputVars outputs 
--- -- slightly confused, not sure if i should be inserting the values into compiled rule and then putting here? or if i just store the variable name for now
---             in ProcessedRule (Func id) ((zipWith (convertInput updatedOutputVars) args inputs) ++ convertOutputs updatedOutputVars outputs)
---             -- ProcessedRule (Func id) ((zipWith convertInputs args inputs) ++ convertOutputs outputs)
---         Nothing -> error "Table not found for entry" ++ id
---     where 
---         convertOutputs vars = map (\param -> Output (Var (Arg param))) -- output is always a variable
-
--- convertInput :: Vars -> Arg -> String -> Parameter
--- convertInput outputVars arg param =
---     case param of
---         '"':rest -> Input arg (Const (String (init rest)))
---         "true"   -> Input arg (Const (Bool True))
---         "false"  -> Input arg (Const (Bool False))
---         num | all isDigit num -> Input arg (Const (Int (read num)))
---         var      -> if Map.member var outputVars
---                     then Input arg (Var (Arg var))
---                     else error ("Input variable " ++ var ++ " does not correspond to any output variable")
-
--- exampleDRD :: CompiledDRD
--- exampleDRD = DRD [rule1] [call1, call2]
-
--- -- example
--- rule1 :: CompiledRule -- target
--- rule1 = MkCompiledRule (Func "get_opinion") [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG", Arg "wants_ESG"] 
---         [(If 
---             (And [ Equal (Var (Arg "stage")) (Const (String "Seed"))
---                 , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
---                 , Equal (Var (Arg "stage_com")) (Const (String "Pre-Revenue"))
---             ])
---             (Return [String "interesting"])
---             (Just (If 
---                 (And [ Equal (Var (Arg "stage")) (Const (String "Series A"))
---                     , Equal (Var (Arg "sector")) (Const (String "Information Technology"))
---                     , Equal (Var (Arg "stage_com")) (Const (String "Pre-Profit"))
---                 ])
---                 (Return [String "interesting"])
---                 (Just (If
---                     (And [ Equal (Var (Arg "has_ESG")) (Const (Bool True))
---                         , Equal (Var (Arg "wants_ESG")) (Const (Bool True))
---                     ])
---                     (Return [String "interesting"])
---                     (Just (Return [String "reject"]))
---                 )
---             )))
---         )]
-
--- rule2 :: CompiledRule
--- rule2 = MkCompiledRule ((Func "simple")) [Arg "opinion"]
---         [If (Equal (Var (Arg "opinion")) (Const (String "interesting")))
---             (Return [String "good"])
---             (Just (Return [String "bad"]))]
-
--- call1 :: Call
--- call1 = 
---     MkCall (Func "get_opinion") 
---     [ValArgument (String "Seed"), ValArgument (String "Information Technology"), ValArgument (String "Pre-Revenue"), ValArgument (Bool True), ValArgument (Bool True)] [VarArgument (Arg "opinion")]
-
--- call2 :: Call
--- call2 = MkCall (Func "simple") [VarArgument (Arg "opinion")] [VarArgument (Arg "result")]
-
 -- rule2 :: CompiledRule -- for rule order hit policy
 -- rule2 = MkCompiledRule [Arg "age"] -- if i do InitList ListName [Expr] and keep MkCompiledRule to one expr- not sure which is better?
 --         (InitList 
@@ -288,7 +222,6 @@ getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} =
 --             , Const (String "toys")
 --             ]
 --         )
-
 
 -- rulemade :: CompiledRule -- running exampleDecision3 produces this
 -- rulemade = MkCompiledRule [Arg "age"] 

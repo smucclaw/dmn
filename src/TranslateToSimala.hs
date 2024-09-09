@@ -36,12 +36,6 @@ translateCalls rules call index =
         out (MkCompiledRule (MkTableSignature (Func funcName) _ outColumns) _ _) = outColumns
         ins (MkCompiledRule (MkTableSignature (Func funcName) inColumns _) _ _) = inColumns
 
-
-
--- createRecordProjection :: Simala.Decl -> [Simala.Decl] -> Simala.Decl
--- createRecordProjection (Simala.NonRec _ callname (Simala.App (Var tablename) [_])) decls = 
---     Simala.Project (Simala.Var callname) (findOutputName tablename decls)
-
 translateRule :: CompiledRule -> Simala.Decl
 translateRule rule@(MkCompiledRule (MkTableSignature (Func funcName) inputs _) args exprs) = 
     Simala.NonRec Simala.Transparent (T.pack funcName) (Simala.Fun Simala.Transparent [argName] (compileBody rule exprs))

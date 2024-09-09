@@ -31,18 +31,6 @@ main = do
             print parsedDRD
             putStrLn ""
 
-            -- let convertedDRD = convertDRD parsedDRD
-            -- print convertedDRD
-            -- putStrLn ""
-
-            -- putStrLn "python ver"
-            -- (print . (<>) line . showProg) convertedDRD
-            -- putStrLn ""
-
-            -- putStrLn "simala ver"
-            -- let simalaDMN = translateToSimala convertedDRD
-            -- print simalaDMN
-
             -- type checking
             case typeCheck parsedDRD of
                 Left errors -> do

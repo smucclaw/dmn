@@ -30,7 +30,7 @@ parseDecisionTable input =
       (inputHeaders, outputHeaders) = separateHeaders (tail headers)
       inputSchemaNames = parseInputSchemas inputHeaders
       outputSchemaNames = parseOutputSchema outputHeaders
-  in Decision { decisionOut = parseDecisionOutput (last headers) -- need to fix this
+  in Decision { decisionOut = parseDecisionOutput (last headers) -- TODO: need to fix this
     , decisionInfoReq = parseInfoReqs (init (tail headers))
     , decisionLogic = DecTable 
         { tableID = takeWhile (/= ')') (drop 1 (dropWhile (/= '(') (head headers)))
@@ -151,7 +151,7 @@ parseEntry :: [(Id, Schema)] -> String -> Entry
 parseEntry schemas entry = 
     case splitOn "(" entry of
         [table, rest] -> 
-            let params = map trim (splitOn "," (init rest)) -- remove the trailing ')'
+            let params = map trim (splitOn "," (init rest)) 
                 maybeSchema = lookup table schemas -- finds corresponding tableid
             in case maybeSchema of
                 Just schema -> categorizeEntry table params schema
