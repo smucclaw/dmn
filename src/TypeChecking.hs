@@ -79,7 +79,9 @@ checkInputs schema param =
 -- need to implement type checking for variables
 matchesType :: String -> String -> Bool
 matchesType "string" _ = True
-matchesType "bool" s = s == "true" || s == "false"
+-- matchesType "bool" s = s == "true" || s == "false"
+matchesType "bool" s = True
+-- not type checking for now
 matchesType "int" s = all isDigit s
 matchesType "int" s = (head s == '[' || head s == '(') && (last s == ']' || last s == ')')
 matchesType _ _ = False

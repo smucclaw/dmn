@@ -49,7 +49,7 @@ data Expr = Var Arg
             | LessThan Expr Expr
             | MoreThanEqual Expr Expr
             | LessThanEqual Expr Expr
-            | Range Bracket Bracket
+            | Range Bracket Bracket Expr
             | Const Val 
             | Return [Val]
             | InitList ListName -- list name, initialise
@@ -91,10 +91,11 @@ convertOutputSchema :: OutputSchema -> ColumnSignature
 convertOutputSchema OutputSchema {..} = MkColumnSignature (Arg sOutputSchemaVarName) (convertType sOutputSchemaFEELType)
 
 convertType :: String -> Type
-convertType "String" = StringType
-convertType "Int" = IntType
-convertType "Bool" = BoolType
-convertType _ = error "Type not supported" 
+convertType str = case map toLower str of
+    "string" -> StringType
+    "int" -> IntType
+    "bool" -> BoolType
+    _ -> error "Type not supported"
 
 -- for calls
 findTable :: [TableSignature] -> Entry -> Call
@@ -177,7 +178,7 @@ checkCondition InputEntry {sMaybeCondition = Just (ConditionInt (Just op) val), 
 checkCondition InputEntry {sMaybeCondition = Just (ConditionRange open num1 num2 close), ..} = -- range condition
     let startBracket = bracket (head open) (Const (Int num1))
         endBracket = bracket (head close) (Const (Int num2))
-    in Just (Range startBracket endBracket)
+    in Just (Range startBracket endBracket (Var (Arg sInputEntryId)))
 checkCondition _ = Nothing
 
 bracket :: Char -> Expr -> Bracket

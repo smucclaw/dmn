@@ -55,14 +55,15 @@ instance ShowProg Expr where
     showProg (MoreThanEqual e1 e2) = showProg e1 <+> pretty (T.pack ">=") <+> showProg e2
     showProg (LessThan e1 e2) = showProg e1 <+> pretty (T.pack "<") <+> showProg e2
     showProg (LessThanEqual e1 e2) = showProg e1 <+> pretty (T.pack "<=") <+> showProg e2
-    showProg (Range e1 e2) = pretty (T.pack "range(") <+> showProg e1 <+> pretty (T.pack ",") <+> showProg e2 <+> pretty (T.pack ")")
+    -- showProg (Range e1 e2) = pretty (T.pack "range(") <+> showProg e1 <+> pretty (T.pack ",") <+> showProg e2 <+> pretty (T.pack ")")
+    showProg (Range e1 e2 e3) = showProg e3 <+> pretty (T.pack ">") <> showProg e1 <+> pretty (T.pack "and") <+> showProg e3 <+> pretty (T.pack "<") <> showProg e2
     showProg (Const val) = showProg val
     showProg (Return vals) = pretty (T.pack "return") <+> showProg vals
     showProg _ = pretty (T.pack "erorr??")
 
 
 instance ShowProg Bracket where
-    showProg (Inclusive e) = showProg e
+    showProg (Inclusive e) = pretty (T.pack "=") <+> showProg e
     showProg (Exclusive e) = pretty (T.pack "this program cant handle exclusive values")
 
 instance ShowProg [Arg] where

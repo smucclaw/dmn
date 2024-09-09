@@ -16,9 +16,9 @@ parseMDToDMN markdown =
     in (decisions, entryList)
 
 separateTablesAndConnections :: [String] -> ([String], [String]) -- split depending on "|" or not
-separateTablesAndConnections = foldr categorize ([], [])
+separateTablesAndConnections = foldl categorize ([], [])
   where
-    categorize section (tables, connections) =
+    categorize (tables, connections) section =
       case section of
         (firstChar:_) | firstChar == '|' -> (tables ++ [section], connections)
         _ -> (tables, connections ++ [section])

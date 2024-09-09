@@ -17,7 +17,7 @@ in let
             then {Dish = 'Roastbeef} 
         else if and(season == 'Spring,guests <= 4,`veg guests` == false) 
             then {Dish = '`Fancy Steak`} 
-        else if and(season == 'Spring,5 >= 5 && 8 <= 8,`veg guests` == false)
+        else if and(season == 'Spring,guests >= 5 && 8 <= 8,`veg guests` == false)
             then {Dish = 'Stew} 
         else if and(season == 'Summer,guests <= 8,`veg guests` == false) 
             then {Dish = '`Light salad and a nice steak`} 
@@ -33,3 +33,20 @@ in let
 in let 
     b = r1.Beverages 
 in b
+
+
+
+let 
+    TableA = fun (a) => 
+        if and(a.season == 'Fall, a.guests ...
+in let TableB = fun (b) => ...
+in let
+    r0 = TableA({season = 'Fall, guests = 5})
+in TableB({d, false})
+
+-- do i need to declare a as a record??
+
+let results = fun (input_result) =>
+    if a.mark >= 72 
+    && 
+in results({mark = 72})

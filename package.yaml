@@ -17,6 +17,8 @@ dependencies:
 - haskeline
 - megaparsec
 - parser-combinators
+- process
+- directory
 
 ghc-options:
 - -Wall
@@ -50,6 +52,7 @@ executables:
     - TranslateToSimala
     - TypeChecking
     - Types
+    - RenderPretty
     dependencies:
     - dmn
 
