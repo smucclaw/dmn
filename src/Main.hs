@@ -61,6 +61,7 @@ main = do
                     putStrLn "simala ver"
                     let simalaProg = render simalaDMN
                     T.putStrLn $ render simalaDMN
+                    putStrLn ""
 
                     setCurrentDirectory "/root/cclaw/dmn/simala"
 

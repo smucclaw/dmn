@@ -143,9 +143,16 @@ parseOutputType s
 trim :: String -> String
 trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse
 
--- ie inputs and outputs that are manually entered in each table
+removeComment :: String -> String
+removeComment line
+    | "//" `isInfixOf` line = takeWhile (/= '/') line
+    | otherwise = line
+
+-- ie function calls
 parseEntries :: String -> [(Id, Schema)] -> [Entry]
-parseEntries entries schemas = map (parseEntry schemas) (lines entries)
+parseEntries entries schemas = 
+    let nonEmptyLines = filter (not . null) (map removeComment (lines entries))
+    in map (parseEntry schemas) nonEmptyLines
 
 parseEntry :: [(Id, Schema)] -> String -> Entry
 parseEntry schemas entry = 

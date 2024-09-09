@@ -5,9 +5,9 @@ This code takes a single DMN table as an input and converts it into Simala.
 A list of all transpilations and their current status
 |Target|Input/Output|Status|
 |---|---|---|
-|DMN (Markdown)|Input|Currently handles only single-hit policies and one decision table.
+|DMN (Markdown)|Input|Currently handles only single-hit policies.
 |XML|Input|In progress|
-|Simala|Output|unverified|
+|Simala|Output|FEEL expressions are limited|
 |Python|Output|FEEL expressions are limited|
 
 ## Usage
@@ -22,20 +22,25 @@ Parser that takes markdown inputs and parses them to the data structure defined 
 
 Input form:
 ```
-|F|b.stage (input, String)|b.sector (input, String)|b.stage_com (input, String)|b.has_ESG (input, Bool)|inv.wants_ESG (input, Bool)|opinion (output, String)
+|F (PitchDecks)|stage (input, String)|sector (input, String)|stage_com (input, String)|has_ESG (input, Bool)|wants_ESG (input, Bool)|opinion (output, String)|
 |---|---|---|---|---|---|---|
-|1|Seed|Information Technology|Pre-Revenue|||interesting|
-|2|Series A|Information Technology|Pre-Profit|||interesting|
-|3||||TRUE|TRUE|interesting|
-|4||||||reject|
+|1|"Seed"|"Information Technology"|"Pre-Revenue"|||"interesting"|
+|2|"Series A"|"Information Technology"|"Pre-Profit"|||"interesting"|
+|3||||TRUE|TRUE|"interesting"|
+|4||||||"reject"|
+
+PitchDecks("Seed", "Information Technology", "Pre-Profit", true, true, o)
+
+// example of a comment
 ```
-Types should be capitalised in specification.
-dashes can also be used to represent a null input.
+
+Note:
+- Types should be capitalised in specification.
+- dashes can also be used to represent a null input.
+- comments can be written with the prefix '//'
 
 issues noticed so far:
 - lack of ability to specify limited inputs (ie any input can be entered with no form of checking)
-- difficulty in representing DRDs
-    - this can be resolved by simply treating schemas of the same name in different tables as being the same
 
 ### 2. Type Checking and DMN data structure representation
 ```haskell
@@ -119,9 +124,46 @@ exampleConverted = MkCompiledRule (Func "opinion") [Arg "stage", Arg "sector", A
 
 
 ### 5. Simala
+```haskell
+let
+   PitchDecks = fun (input_PitchDecks) => 
+      if   input_PitchDecks.stage == 'Seed
+        && input_PitchDecks.sector == '`Information Technology`
+        && input_PitchDecks.stage_com == '`Pre-Revenue`
+       then {opinion = 'interesting} 
+      else
+        if   input_PitchDecks.stage == '`Series A`
+          && input_PitchDecks.sector == '`Information Technology`
+          && input_PitchDecks.stage_com == '`Pre-Profit`
+         then {opinion = 'interesting} 
+        else
+          if   input_PitchDecks.has_ESG == true
+            && input_PitchDecks.wants_ESG == true
+           then {opinion = 'interesting} 
+          else
+            {opinion = 'reject}
+in PitchDecks({stage = 'Seed, sector = '`Information Technology`, stage_com = 'Pre_Profit, has_ESG = true, wants_ESG = true})
+```
+
+Running this produces ```{opinion = 'interesting}```
 
 ### 6. Python
 The intermediate representation is pretty printed to python, where each decision represents one function.
+
+```py
+def pitchdecks ( stage, sector, stage_com, has_esg, wants_esg ):
+    if stage == 'Seed' and sector == 'Information Technology' and stage_com == 'Pre-Revenue' :
+        return 'interesting'
+    else:
+        if stage == 'Series A' and sector == 'Information Technology' and stage_com == 'Pre-Profit' :
+            return 'interesting'
+        else:
+            if has_esg == True and wants_esg == True :
+                return 'interesting'
+            else:
+                return 'reject'
+o = pitchdecks ( 'Seed', 'Information Technology', 'Pre-Profit', True, True )
+```
 
 # Types.hs
 This DMN representation uses a minimal version of the XML tags typically produced by DMN.
@@ -238,41 +280,13 @@ Grade = InputEntry
   - null inputs (in table declaration) can be represented as '-' or simply left blank; however inputs taken in during calls cannot have null inputs - check dmn documentation if this is true?
   - this transpiles to python, and to some extent simala
   - type checking implemented for rule/function/table declaration, ensures that entries into columns match the type declared in the column header
-- python translation of MkCalls works for 2 tables - more not yet tested
+- both simala and python translations of MkCalls work for multiple tables
 
 ## TO WORK ON NEXT:
-- translation to simala based on prev conversations (look up stuctural recursion?)
-  - this should end up looking like this:
-```hs
-mkLets :: [(Name, Expr)] -> Expr -> Expr
-mkLets []             e  = e
-mkLets ((n, e1) : ds) e2 = Let Transparent n e1 (mkLets ds e2)
-```
-- attempt to do more research/learn how Decl works, and whether that would be more appropriate
 - type check function calls
   - call types are the same as rules types
   - no recursion
   - ???
-- testing and running finished simala translation
-  - it should then be in the form of:
-```hs
-let
-  `Table A` = fun (inputs) => ...
-in let
-  `Table B` = fun (inputs) => ...
-in let
-  r1 = `Table A` ({ season = "Fall", guests = 5, `veg guests` = true })
-in let
-  d = r1.Dish
-in let
-  r2 = `Table B` ({ Dish = d, Children = false })
-in let
-  b = r2.Beverages
-in let
-  r3 = `Table C` ({ ... })
-in
-  r3
-```
-was mentioned that the final return should just be the entire result of the function call?
+  - handle type checking variables
 - (lower priority) addition of all possible feel expressions, including date, time, possibly functions?, lists? as seen in [the drools documentation](https://docs.drools.org/latest/drools-docs/drools/DMN/index.html#dmn-feel-data-types-ref_dmn-models)
 - think of a way to limit the inputs to certain values only? eg for stage in pitchdecks, it can only be seed, pre-seed etc

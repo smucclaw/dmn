@@ -15,16 +15,12 @@ data CompiledDRD =
 -- data CompiledRule = 
 --     MkCompiledRule Func [Arg] [Expr] deriving Show
 
-data CompiledRule = 
-    MkCompiledRule TableSignature [Arg] [Expr] deriving Show
+-- data CompiledRule = 
+--     MkCompiledRule TableSignature [Arg] [Expr] deriving Show
 -- TODO: fix this so that i no longer need [arg] since its inside tablesignature
 
-data Call = 
-    MkCall Func [Argument] [Argument] deriving Show -- func name, inputs, outputs
-
-data Argument = 
-    ValArgument Val 
-    | VarArgument Arg deriving Show -- outputs should always be variables
+data CompiledRule = 
+    MkCompiledRule TableSignature [Arg] [Expr] deriving Show
 
 data TableSignature =
     MkTableSignature Func [ColumnSignature] [ColumnSignature] deriving Show -- inputs and then outputs
@@ -37,6 +33,13 @@ data Type =
     | IntType
     | BoolType
     deriving Show
+
+data Call = 
+    MkCall Func [Argument] [Argument] deriving Show -- func name, inputs, outputs
+
+data Argument = 
+    ValArgument Val 
+    | VarArgument Arg deriving Show -- outputs should always be variables
 
 type Vars = Map.Map String Val
 
