@@ -18,15 +18,21 @@ instance ShowProg CompiledDRD where
                                          , vsep (map showProg calls)]
 
 instance ShowProg CompiledRule where
-    showProg (MkCompiledRule table args (e:es)) = (vsep [ hsep [pretty (T.pack "def")
-                                                            , showProg table
-                                                            , pretty (T.pack "(")
-                                                            , showProg args
-                                                            , pretty (T.pack "):") ]
+    showProg (MkCompiledRule table (e:es)) = (vsep [ hsep [pretty (T.pack "def")
+                                                            , showProg table]
                                             , indent nestingDepth (showProg e)])
 
 instance ShowProg TableSignature where
-    showProg (MkTableSignature f inputs outputs) = showProg f
+    showProg (MkTableSignature f inputs outputs) = hsep [showProg f
+                                                        , pretty (T.pack "(")
+                                                        , showProg inputs
+                                                        , pretty (T.pack "):")]
+
+instance ShowProg [ColumnSignature] where
+    showProg cols = hsep (punctuate (pretty (T.pack ",")) (map showProg cols))
+
+instance ShowProg ColumnSignature where
+    showProg (MkColumnSignature a t) = showProg a
 
 instance ShowProg Call where
     showProg (MkCall f inputs outputs) = hsep [showProg outputs

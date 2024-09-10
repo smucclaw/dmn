@@ -30,9 +30,11 @@ parseDecisionTable input =
       (inputHeaders, outputHeaders) = separateHeaders (tail headers)
       inputSchemaNames = parseInputSchemas inputHeaders
       outputSchemaNames = parseOutputSchema outputHeaders
-  in Decision { decisionOut = parseDecisionOutput (last headers) -- TODO: need to fix this
-    , decisionInfoReq = parseInfoReqs (init (tail headers))
-    , decisionLogic = DecTable 
+  in Decision { 
+    -- decisionOut = parseDecisionOutput (last headers) -- TODO: need to fix this
+    -- , decisionInfoReq = parseInfoReqs (init (tail headers))
+    -- , 
+    decisionLogic = DecTable 
         { tableID = takeWhile (/= ')') (drop 1 (dropWhile (/= '(') (head headers)))
         , hitPolicy = take 1 (dropWhile isSpace (head headers))
         , schema = Schema 
@@ -56,11 +58,11 @@ parseMDTable input =
         parseLine line = init (tail (map trim (splitOn "|" line)))
         trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse
 
-parseDecisionOutput :: String -> DecOutVar
-parseDecisionOutput header = 
-    let (name, feelType) = parseHeader header
-    in DecOutVar { sDecVarName = name
-                , sDecVarFEELType = feelType }
+-- parseDecisionOutput :: String -> DecOutVar
+-- parseDecisionOutput header = 
+--     let (name, feelType) = parseHeader header
+--     in DecOutVar { sDecVarName = name
+--                 , sDecVarFEELType = feelType }
 
 parseHeader :: String -> (String, String)
 parseHeader header = 
@@ -69,8 +71,8 @@ parseHeader header =
         feelType = if length parts > 1 then init (last parts) else "String"
     in (name, trim feelType)
 
-parseInfoReqs :: [String] -> [InfoReq]
-parseInfoReqs = map (ReqInputEl . fst . parseHeader)
+-- parseInfoReqs :: [String] -> [InfoReq]
+-- parseInfoReqs = map (ReqInputEl . fst . parseHeader)
 
 parseInputSchemas :: [String] -> [InputSchema]
 parseInputSchemas = map (\h -> let (name, feelType) = parseHeader h
@@ -131,6 +133,17 @@ parseOutputEntry schema entry =
     OutputEntry { sOutputId = sOutputSchemaVarName schema, sExpr = trimmedEntry, sOutputFEELType = parseOutputType entry }
     where
         trimmedEntry = filter (/= '\"') entry
+
+-- isNumber :: String -> Bool
+-- isNumber s = isInt s || isDecimal s
+
+-- isInt :: String -> Bool
+-- isInt s = all isDigit s
+
+-- isDecimal :: String -> Bool
+-- isDecimal s = case readMaybe s :: Maybe Double of
+--     Just _ -> True
+--     Nothing -> False
 
 parseOutputType :: String -> String
 parseOutputType s

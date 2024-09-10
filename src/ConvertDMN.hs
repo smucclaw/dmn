@@ -12,15 +12,8 @@ import qualified Data.Map as Map
 data CompiledDRD = 
     DRD [CompiledRule] [Call] deriving Show
 
--- data CompiledRule = 
---     MkCompiledRule Func [Arg] [Expr] deriving Show
-
--- data CompiledRule = 
---     MkCompiledRule TableSignature [Arg] [Expr] deriving Show
--- TODO: fix this so that i no longer need [arg] since its inside tablesignature
-
 data CompiledRule = 
-    MkCompiledRule TableSignature [Arg] [Expr] deriving Show
+    MkCompiledRule TableSignature [Expr] deriving Show
 
 data TableSignature =
     MkTableSignature Func [ColumnSignature] [ColumnSignature] deriving Show -- inputs and then outputs
@@ -126,7 +119,7 @@ convertDecision Decision { decisionLogic = DecTable { tableID = tableid
                                                         , schema = Schema { sInputSchemas = inputs }
                                                         , hitPolicy = policy } } table = 
     MkCompiledRule table
-        (map (\InputSchema {sInputSchemaId = id} -> Arg id) inputs) 
+        -- (map (\InputSchema {sInputSchemaId = id} -> Arg id) inputs) 
         (checkHitPolicy policy rules)
 
 checkHitPolicy :: String -> [Rule] -> [Expr]

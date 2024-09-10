@@ -17,14 +17,14 @@ translateToSimala (DRD rules calls) =
 translateLastCall :: [CompiledRule] -> Call -> Int -> Simala.Expr
 translateLastCall rules (MkCall (Func funcName) inputs _) index =
     case findRuleByFuncName rules (T.pack funcName) of
-        Just (MkCompiledRule (MkTableSignature _ inNames outNames) _ _) -> 
+        Just (MkCompiledRule (MkTableSignature _ inNames outNames) _) -> 
             Simala.App (Simala.Var (T.pack funcName)) 
                 [Simala.Record [(extractName inName, compileApp input) | (inName, input) <- zip inNames inputs]]
         Nothing -> error $ "Rule not found for function: " ++ funcName
 
 findRuleByFuncName :: [CompiledRule] -> T.Text -> Maybe CompiledRule
 findRuleByFuncName rules funcName = 
-    find (\(MkCompiledRule (MkTableSignature (Func name) _ _) _ _) -> name == (T.unpack funcName)) rules
+    find (\(MkCompiledRule (MkTableSignature (Func name) _ _) _) -> name == (T.unpack funcName)) rules
 
 translateCalls :: [CompiledRule] -> Call -> Int -> [Simala.Decl]
 translateCalls rules call index = 
@@ -33,11 +33,11 @@ translateCalls rules call index =
         Nothing -> error "Corresponding function not found"
     where
         callFuncName (MkCall (Func name) _ _) = name
-        out (MkCompiledRule (MkTableSignature (Func funcName) _ outColumns) _ _) = outColumns
-        ins (MkCompiledRule (MkTableSignature (Func funcName) inColumns _) _ _) = inColumns
+        out (MkCompiledRule (MkTableSignature (Func funcName) _ outColumns) _) = outColumns
+        ins (MkCompiledRule (MkTableSignature (Func funcName) inColumns _) _) = inColumns
 
 translateRule :: CompiledRule -> Simala.Decl
-translateRule rule@(MkCompiledRule (MkTableSignature (Func funcName) inputs _) args exprs) = 
+translateRule rule@(MkCompiledRule (MkTableSignature (Func funcName) inputs _) exprs) = 
     Simala.NonRec Simala.Transparent (T.pack funcName) (Simala.Fun Simala.Transparent [argName] (compileBody rule exprs))
     where
         argName = T.pack $ "input_" ++ funcName
@@ -46,7 +46,7 @@ translateRule rule@(MkCompiledRule (MkTableSignature (Func funcName) inputs _) a
         compileBody r exprs = Simala.List (map (compileExpr r argName) exprs)
 
 compileExpr :: CompiledRule -> T.Text -> ConvertDMN.Expr -> Simala.Expr
-compileExpr rule@(MkCompiledRule (MkTableSignature _ inputs outputs) _ _) argName expr = case expr of
+compileExpr rule@(MkCompiledRule (MkTableSignature _ inputs outputs) _) argName expr = case expr of
     Var (Arg v) -> 
         case find (\(MkColumnSignature (Arg name) _) -> name == v) inputs of
             Just _ -> Simala.Project (Simala.Var argName) (T.pack v)

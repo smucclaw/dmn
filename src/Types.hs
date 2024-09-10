@@ -37,9 +37,7 @@ data DecOutVar = DecOutVar
   } deriving Show
 
 data Decision = Decision
-  { decisionOut :: DecOutVar
-  , decisionInfoReq :: [InfoReq]
-  , decisionLogic :: DecLogic  -- This is DecTable or Literal Expression
+  { decisionLogic :: DecLogic  -- This is DecTable or Literal Expression
   } deriving Show
 
 data DecLogic = DecTable -- TODO: Add literal expression
@@ -91,6 +89,7 @@ data Condition = ConditionString String
                 | ConditionBool Bool
                 | ConditionInt (Maybe String) Int
                 | ConditionRange String Int Int String
+                -- | ConditionDecimal (Maybe String) Double
   deriving Show
 
 exampleDRD :: DRD
@@ -100,15 +99,7 @@ exampleDRD = ([exampleDecision, exampleDecision2]
 
 exampleDecision :: Decision
 exampleDecision = Decision
-  { decisionOut = DecOutVar
-    { sDecVarName = "opinion"
-    , sDecVarFEELType = "String" }
-  , decisionInfoReq = [ReqInputEl "stage"
-    , ReqInputEl "sector" 
-    , ReqInputEl "stage_com" 
-    , ReqInputEl "has_ESG" 
-    , ReqInputEl "wants_ESG"]
-  , decisionLogic = DecTable
+  { decisionLogic = DecTable
     { tableID = "table1"
     , hitPolicy = "F"
     , schema = Schema
@@ -141,11 +132,7 @@ exampleDecision = Decision
 
 exampleDecision2 :: Decision
 exampleDecision2 = Decision
-  { decisionOut = DecOutVar
-    { sDecVarName = "result"
-    , sDecVarFEELType = "String" }
-  , decisionInfoReq = [ReqInputEl "season"]
-  , decisionLogic = DecTable
+  { decisionLogic = DecTable
     { tableID = "table2"
     , hitPolicy = "U"
     , schema = Schema
