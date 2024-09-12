@@ -1,14 +1,16 @@
--- TypeChecker.hs
 module TypeChecking where
 
 import Types
 import Data.Maybe (isJust, fromJust)
 import Data.Char (isDigit, toLower)
+import qualified Data.Map as Map
 
-typeCheck :: DRD -> Either String DRD
-typeCheck (decisions, entries) = 
+type VarMap = Map.Map String String
+
+typeCheck :: DRD -> VarMap -> Either String DRD
+typeCheck (decisions, entries) varMap = 
     let decisionErrors = map typeCheckDecision decisions
-        entryErrors = map (typeCheckEntry decisions) entries
+        entryErrors = map (typeCheckEntry decisions varMap) entries
     in case (concatMap (either (\e -> [e]) (const [])) decisionErrors) ++ (concatMap (either (\e -> [e]) (const [])) entryErrors) of
         [] -> Right (decisions, entries)
         errors -> Left (unlines errors)
@@ -26,7 +28,7 @@ checkRule schema rule =
         outputErrors = zipWith checkOutputEntry (sOutputSchema schema) (outputEntry rule)
     in filter (not . null) $ inputErrors ++ outputErrors
 
-checkInputEntry :: InputSchema -> InputEntry -> String -- check individual entries
+checkInputEntry :: InputSchema -> InputEntry -> String -- check individual "entries"
 checkInputEntry schema entry = 
     case sMaybeCondition entry of
         Nothing -> ""
@@ -50,38 +52,55 @@ matchesTypeCondition "int" (ConditionInt _ _) = True
 matchesTypeCondition "int" (ConditionRange _ _ _ _) = True
 matchesTypeCondition _ _ = False
 
-typeCheckEntry :: [Decision] -> Entry -> Either String Entry
-typeCheckEntry decisions entry = 
+-- type checking for entries/calls
+typeCheckEntry :: [Decision] -> VarMap -> Entry -> Either String Entry
+typeCheckEntry decisions varMap entry = 
     let schema = findDecision decisions (tableId entry)
     in case isJust schema of
         False -> Left ("Decision " ++ tableId entry ++ " not found")
-        True -> let errors = checkEntry (fromJust schema) entry
+        True -> let errors = checkEntry varMap (fromJust schema) entry
                 in case errors of
                     [] -> Right entry
                     _  -> Left (unlines errors)
 
-checkEntry :: Schema -> Entry -> [String]
-checkEntry schema entry = 
-    let inputErrors = zipWith checkInputs (sInputSchemas schema) (inputParams entry) -- add error checking for outputs?
+checkEntry :: VarMap -> Schema -> Entry -> [String]
+checkEntry varMap schema entry = 
+    let inputErrors = zipWith (checkInputs varMap) (sInputSchemas schema) (inputParams entry)
+    -- maybe add error checking for outputs ie variables?
     -- according to documentation:
     -- Variable names cannot start with a language keyword, such as and, true, or every. 
     -- The remaining characters in a variable name can be any of the starting characters, as well as digits, white spaces, and special characters such as +, -, /, *, ', and ..
     in filter (not . null) $ inputErrors
 
-checkInputs :: InputSchema -> String -> String
-checkInputs schema param = 
-    case matchesType (map toLower (inputExprFEELType schema)) param of
-        True -> ""
-        False -> "Type mismatch in input for " ++ sInputSchemaId schema ++ 
-                    ": expected " ++ inputExprFEELType schema ++ 
-                    ", got " ++ show param
+checkVariableCondition :: VarMap -> String -> Condition -> String
+checkVariableCondition varMap varName condition =
+    case Map.lookup varName varMap of
+        Nothing -> "Variable " ++ varName ++ " not found in variable map"
+        Just varType -> if matchesTypeCondition (map toLower varType) condition
+                        then ""
+                        else "Type mismatch for variable " ++ varName ++ 
+                             ": expected " ++ varType ++ 
+                             ", got " ++ show condition
 
+checkInputs :: VarMap -> InputSchema -> Param -> String
+checkInputs varMap schema param = 
+    let expectedType = map toLower (inputExprFEELType schema)
+        actualType = map toLower (paramType param)
+    in case actualType of
+        "var" -> case Map.lookup (paramName param) varMap of
+            Just varType -> if matchesType (map toLower expectedType) varType
+                            then ""
+                            else "Type mismatch for variable " ++ paramName param ++ 
+                                 ": expected " ++ expectedType ++ ", got " ++ varType
+            Nothing -> "Variable " ++ paramName param ++ " not found in variable map"
+        _ -> if expectedType == actualType
+             then ""
+             else "Type mismatch in input: expected " ++ expectedType ++ " for " ++ sInputSchemaId schema ++ ", got " ++ actualType ++ " for " ++ paramName param
+             
 -- need to implement type checking for variables
 matchesType :: String -> String -> Bool
 matchesType "string" _ = True
--- matchesType "bool" s = s == "true" || s == "false"
-matchesType "bool" s = True
--- not type checking for now
+matchesType "bool" s = s == "true" || s == "false"
 matchesType "int" s = all isDigit s
 matchesType "int" s = (head s == '[' || head s == '(') && (last s == ']' || last s == ')')
 matchesType _ _ = False

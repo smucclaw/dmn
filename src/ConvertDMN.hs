@@ -104,13 +104,13 @@ convertCall :: TableSignature -> Entry -> Call
 convertCall (MkTableSignature func inputcolumns outputcolumns) (Entry id inputs outputs) = 
     MkCall func (map convertArgument inputs) (map convertArgument outputs)
 
-convertArgument :: String -> Argument
-convertArgument param 
-                | map toLower param == "true"  = ValArgument (Bool True)
-                | map toLower param == "false" = ValArgument (Bool False)
-                | all isDigit param = ValArgument (Int (read param))
-                | head param == '"' && last param == '"' = ValArgument (String (init (tail param)))
-                | otherwise = VarArgument (Arg param)
+convertArgument :: Param -> Argument
+convertArgument (Param name _) 
+                | map toLower name == "true"  = ValArgument (Bool True)
+                | map toLower name == "false" = ValArgument (Bool False)
+                | all isDigit name = ValArgument (Int (read name))
+                | head name == '"' && last name == '"' = ValArgument (String (init (tail name)))
+                | otherwise = VarArgument (Arg name)
 
 -- for rules
 convertDecision :: Decision -> TableSignature -> CompiledRule

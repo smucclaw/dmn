@@ -5,15 +5,19 @@ import Types
 import Data.List.Split (splitOn, splitWhen)
 import Data.Char (toLower, isDigit, isSpace)
 import Data.List (isInfixOf)
+import qualified Data.Map as Map
+import Debug.Trace (trace)
 
-parseMDToDMN :: String -> DRD
+type VarMap = Map.Map String String
+
+parseMDToDMN :: String -> (DRD, VarMap)
 parseMDToDMN markdown = 
     let sections = splitOn "\n\n" markdown
         (tables, entries) = separateTablesAndConnections sections
         decisions = map parseDecisionTable tables
         schemas = [(tableID (decisionLogic d), schema (decisionLogic d)) | d <- decisions] 
-        entryList = parseEntries (unlines entries) schemas
-    in (decisions, entryList)
+        (entryList, finalVarMap) = parseEntries (unlines entries) schemas Map.empty
+    in ((decisions, entryList), finalVarMap)
 
 separateTablesAndConnections :: [String] -> ([String], [String]) -- split depending on "|" or not
 separateTablesAndConnections = foldl categorize ([], [])
@@ -151,7 +155,7 @@ parseOutputType s
     | map toLower s == "true" || map toLower s == "false" = "Bool"
     | head s == '"' && last s == '"' = "String"
     | (head s == '[' || head s == '(') && (last s == ']' || last s == ')') = "Int"
-    | otherwise = "Error"
+    | otherwise = "Var"
 
 trim :: String -> String
 trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse
@@ -162,33 +166,46 @@ removeComment line
     | otherwise = line
 
 -- ie function calls
-parseEntries :: String -> [(Id, Schema)] -> [Entry]
-parseEntries entries schemas = 
+parseEntries :: String -> [(Id, Schema)] -> VarMap -> ([Entry], VarMap)
+parseEntries entries schemas initialVarMap = 
     let nonEmptyLines = filter (not . null) (map removeComment (lines entries))
-    in map (parseEntry schemas) nonEmptyLines
+    in foldr (\line (accEntries, accVarMap) -> 
+        let (entry, newVarMap) = parseEntry schemas line accVarMap
+        in (entry : accEntries, newVarMap)
+    ) ([], initialVarMap) nonEmptyLines
 
-parseEntry :: [(Id, Schema)] -> String -> Entry
-parseEntry schemas entry = 
+parseEntry :: [(Id, Schema)] -> String -> VarMap -> (Entry, VarMap)
+parseEntry schemas entry varMap = 
     case splitOn "(" entry of
         [table, rest] -> 
             let params = map trim (splitOn "," (init rest)) 
-                maybeSchema = lookup table schemas -- finds corresponding tableid
+                maybeSchema = lookup table schemas
             in case maybeSchema of
-                Just schema -> categorizeEntry table params schema
+                Just schema -> categorizeEntry table params schema varMap
                 Nothing -> error ("Error: Table " ++ table ++ " not yet declared")
         _ -> error ("Error: Invalid entry format: " ++ entry)
     where 
-        categorizeEntry :: Id -> [String] -> Schema -> Entry
-        categorizeEntry tableId params Schema{sInputSchemas=inputs, sOutputSchema=outputs} =
+        categorizeEntry :: Id -> [String] -> Schema -> VarMap -> (Entry, VarMap)
+        categorizeEntry tableId params Schema{sInputSchemas=inputs, sOutputSchema=outputs} varMap =
             let numInputs = length inputs
-                numOutputs = length outputs
                 (inputParams, outputParams) = splitAt numInputs params
-            in Entry 
+                (processedOutputParams, updatedVarMap) = 
+                    foldl (\(accParams, accMap) (param, schema) -> 
+                        let paramtype = parseOutputType param
+                            updatedMap = Map.insert param paramtype accMap
+                        in (Param {paramName = param, paramType = paramtype} : accParams, updatedMap)
+                    ) ([], varMap) (zip outputParams outputs)
+                finalVarMap = trace ("Final VarMap: " ++ show updatedVarMap) updatedVarMap
+            in (Entry 
                 { tableId = tableId
-                , inputParams = inputParams
-                , outputParams = outputParams
-                }
+                , inputParams = map inputParamType inputParams
+                , outputParams = reverse processedOutputParams
+                }, updatedVarMap)
 
+inputParamType :: String -> Param
+inputParamType param = 
+    let paramtype = parseOutputType param
+    in Param {paramName = param, paramType = paramtype}
 
 parseSchema :: String -> [String] -> ([String], [String])
 parseSchema table inout = 

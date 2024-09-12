@@ -16,6 +16,7 @@ import TranslateToSimala
 import RenderPretty (render)
 import Base.Pretty
 import qualified Data.Text.IO as T
+import qualified Data.Map as Map
 
 main :: IO ()
 main = do
@@ -27,12 +28,14 @@ main = do
             
             putStrLn ""
 
-            let parsedDRD = parseMDToDMN content
+            let (parsedDRD, varMap) = parseMDToDMN content
             print parsedDRD
+            putStrLn "Final var map: "
+            print varMap
             putStrLn ""
 
             -- type checking
-            case typeCheck parsedDRD of
+            case typeCheck parsedDRD varMap of
                 Left errors -> do
                     putStrLn "Error occurred during type checking:"
                     putStrLn errors

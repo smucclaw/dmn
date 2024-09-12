@@ -11,8 +11,13 @@ type DRD = ([Decision], [Entry])
 
 data Entry = Entry
   { tableId :: Id
-  , inputParams :: [String]
-  , outputParams :: [String]
+  , inputParams :: [Param]
+  , outputParams :: [Param]
+  } deriving Show
+
+data Param = Param
+  { paramName :: Id
+  , paramType :: String
   } deriving Show
 
 -- data Definitions = Definitions
@@ -30,11 +35,6 @@ data Entry = Entry
 --   , sModelerExPlatVer :: String
 --   , sDecisions :: [Decision] }
 --   deriving Show
-
-data DecOutVar = DecOutVar
-  { sDecVarName :: DecName
-  , sDecVarFEELType :: String 
-  } deriving Show
 
 data Decision = Decision
   { decisionLogic :: DecLogic  -- This is DecTable or Literal Expression
@@ -92,59 +92,59 @@ data Condition = ConditionString String
                 -- | ConditionDecimal (Maybe String) Double
   deriving Show
 
-exampleDRD :: DRD
-exampleDRD = ([exampleDecision, exampleDecision2]
-  , [Entry "table1" ["stage", "sector", "stage_com", "has_ESG", "wants_ESG"] ["opinion"]
-  , Entry "table2" ["grade"] ["result"]])
+-- exampleDRD :: DRD
+-- exampleDRD = ([exampleDecision, exampleDecision2]
+--   , [Entry "table1" ["stage", "sector", "stage_com", "has_ESG", "wants_ESG"] ["opinion"]
+--   , Entry "table2" ["grade"] ["result"]])
 
-exampleDecision :: Decision
-exampleDecision = Decision
-  { decisionLogic = DecTable
-    { tableID = "table1"
-    , hitPolicy = "F"
-    , schema = Schema
-      { sInputSchemas = [InputSchema "stage" "String"
-        , InputSchema "sector" "String"
-        , InputSchema "stage_com" "String"
-        , InputSchema "has_ESG" "Boolean"
-        , InputSchema "wants_ESG" "Boolean"]
-      , sOutputSchema = [OutputSchema "opinion" "String"] }
-    , rules = [Rule "rule1" [InputEntry "stage" (Just (ConditionString "Seed"))
-        , InputEntry "sector" (Just (ConditionString "Information Technology"))
-        , InputEntry "stage_com" (Just (ConditionString "Pre-Revenue"))] 
-        [OutputEntry "opinion" "Interesting" "String"]
-      , Rule "rule2" [InputEntry "stage" (Just (ConditionString "Series A"))
-        , InputEntry "sector" (Just (ConditionString "Information Technology"))
-        , InputEntry "stage_com" (Just (ConditionString "Pre-Profit"))] 
-        [OutputEntry "opinion" "Interesting" "String"]
-      , Rule "rule3" [InputEntry "has_ESG" (Just (ConditionBool True))
-        , InputEntry "wants_ESG" (Just (ConditionBool True))] 
-        [OutputEntry "opinion" "Interesting" "String"]
-      , Rule "rule4" [InputEntry "input1" Nothing
-        , InputEntry "sector" Nothing
-        , InputEntry "stage_com" Nothing
-        , InputEntry "has_ESG" Nothing
-        , InputEntry "wants_ESG" Nothing] 
-      [OutputEntry "opinion" "reject" "String"]
-      ]
-    }
-  }
+-- exampleDecision :: Decision
+-- exampleDecision = Decision
+--   { decisionLogic = DecTable
+--     { tableID = "table1"
+--     , hitPolicy = "F"
+--     , schema = Schema
+--       { sInputSchemas = [InputSchema "stage" "String"
+--         , InputSchema "sector" "String"
+--         , InputSchema "stage_com" "String"
+--         , InputSchema "has_ESG" "Boolean"
+--         , InputSchema "wants_ESG" "Boolean"]
+--       , sOutputSchema = [OutputSchema "opinion" "String"] }
+--     , rules = [Rule "rule1" [InputEntry "stage" (Just (ConditionString "Seed"))
+--         , InputEntry "sector" (Just (ConditionString "Information Technology"))
+--         , InputEntry "stage_com" (Just (ConditionString "Pre-Revenue"))] 
+--         [OutputEntry "opinion" "Interesting" "String"]
+--       , Rule "rule2" [InputEntry "stage" (Just (ConditionString "Series A"))
+--         , InputEntry "sector" (Just (ConditionString "Information Technology"))
+--         , InputEntry "stage_com" (Just (ConditionString "Pre-Profit"))] 
+--         [OutputEntry "opinion" "Interesting" "String"]
+--       , Rule "rule3" [InputEntry "has_ESG" (Just (ConditionBool True))
+--         , InputEntry "wants_ESG" (Just (ConditionBool True))] 
+--         [OutputEntry "opinion" "Interesting" "String"]
+--       , Rule "rule4" [InputEntry "input1" Nothing
+--         , InputEntry "sector" Nothing
+--         , InputEntry "stage_com" Nothing
+--         , InputEntry "has_ESG" Nothing
+--         , InputEntry "wants_ESG" Nothing] 
+--       [OutputEntry "opinion" "reject" "String"]
+--       ]
+--     }
+--   }
 
-exampleDecision2 :: Decision
-exampleDecision2 = Decision
-  { decisionLogic = DecTable
-    { tableID = "table2"
-    , hitPolicy = "U"
-    , schema = Schema
-      { sInputSchemas = [InputSchema "grade" "Int"]
-      , sOutputSchema = [OutputSchema "result" "String"] }
-    , rules = [Rule "rule1" [InputEntry "grade" (Just (ConditionInt (Just ">=") 50))] 
-        [OutputEntry "result" "Pass" "String"]
-      , Rule "rule2" [InputEntry "grade" (Just (ConditionInt (Just "<") 50))] 
-        [OutputEntry "result" "Fail" "String"]
-      ]
-    }
-  }
+-- exampleDecision2 :: Decision
+-- exampleDecision2 = Decision
+--   { decisionLogic = DecTable
+--     { tableID = "table2"
+--     , hitPolicy = "U"
+--     , schema = Schema
+--       { sInputSchemas = [InputSchema "grade" "Int"]
+--       , sOutputSchema = [OutputSchema "result" "String"] }
+--     , rules = [Rule "rule1" [InputEntry "grade" (Just (ConditionInt (Just ">=") 50))] 
+--         [OutputEntry "result" "Pass" "String"]
+--       , Rule "rule2" [InputEntry "grade" (Just (ConditionInt (Just "<") 50))] 
+--         [OutputEntry "result" "Fail" "String"]
+--       ]
+--     }
+--   }
 
 -- exampleDecision3 :: Decision
 -- exampleDecision3 = Decision

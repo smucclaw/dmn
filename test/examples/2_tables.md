@@ -18,4 +18,4 @@
 
 TableA("Fall", 5, true, dish, dessert)
 
-TableB(dish, dessert, false, beverage)
+TableB(dish, "Cake", false, beverage)
