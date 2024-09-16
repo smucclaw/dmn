@@ -35,9 +35,6 @@ parseDecisionTable input =
       inputSchemaNames = parseInputSchemas inputHeaders
       outputSchemaNames = parseOutputSchema outputHeaders
   in Decision { 
-    -- decisionOut = parseDecisionOutput (last headers) -- TODO: need to fix this
-    -- , decisionInfoReq = parseInfoReqs (init (tail headers))
-    -- , 
     decisionLogic = DecTable 
         { tableID = takeWhile (/= ')') (drop 1 (dropWhile (/= '(') (head headers)))
         , hitPolicy = take 1 (dropWhile isSpace (head headers))

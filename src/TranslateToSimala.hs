@@ -62,6 +62,7 @@ compileExpr rule@(MkCompiledRule (MkTableSignature _ inputs outputs) _) argName 
     Range e1 e2 v -> compileRange rule argName e1 e2 v
     Const val -> compileVal val
     Return vals -> Simala.Record [(extractName output, compileVal val) | (output, val) <- zip outputs vals]  -- other cases
+    
 
 extractName :: ColumnSignature -> T.Text
 extractName (MkColumnSignature (Arg name) _) = T.pack name

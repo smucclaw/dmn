@@ -91,7 +91,7 @@ checkInputs varMap schema param =
             Just varType -> if matchesType (map toLower expectedType) varType
                             then ""
                             else "Type mismatch for variable " ++ paramName param ++ 
-                                 ": expected " ++ expectedType ++ ", got " ++ varType
+                                 ": expected " ++ expectedType ++ ", got " ++ (paramName param)
             Nothing -> "Variable " ++ paramName param ++ " not found in variable map"
         _ -> if expectedType == actualType
              then ""

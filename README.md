@@ -227,7 +227,7 @@ Returns all in hit order (list) - unnested ifs
 ### Collect (C)
 Returns all in any order (list) - unnested ifs
 
-|R|Age|To Advertise|
+|C|Age|To Advertise|
 |---|---|---|
 |1|>18|"Cars"|
 |2|>12|"Videogames"|

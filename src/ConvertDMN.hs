@@ -49,7 +49,7 @@ data Expr = Var Arg
             | Const Val 
             | Return [Val]
             | InitList ListName -- list name, initialise
-            | AppendList ListName Expr -- target list, what to add
+            | AppendList ListName [Val] -- target list, what to add
             deriving Show
 
 data Func = Func String deriving Show
@@ -59,6 +59,7 @@ data Bracket = Inclusive Expr | Exclusive Expr deriving Show
 data Val = Bool Bool 
             | String String
             | Int Int 
+            | List ListName
             deriving Show
 
 data Arg = Arg String deriving Show
@@ -127,14 +128,18 @@ checkHitPolicy "U" rules = [nestedIfRules rules] -- unique
 checkHitPolicy "F" rules = [nestedIfRules rules] -- first
 checkHitPolicy "A" rules = [nestedIfRules rules] -- any
 -- checkHitPolicy "R" rules = InitList (ListName "Results") : multipleHits rules -- rule order
+checkHitPolicy "C" rules = InitList (ListName "Results") : (multipleHits rules ++ [Return [List (ListName "Results")]]) -- collect
 checkHitPolicy _ rules = [nestedIfRules rules] -- default behavior for other hit policies
 
 -- multiple hits - output in form of list ["a", "b", "c"]
--- multipleHits :: [Rule] -> [Expr]
--- multipleHits [] = error "No rules in decision table"
--- multipleHits rules = (map 
---                 (\rule -> If (combineOneRule rule) (AppendList (ListName "Results") 
---                 (getOutputEntry $ outputEntry rule)) Nothing) rules)
+multipleHits :: [Rule] -> [Expr]
+multipleHits [] = error "No rules in decision table"
+multipleHits rules = (map 
+                (\rule -> If 
+                    (combineOneRule rule) 
+                    (AppendList (ListName "Results") (map getOutputEntry $ outputEntry rule)) 
+                    Nothing) 
+                rules)
 
 
 -- nested IF different rules 
