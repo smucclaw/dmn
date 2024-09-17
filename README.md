@@ -5,10 +5,10 @@ This code takes a single DMN table as an input and converts it into Simala.
 A list of all transpilations and their current status
 |Target|Input/Output|Status|
 |---|---|---|
-|DMN (Markdown)|Input|Currently handles only single-hit policies.
+|DMN (Markdown)|Input|Currently handles only single-hit policies. Multi-hit policies in progress|
 |XML|Input|In progress|
-|Simala|Output|FEEL expressions are limited|
-|Python|Output|FEEL expressions are limited|
+|Simala|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
+|Python|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
 
 ## Usage
 ```
