@@ -4,7 +4,7 @@ module FromMD where
 import Types
 import Data.List.Split (splitOn, splitWhen)
 import Data.Char (toLower, isDigit, isSpace)
-import Data.List (isInfixOf)
+import Data.List (isInfixOf, isSuffixOf)
 import qualified Data.Map as Map
 import Debug.Trace (trace)
 
@@ -35,9 +35,6 @@ parseDecisionTable input =
       inputSchemaNames = parseInputSchemas inputHeaders
       outputSchemaNames = parseOutputSchema outputHeaders
   in Decision { 
-    -- decisionOut = parseDecisionOutput (last headers) -- TODO: need to fix this
-    -- , decisionInfoReq = parseInfoReqs (init (tail headers))
-    -- , 
     decisionLogic = DecTable 
         { tableID = takeWhile (/= ')') (drop 1 (dropWhile (/= '(') (head headers)))
         , hitPolicy = take 1 (dropWhile isSpace (head headers))
@@ -50,7 +47,7 @@ parseDecisionTable input =
   }
   where 
     separateHeaders :: [String] -> ([String], [String])
-    separateHeaders headers = span (isInfixOf "input") headers
+    separateHeaders headers = span (isInfixOf "input" . map toLower) headers
 
 parseMDTable :: String -> ([String], [[String]]) -- produces a tuple of headers (schema) and body (rules)
 parseMDTable input = 
@@ -191,7 +188,7 @@ parseEntry schemas entry varMap =
                 (inputParams, outputParams) = splitAt numInputs params
                 (processedOutputParams, updatedVarMap) = 
                     foldl (\(accParams, accMap) (param, schema) -> 
-                        let paramtype = parseOutputType param
+                        let paramtype = sOutputSchemaFEELType schema
                             updatedMap = Map.insert param paramtype accMap
                         in (Param {paramName = param, paramType = paramtype} : accParams, updatedMap)
                     ) ([], varMap) (zip outputParams outputs)

@@ -9,6 +9,7 @@ A list of all transpilations and their current status
 |XML|Input|In progress|
 |Simala|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
 |Python|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
+|JavaScipt|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
 
 ## Usage
 ```
@@ -35,7 +36,6 @@ PitchDecks("Seed", "Information Technology", "Pre-Profit", true, true, o)
 ```
 
 Note:
-- Types should be capitalised in specification.
 - dashes can also be used to represent a null input.
 - comments can be written with the prefix '//'
 
