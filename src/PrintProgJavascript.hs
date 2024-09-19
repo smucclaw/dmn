@@ -18,7 +18,7 @@ instance ShowProgJs CompiledDRD where
                                          , vsep (map showProgJs calls)]
 
 instance ShowProgJs CompiledRule where
-    showProgJs (MkCompiledRule table (e:es)) = (vsep [ hsep [pretty (T.pack "function")
+    showProgJs (MkCompiledRule table e) = (vsep [ hsep [pretty (T.pack "function")
                                                             , showProgJs table]
                                             , indent nestingDepth (showProgJs e), pretty (T.pack "}")])
 
@@ -43,7 +43,7 @@ instance ShowProgJs Call where
                                              , showProgJs f
                                              <> pretty (T.pack "(")
                                              <> showProgJs inputs
-                                             , pretty (T.pack ");")]
+                                             <> pretty (T.pack ");")]
             MkCall f inputs outputs -> hsep [pretty (T.pack "let")
                                             , pretty (T.pack "{")
                                             <> hsep (punctuate (pretty (T.pack ",")) (zipWith (\i v -> pretty (T.pack ("output" ++ show i)) 
@@ -58,6 +58,9 @@ instance ShowProgJs Call where
 instance ShowProgJs Func where
     showProgJs (Func f) =  pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack f)))
 
+instance ShowProgJs [Expr] where
+    showProgJs exprs = vsep (map showProgJs exprs)
+
 instance ShowProgJs Expr where
     showProgJs (Var (Arg v)) = pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack v)))
     showProgJs (And exprs) = hsep (punctuate (pretty (T.pack " &&")) (map showProgJs exprs))
@@ -66,6 +69,10 @@ instance ShowProgJs Expr where
               , indent nestingDepth (showProgJs t)
               , pretty (T.pack "} else ") <> showElse e
               ]
+    showProgJs (If c t Nothing) = vsep [ pretty (T.pack "if (") <+> showProgJs c <+> pretty (T.pack ") {")
+              , indent nestingDepth (showProgJs t)
+              , pretty (T.pack "}")
+              ]
     showProgJs (MoreThan e1 e2) = showProgJs e1 <+> pretty (T.pack ">") <+> showProgJs e2
     showProgJs (MoreThanEqual e1 e2) = showProgJs e1 <+> pretty (T.pack ">=") <+> showProgJs e2
     showProgJs (LessThan e1 e2) = showProgJs e1 <+> pretty (T.pack "<") <+> showProgJs e2
@@ -73,7 +80,9 @@ instance ShowProgJs Expr where
     showProgJs (Range e1 e2 e3) = showProgJs e3 <+> pretty (T.pack ">") <> showProgJs e1 <+> pretty (T.pack "&&") <+> showProgJs e3 <+> pretty (T.pack "<") <> showProgJs e2
     showProgJs (Const val) = showProgJs val
     showProgJs (Return vals) = pretty (T.pack "return") <+> showReturnVals vals <> pretty (T.pack ";")
-    showProgJs _ = pretty (T.pack "erorr??")
+    showProgJs (InitList (ListName l)) = pretty (T.pack "var") <+> pretty (T.map toLower (T.pack l)) <+> pretty (T.pack "=") <+> pretty (T.pack "[];")
+    showProgJs (AppendList (ListName l) vals) = pretty (T.map toLower (T.pack l)) <> pretty (T.pack ".push(") <+> showProgJs vals <+> pretty (T.pack ");")
+    showProgJs _ = pretty (T.pack "error!!")
 
 showElse :: Expr -> Doc ann
 showElse (If c t (Just e)) = vsep [ pretty (T.pack "if (") <> showProgJs c <> pretty (T.pack ") {")
@@ -111,6 +120,8 @@ instance ShowProgJs Val where
     showProgJs (Bool False) = pretty (T.pack "false")
     showProgJs (String s) = pretty (T.pack ("'" ++ s ++ "'"))
     showProgJs (Int n) = pretty n
+    showProgJs (List (ListName l)) = pretty (T.map toLower (T.pack l))
+
 
 instance ShowProgJs [Argument] where
     showProgJs args = hsep (punctuate (pretty (T.pack ",")) (map showProgJs args))
