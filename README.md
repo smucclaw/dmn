@@ -2,24 +2,96 @@
 
 This code takes a single DMN table as an input and converts it into Simala.
 
-A list of all transpilations and their current status
-|Target|Input/Output|Status|
-|---|---|---|
-|DMN (Markdown)|Input|Currently handles only single-hit policies. Multi-hit policies in progress|
-|XML|Input|In progress|
-|Simala|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
-|Python|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
-|JavaScipt|Output|FEEL expressions are limited - Currently supports Int, String and Bool |
 
 ## Usage
 ```
 stack run inputfile.md
 ```
 
+Input files must be in the following format, similar to that of a markdown table:
+
+|[Hit policy] (table_name) |Arg1 (input, type)|Arg2 (output, type)|
+|---|---|---|
+|1|"Input1"|output1|
+|2|"Input1"|output2|
+...
+
+table_name("Input1", variable_name)
+
+where:
+1. The hit policy is specifiied with a singular letter and must be [one of the following listed here](#various-hit-policies).
+2. Each arg must be specified to be 
+    * either an input/output
+    * type - string, int (including ranges and intervals in the form >, <, and [55..67]), or bool
+3. There can be multiple inputs and outputs
+4. Null inputs must be represented as - or left blank.
+5. Function calls are in a prolog-style format, where outputs are treated as variables and can be reused if there are multiple calls
+   * There should be a space between table declarations and function calls
+6. Comments can be added with //
+
+## Multiple tables
+|U (grade)|Mark (input, int)|Grade (output, string)|
+|---|---|---|
+|1|>=70|"A"|
+|2|[60..70)|"B"|
+|3|[50..60)|"C"|
+|4|[40..50)|"D"|
+|5|[30..40)|"E"|
+|6|[20..30)|"F"|
+
+|U (attendance)|Attended (input, bool)|Attendance Pass (output, bool)|
+|---|---|---|
+|1|true|true|
+|2|false|false|
+
+|F (final)|Grade (input, string)|Attendance Pass (input bool)|Overall Result (output, bool)|
+|---|---|---|---|
+|1|-|false|"fail"|
+|2|"D", "E", "F"|-|"fail"|
+|3|"A", "B", "C"|true|"pass"|
+
+grade (66, g)
+attendance(true, a)
+final(g, a, result)
+
+This translates to 3 function declarations, and 3 calls. The outputs of the first 2 tables are inputted into the last table through the use of the same variable names.
+
+
+## Progress
+A list of all transpilations and their current status
+|Target|Input/Output|Status|
+|---|---|---|
+|DMN (Markdown)|Input|Currently handles single-hit policies, with some translations to multi-hit policies.|
+|XML|Input|In progress|
+|Simala|Output|Unique, First, and Any hit policies. FEEL expressions are limited - Currently supports Int, String and Bool |
+|Python|Output|Unique, First, Any, Collect, and Rule order hit policies. FEEL expressions are limited - Currently supports Int, String and Bool |
+|JavaScipt|Output|Unique, First, Any, Collect, and Rule order hit policies. FEEL expressions are limited - Currently supports Int, String and Bool |
+
+
+## Current Features: 
+- Single tables
+  - Handle **multiple inputs/outputs**
+  - Feel expressions current accepted include: **Bool, Int, and String**
+      - Int can be ranges such as: **>, >=, <, <=, [55..67], (34..67)**, where square brackets represent inclusive values and round brackets represent exclusive values
+  - **Null inputs** (in table declaration) can be represented as **'-' or simply left blank**; however inputs taken in during calls cannot have null inputs.
+- Multiple tables
+   - **Multiple tables** can be connected to each other through **function calls**, where the overlapping columns must share the **same variable name**.
+   - Each new table must be be separated by a line. 
+* **Multi-hit policies** (such as collect and rule order) return lists in python and simala. Support for multi-hit policies in simala has not yet been added.
+- **Type checking** implemented for rule/function/table declaration, ensures that entries into columns match the type declared in the column header
+    * Calls are also type checked
+
+## Incomplete features:
+- Type checking of hit policies to ensure:
+  - No overlapping rules (eg for unique) 
+  - No recursion between rules
+- Limiting the inputs to be a specific range for a an argument
+- Addition of all possible feel expressions, including date, time, possibly functions?, lists? as seen in [the drools documentation](https://docs.drools.org/latest/drools-docs/drools/DMN/index.html#dmn-feel-data-types-ref_dmn-models)
+
 
 ## Composed of:
-### 1. Parsing from MD
-Parser that takes markdown inputs and parses them to the data structure defined in Types.hs.
+### 1. Parsing from Markdown
+[Parser](src/FromMD.hs) that takes markdown inputs and parses them to the data structure defined in [Types](#typeshs).
 
 Input form:
 ```
@@ -35,14 +107,10 @@ PitchDecks("Seed", "Information Technology", "Pre-Profit", true, true, o)
 // example of a comment
 ```
 
-Note:
-- dashes can also be used to represent a null input.
-- comments can be written with the prefix '//'
-
-issues noticed so far:
-- lack of ability to specify limited inputs (ie any input can be entered with no form of checking)
-
 ### 2. Type Checking and DMN data structure representation
+
+Example of table parsed into DMN data structure representation, which can be found in [Types.hs](src/Types.hs):
+
 ```haskell
 exampleParsed :: Decision
 exampleParsed = Decision 
@@ -92,10 +160,17 @@ exampleParsed = Decision
       , outputEntry = OutputEntry {sOutputId = "output", sExpr = "reject"}}]}}
 ```
 
-The produced DMN data structure is then type checked by comparing the inputExprFEELType with sMaybeCondition.
+The produced DMN data structure is then [type checked](src/TypeChecking.hs).
+
+The type checking covers:
+* Inputs matching with header types
+* Call arguments, including variables, matching with their respective columns
 
 ### 3. From XML - not currently implemented
 ### 4. Intermediate representation
+
+This is then converted to an intermediate representation, found in [ConvertDMN.hs](src/ConvertDMN.hs).
+
 ```hs
 exampleConverted :: CompiledRule
 exampleConverted = MkCompiledRule (Func "opinion") [Arg "stage", Arg "sector", Arg "stage_com", Arg "has_ESG", Arg "wants_ESG"] 
@@ -124,6 +199,9 @@ exampleConverted = MkCompiledRule (Func "opinion") [Arg "stage", Arg "sector", A
 
 
 ### 5. Simala
+
+The IR is then [translated](src/TranslateToSimala.hs) to the [Simala AST](https://github.com/smucclaw/simala/tree/main).
+
 ```haskell
 let
    PitchDecks = fun (input_PitchDecks) => 
@@ -148,7 +226,7 @@ in PitchDecks({stage = 'Seed, sector = '`Information Technology`, stage_com = 'P
 Running this produces ```{opinion = 'interesting}```
 
 ### 6. Python
-The intermediate representation is pretty printed to python, where each decision represents one function.
+The intermediate representation is [pretty printed to python](src/PrintProg.hs), where each decision represents one function.
 
 ```py
 def pitchdecks ( stage, sector, stage_com, has_esg, wants_esg ):
@@ -163,6 +241,24 @@ def pitchdecks ( stage, sector, stage_com, has_esg, wants_esg ):
             else:
                 return 'reject'
 o = pitchdecks ( 'Seed', 'Information Technology', 'Pre-Profit', True, True )
+```
+
+### 7. Javascript
+The same is done for [javascript](src/PrintProgJavascript.hs).
+
+```js
+function pitchdecks(stage, sector, stage_com, has_esg, wants_esg) {
+    if (stage === 'Seed' && sector === 'Information Technology' && stage_com === 'Pre-Revenue') {
+        return 'interesting';
+    } else if (stage === 'Series A' && sector === 'Information Technology' && stage_com === 'Pre-Profit') {
+        return 'interesting';
+    } else if (has_esg === true && wants_esg === true) {
+        return 'interesting';
+    } else {
+        return 'reject';
+    }
+}
+let o = pitchdecks('Seed', 'Information Technology', 'Pre-Revenue', true, false);
 ```
 
 # Types.hs
@@ -186,10 +282,10 @@ This version currently supports strings, bools, and integers.
 
 # Various Hit Policies
 ## Single hit policies
-### Unique
-inputs cannot overlap - nested ifs
+### Unique (U)
+Inputs cannot overlap - Represented by nested ifs
 
-|U (pass)|Mark|Result|
+|U (pass)|Mark (input, int)|Result (output, string)|
 |---|---|---|
 |1|>=50|"Pass"|
 |2|<50|"Fail"|
@@ -199,45 +295,31 @@ pass (50, result)
 this will translate to a singular function and function call, which should return {result = pass} 
 
 ### First (F)
-Outputs the **first** satisfied rule - nested ifs
-
-|F|b.stage|b.sector|b.stage_com|b.has_ESG|inv.wants_ESG|opinion
-|---|---|---|---|---|---|---|
-|1|Seed|Information Technology|Pre-Revenue|-|-|interesting|
-|2|Series A|Information Technology|Pre-Profit|-|-|interesting|
-|3|-|-|-|TRUE|TRUE|interesting|
-|4|-|-|-|-|-|reject|
+Outputs the **first** satisfied rule - Represented by nested ifs
 
 ### Any (A)
-Multiple rules can be satisfied BUT they must generate the same output - nested ifs??
+Multiple rules can be satisfied BUT they must generate the same output - Represented by nested ifs.
 
-|A|Vacation Days|State|Result|
+|A (probation_eg)|Vacation Days (int, input)|Probation (input, bool)|Result (output, string)|
 |---|---|---|---|
 |1|0|-|"refused"|
-|2|-|"probation"|"refused"|
-|3|>0|"not probation"|"accepted"|
+|2|-|true|"refused"|
+|3|>0|false|"accepted"|
 
-## Multiple hit policies - Not yet implemented
+probation_eg (4, true, result)
+
+## Multiple hit policies
 ### Rule Order (R)
-Returns all in hit order (list) - unnested ifs
+Returns all in hit order (list) - Represented by initialising a list, and adding to it upon every hit.
 * eg if age > 18, returns: "Cars", "Videogames", "Toys"
 
-|R|Age|To Advertise|
+|R (advertise)|Age (input, int)|To Advertise (output, string)|
 |---|---|---|
 |1|>18|"Cars"|
 |2|>12|"Videogames"|
 |3|-|"Toys"|
 
-### Collect (C)
-Returns all in any order (list) - unnested ifs
-
-|C|Age|To Advertise|
-|---|---|---|
-|1|>18|"Cars"|
-|2|>12|"Videogames"|
-|3|-|"Toys"|
-
-This would translate to:
+This would theoretically translate to in simala:
 ```hs
 let
    advertising = fun (input_advertising) => 
@@ -251,56 +333,15 @@ let
 in advertising({Age = 13})
 ```
 
+### Collect (C)
+Returns all in any order (list) - Represented by initialising a list, and adding to it upon every hit.
+
 #### Aggregators
+THESE HAVE NOT YET BEEN IMPLEMENTED.
 * all are outputted as a number
 * therefore inputs must be a number too except for count
 
-1. Sum (sum of all output values)
-2. Min (smallest output value)
-3. Max (largest output value)
-4. Count (no. of outputs)
-
-# Examples
-## Multiple tables
-|U|Mark (input, int)|Grade (string)|
-|---|---|---|
-|1|>=70|"A"|
-|2|[60..70)|"B"|
-|3|[50..60)|"C"|
-|4|[40..50)|"D"|
-|5|[30..40)|"E"|
-|6|[20..30)|"F"|
-
-|U|Attended (bool)|Attendance Pass (bool)|
-|---|---|---|
-|1|true|true|
-|2|false|false|
-
-|F|Grade (string)|Attendance Pass (bool)|Overall Result (bool)|
-|---|---|---|---|
-|1|-|false|"fail"|
-|2|"D", "E", "F"|-|"fail"|
-|3|"A", "B", "C"|true|"pass"|
-
-This translates to 3 function declarations, a
-
-# STATUS
-## CURRENT PROGRESS: 
-- single tables working well
-  - multiple inputs
-  - multiple outputs
-  - table names should be declared in the same cell as the hit policy (altho i need to change it to **handle spaces in names**)
-  - Feel expressions current accepted include: Bool, Int (including ranges/intervals), and String
-  - null inputs (in table declaration) can be represented as '-' or simply left blank; however inputs taken in during calls cannot have null inputs - check dmn documentation if this is true?
-  - this transpiles to python, and to some extent simala
-  - type checking implemented for rule/function/table declaration, ensures that entries into columns match the type declared in the column header
-- all translations of MkCalls work for multiple tables
-
-## TO WORK ON NEXT:
-- type check hit policies
-  - call types are the same as rules types
-  - no recursion
-  - ???
-  - limit the possible inputs that can be entered
-- (lower priority) addition of all possible feel expressions, including date, time, possibly functions?, lists? as seen in [the drools documentation](https://docs.drools.org/latest/drools-docs/drools/DMN/index.html#dmn-feel-data-types-ref_dmn-models)
-- think of a way to limit the inputs to certain values only? eg for stage in pitchdecks, it can only be seed, pre-seed etc
+1. Sum (sum of all output values): C+
+2. Min (smallest output value): C<
+3. Max (largest output value): C>
+4. Count (no. of outputs): C#
