@@ -19,42 +19,108 @@ Input files must be in the following format, similar to that of a markdown table
 table_name("Input1", variable_name)
 
 where:
-1. The hit policy is specifiied with a singular letter and must be [one of the following listed here](#various-hit-policies).
+1. The **hit policy** is specified with a singular letter and must be [one of the following listed here](#various-hit-policies).
 2. Each arg must be specified to be 
-    * either an input/output
-    * type - string, int (including ranges and intervals in the form >, <, and [55..67]), or bool
-3. There can be multiple inputs and outputs
-4. Null inputs must be represented as - or left blank.
+    * either an **input/output**
+    * type - **string, int** (including ranges and intervals in the form >, <, and [55..67]), or **bool**
+3. There can be **multiple** inputs and outputs
+4. Null inputs must be represented as **- or left blank**.
 5. Function calls are in a prolog-style format, where outputs are treated as variables and can be reused if there are multiple calls
    * There should be a space between table declarations and function calls
+
+example:
+```prolog
+function1(inputA, outputA)
+function2 (outputA, outputB) // here outputA from function1 is used as an input for function2
+```
+
 6. Comments can be added with //
 
 ## Multiple tables
-|U (grade)|Mark (input, int)|Grade (output, string)|
-|---|---|---|
-|1|>=70|"A"|
-|2|[60..70)|"B"|
-|3|[50..60)|"C"|
-|4|[40..50)|"D"|
-|5|[30..40)|"E"|
-|6|[20..30)|"F"|
+|F (Play)|outlook (input, string)| temp(input, int) | humidity (Input, int) |windy (input, bool)| golf (output, bool)| swimming (output, int)|
+|---|---|---|---|---|---|---|
+|1|"sunny"|>80|>85|-|false|1|
+|2|"overcast"||||true|1|
+|3|"rain"|-|-|true|false|0|
+|4|"rain"|-|-|false|true|0|
+|5|"sunny"|[71..80)|(70..95]||false|1|
+|6|"sunny"|<71|<=70|false|true|1|
 
-|U (attendance)|Attended (input, bool)|Attendance Pass (output, bool)|
-|---|---|---|
-|1|true|true|
-|2|false|false|
-
-|F (final)|Grade (input, string)|Attendance Pass (input bool)|Overall Result (output, bool)|
+|U (which)|golf (input, bool)|swimming (input, int)|choice (output, string)|
 |---|---|---|---|
-|1|-|false|"fail"|
-|2|"D", "E", "F"|-|"fail"|
-|3|"A", "B", "C"|true|"pass"|
+|1|-|1|"swimming"|
+|2|true|0|"golf"|
+|3|false|0|"stay at home"|
 
-grade (66, g)
-attendance(true, a)
-final(g, a, result)
+|F (wear_sunglasses)|outlook (input, string)| sport(input, string)| sunglasses (output, bool)|
+|---|---|---|---|
+|1|"sunny"|"golf"|true|
+|2|-||false|
 
-This translates to 3 function declarations, and 3 calls. The outputs of the first 2 tables are inputted into the last table through the use of the same variable names.
+Play("sunny", 75, 90, true, golf, swim)
+
+which(golf, swim, choice)
+
+wear_sunglasses("sunny", choice, sunglasses)
+
+
+This translates to 3 function declarations, and 3 calls. The outputs of the first 2 tables are inputted into the last table through the use of the same variable names. In simala, this will be represented as:
+```hs
+#eval let
+   Play = fun (input_Play) => 
+      if   input_Play.outlook == 'sunny
+        && input_Play.temp > 80
+        && input_Play.humidity > 85
+      then {golf = false,swimming = 1} 
+      else
+        if   input_Play.outlook == 'overcast
+        then {golf = true,swimming = 1} 
+        else
+          if   input_Play.outlook == 'rain
+            && input_Play.windy == true
+          then {golf = false,swimming = 0} 
+          else
+            if   input_Play.outlook == 'rain
+              && input_Play.windy == false
+            then {golf = true,swimming = 0} 
+            else
+              if   input_Play.outlook == 'sunny
+                && input_Play.temp >= 71
+                && input_Play.temp < 80
+                && input_Play.humidity > 70
+                && input_Play.humidity <= 95
+              then {golf = false,swimming = 1} 
+              else
+                {golf = true,swimming = 1}
+in let
+   which = fun (input_which) => 
+      if   input_which.swimming == 1
+      then {choice = 'swimming} 
+      else
+        if   input_which.golf == true
+          && input_which.swimming == 0
+        then {choice = 'golf} 
+        else
+          {choice = '`stay at home`}
+in let
+   wear_sunglasses = fun (input_wear_sunglasses) => 
+      if   input_wear_sunglasses.outlook == 'sunny
+        && input_wear_sunglasses.sport == 'golf
+      then {sunglasses = true} 
+      else
+        {sunglasses = false}
+in let
+   r0 = Play({outlook = 'sunny,temp = 75,humidity = 90,windy = true})
+in let
+   golf = r0.golf
+in let
+   swim = r0.swimming
+in let
+   r1 = which({golf = golf,swimming = swim})
+in let
+   choice = r1.choice
+in wear_sunglasses({outlook = 'sunny,sport = choice})
+```
 
 
 ## Progress

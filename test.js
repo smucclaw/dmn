@@ -1,18 +1,36 @@
-function results ( mark, test ) {
-    if (mark >= 70 && test === true) {
-        return {output1: 'A', output2: 'pass'};
-    } else if (mark >= 60 && mark <70) {
-        return {output1: 'B', output2: 'pass'};
-    } else if (mark >= 50 && mark <= 59) {
-        return {output1: 'C', output2: 'pass'};
-    } else if (mark >= 40 && mark <= 49) {
-        return {output1: 'D', output2: 'fail'};
-    } else if (mark >= 30 && mark <= 39) {
-        return {output1: 'E', output2: 'fail'};
+function play(outlook, temp, humidity, windy) {
+    if (outlook === 'sunny' && temp > 80 && humidity > 85) {
+        return {output1: false, output2: 1};
+    } else if (outlook === 'overcast') {
+        return {output1: true, output2: 1};
+    } else if (outlook === 'rain' && windy === true) {
+        return {output1: false, output2: 0};
+    } else if (outlook === 'rain' && windy === false) {
+        return {output1: true, output2: 0};
+    } else if (outlook === 'sunny' && temp >= 71 && temp <80 && humidity >70 && humidity <= 95) {
+        return {output1: false, output2: 1};
     } else {
-        return {output1: 'F', output2: 'fail'};
+        return {output1: true, output2: 1};
     }
 }
-let {output1: grade, output2: result} = results (50, true);
+function which(golf, swimming) {
+    if (swimming === 1) {
+        return 'swimming';
+    } else if (golf === true && swimming === 0) {
+        return 'golf';
+    } else {
+        return 'stay at home';
+    }
+}
+function wear_sunglasses(outlook, sport) {
+    if (outlook === 'sunny' && sport === 'golf') {
+        return true;
+    } else {
+        return false;
+    }
+}
+let {output1: golf, output2: swim} = play('sunny', 75, 90, true);
+let choice = which(golf, swim);
+let sunglasses = wear_sunglasses('sunny', choice);
 
-console.log ( 'Grade:', grade, 'Result:', result );
+console.log ( 'Choice:', choice, ', Sunglasses:', sunglasses );
