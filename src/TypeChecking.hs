@@ -72,23 +72,13 @@ checkEntry varMap schema entry =
     -- The remaining characters in a variable name can be any of the starting characters, as well as digits, white spaces, and special characters such as +, -, /, *, ', and ..
     in filter (not . null) $ inputErrors
 
-checkVariableCondition :: VarMap -> String -> Condition -> String
-checkVariableCondition varMap varName condition =
-    case Map.lookup varName varMap of
-        Nothing -> "Variable " ++ varName ++ " not found in variable map"
-        Just varType -> if matchesTypeCondition (map toLower varType) condition
-                        then ""
-                        else "Type mismatch for variable " ++ varName ++ 
-                             ": expected " ++ varType ++ 
-                             ", got " ++ show condition
-
 checkInputs :: VarMap -> InputSchema -> Param -> String
 checkInputs varMap schema param = 
     let expectedType = map toLower (inputExprFEELType schema)
         actualType = map toLower (paramType param)
     in case actualType of
         "var" -> case Map.lookup (paramName param) varMap of
-            Just varType -> if matchesType (map toLower expectedType) varType
+            Just varType -> if map toLower expectedType == map toLower varType
                             then ""
                             else "Type mismatch for variable " ++ paramName param ++ 
                                  ": expected " ++ expectedType ++ ", got " ++ (paramName param)

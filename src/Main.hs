@@ -3,6 +3,7 @@ module Main where
 import Types
 import ConvertDMN
 import PrintProg
+import PrintProgJavascript
 import Prettyprinter
 import System.Environment (getArgs)
 import System.IO (readFile, writeFile)
@@ -14,7 +15,6 @@ import FromMD
 import TypeChecking
 import TranslateToSimala
 import RenderPretty (render)
-import Base.Pretty
 import qualified Data.Text.IO as T
 import qualified Data.Map as Map
 
@@ -50,8 +50,13 @@ main = do
                     putStrLn ""
 
                     -- translate to python
-                    putStrLn "python ver"
+                    putStrLn "python transpilation"
                     (print . (<>) line . showProg) convertedDRD
+                    putStrLn ""
+
+                    -- translate to javascript
+                    putStrLn "javascript transpilation"
+                    (print . (<>) line . showProgJs) convertedDRD
                     putStrLn ""
 
                     -- translate to simala ast
@@ -61,7 +66,7 @@ main = do
                     putStrLn ""
 
                     -- translate to simala
-                    putStrLn "simala ver"
+                    putStrLn "simala transpilation"
                     let simalaProg = render simalaDMN
                     T.putStrLn $ render simalaDMN
                     putStrLn ""

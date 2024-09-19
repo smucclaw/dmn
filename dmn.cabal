@@ -57,6 +57,7 @@ executable dmn-exe
       TypeChecking
       Types
       RenderPretty
+      PrintProgJavascript
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -XDerivingStrategies -XDerivingVia -XOverloadedRecordDot -XOverloadedStrings -XOverloadedLabels

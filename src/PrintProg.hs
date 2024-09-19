@@ -23,10 +23,10 @@ instance ShowProg CompiledRule where
                                             , indent nestingDepth (showProg e)])
 
 instance ShowProg TableSignature where
-    showProg (MkTableSignature f inputs outputs) = hsep [showProg f
-                                                        , pretty (T.pack "(")
-                                                        , showProg inputs
-                                                        , pretty (T.pack "):")]
+    showProg (MkTableSignature f inputs outputs) = showProg f 
+                                                        <> pretty (T.pack "(")
+                                                        <> showProg inputs
+                                                        <> pretty (T.pack "):")
 
 instance ShowProg [ColumnSignature] where
     showProg cols = hsep (punctuate (pretty (T.pack ",")) (map showProg cols))
@@ -38,9 +38,9 @@ instance ShowProg Call where
     showProg (MkCall f inputs outputs) = hsep [showProg outputs
                                             , pretty (T.pack "=")
                                             , showProg f
-                                            , pretty (T.pack "(")
-                                            , showProg inputs
-                                            , pretty (T.pack ")")]
+                                            <> pretty (T.pack "(")
+                                            <> showProg inputs
+                                            <> pretty (T.pack ")")]
 
 instance ShowProg Func where
     showProg (Func f) =  pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack f)))
@@ -52,7 +52,7 @@ instance ShowProg Expr where
     showProg (Var (Arg v)) = pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack v)))
     showProg (And exprs) = hsep (punctuate (pretty (T.pack " and")) (map showProg exprs))
     showProg (Equal e1 e2) = showProg e1 <+> pretty (T.pack "==") <+> showProg e2
-    showProg (If c t (Just e)) = vsep [ pretty (T.pack "if") <+> showProg c <+> pretty (T.pack ":")
+    showProg (If c t (Just e)) = vsep [ pretty (T.pack "if") <+> showProg c <> pretty (T.pack ":")
               , indent nestingDepth (showProg t)
               , pretty (T.pack "else:")
               , indent nestingDepth (showProg e)
@@ -74,7 +74,7 @@ instance ShowProg Expr where
 
 instance ShowProg Bracket where
     showProg (Inclusive e) = pretty (T.pack "=") <+> showProg e
-    showProg (Exclusive e) = pretty (T.pack "this program cant handle exclusive values")
+    showProg (Exclusive e) = pretty (T.pack " ") <> showProg e
 
 instance ShowProg [Arg] where
     showProg args = hsep (punctuate (pretty (T.pack ",")) (map showProg args))
