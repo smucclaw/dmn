@@ -1,4 +1,4 @@
-|C (advertising)|Age (input, Int)|To Advertise (output, String)|
+|C (advertising)|Age (input, number)|To Advertise (output, String)|
 |---|---|---|
 |1|>18|"Cars"|
 |2|>12|"Videogames"|

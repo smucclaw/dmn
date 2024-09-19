@@ -1,4 +1,4 @@
-|U (TableA)|season (input, String)|guests (input, Int)|veg guests (input, Bool)|Dish (output, String)|Dessert (output, String)|
+|U (TableA)|season (input, String)|guests (input, number)|veg guests (input, Bool)|Dish (output, String)|Dessert (output, String)|
 |---|---|---|---|---|---|
 |1|"Fall"|<=8|false| "Spareribs"|"Cake"|
 |2|"Winter"|<=8|false|"Roastbeef"|"Brownie"|

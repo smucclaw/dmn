@@ -22,7 +22,7 @@ where:
 1. The **hit policy** is specified with a singular letter and must be [one of the following listed here](#various-hit-policies).
 2. Each arg must be specified to be 
     * either an **input/output**
-    * type - **string, int** (including ranges and intervals in the form >, <, and [55..67]), or **bool**
+    * type - **string, number** (including int and double  + ranges in the form >, <, and [55..67]), or **bool**
 3. There can be **multiple** inputs and outputs
 4. Null inputs must be represented as **- or left blank**.
 5. Function calls are in a prolog-style format, where outputs are treated as variables and can be reused if there are multiple calls
@@ -37,7 +37,7 @@ function2 (outputA, outputB) // here outputA from function1 is used as an input 
 6. Comments can be added with //
 
 ## Multiple tables
-|F (Play)|outlook (input, string)| temp(input, int) | humidity (Input, int) |windy (input, bool)| golf (output, bool)| swimming (output, int)|
+|F (Play)|outlook (input, string)| temp(input, number) | humidity (Input, number) |windy (input, bool)| golf (output, bool)| swimming (output, number)|
 |---|---|---|---|---|---|---|
 |1|"sunny"|>80|>85|-|false|1|
 |2|"overcast"||||true|1|
@@ -46,7 +46,7 @@ function2 (outputA, outputB) // here outputA from function1 is used as an input 
 |5|"sunny"|[71..80)|(70..95]||false|1|
 |6|"sunny"|<71|<=70|false|true|1|
 
-|U (which)|golf (input, bool)|swimming (input, int)|choice (output, string)|
+|U (which)|golf (input, bool)|swimming (input, number)|choice (output, string)|
 |---|---|---|---|
 |1|-|1|"swimming"|
 |2|true|0|"golf"|
@@ -129,16 +129,16 @@ A list of all transpilations and their current status
 |---|---|---|
 |DMN (Markdown)|Input|Currently handles single-hit policies, with some translations to multi-hit policies.|
 |XML|Input|In progress|
-|Simala|Output|Unique, First, and Any hit policies. FEEL expressions are limited - Currently supports Int, String and Bool |
-|Python|Output|Unique, First, Any, Collect, and Rule order hit policies. FEEL expressions are limited - Currently supports Int, String and Bool |
-|JavaScipt|Output|Unique, First, Any, Collect, and Rule order hit policies. FEEL expressions are limited - Currently supports Int, String and Bool |
+|Simala|Output|Unique, First, and Any hit policies. FEEL expressions are limited - Currently supports Number (Int and Double), String and Bool |
+|Python|Output|Unique, First, Any, Collect, and Rule order hit policies. FEEL expressions are limited - Currently supports Number (Int and Double), String and Bool |
+|JavaScipt|Output|Unique, First, Any, Collect, and Rule order hit policies. FEEL expressions are limited - Currently supports Number (Int and Double), String and Bool |
 
 
 ## Current Features: 
 - Single tables
   - Handle **multiple inputs/outputs**
-  - Feel expressions current accepted include: **Bool, Int, and String**
-      - Int can be ranges such as: **>, >=, <, <=, [55..67], (34..67)**, where square brackets represent inclusive values and round brackets represent exclusive values
+  - Feel expressions current accepted include: **Bool, Number (Int and Double), and String**
+      - Numbers can be ranges such as: **>, >=, <, <=, [55..67], (34..67)**, where square brackets represent inclusive values and round brackets represent exclusive values
   - **Null inputs** (in table declaration) can be represented as **'-' or simply left blank**; however inputs taken in during calls cannot have null inputs.
 - Multiple tables
    - **Multiple tables** can be connected to each other through **function calls**, where the overlapping columns must share the **same variable name**.
@@ -351,7 +351,7 @@ This version currently supports strings, bools, and integers.
 ### Unique (U)
 Inputs cannot overlap - Represented by nested ifs
 
-|U (pass)|Mark (input, int)|Result (output, string)|
+|U (pass)|Mark (input, Number)|Result (output, string)|
 |---|---|---|
 |1|>=50|"Pass"|
 |2|<50|"Fail"|
@@ -366,7 +366,7 @@ Outputs the **first** satisfied rule - Represented by nested ifs
 ### Any (A)
 Multiple rules can be satisfied BUT they must generate the same output - Represented by nested ifs.
 
-|A (probation_eg)|Vacation Days (int, input)|Probation (input, bool)|Result (output, string)|
+|A (probation_eg)|Vacation Days (input, number)|Probation (input, bool)|Result (output, string)|
 |---|---|---|---|
 |1|0|-|"refused"|
 |2|-|true|"refused"|
@@ -379,7 +379,7 @@ probation_eg (4, true, result)
 Returns all in hit order (list) - Represented by initialising a list, and adding to it upon every hit.
 * eg if age > 18, returns: "Cars", "Videogames", "Toys"
 
-|R (advertise)|Age (input, int)|To Advertise (output, string)|
+|R (advertise)|Age (input, Number)|To Advertise (output, string)|
 |---|---|---|
 |1|>18|"Cars"|
 |2|>12|"Videogames"|
