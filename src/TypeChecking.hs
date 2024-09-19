@@ -3,6 +3,7 @@ module TypeChecking where
 import Types
 import Data.Maybe (isJust, fromJust)
 import Data.Char (isDigit, toLower)
+import Text.Read (readMaybe)
 import qualified Data.Map as Map
 
 type VarMap = Map.Map String String
@@ -48,8 +49,8 @@ checkOutputEntry schema entry =
 matchesTypeCondition :: String -> Condition -> Bool
 matchesTypeCondition "string" (ConditionString _) = True
 matchesTypeCondition "bool" (ConditionBool _) = True
-matchesTypeCondition "int" (ConditionInt _ _) = True
-matchesTypeCondition "int" (ConditionRange _ _ _ _) = True
+matchesTypeCondition "number" (ConditionNumber _ _) = True
+matchesTypeCondition "number" (ConditionRange _ _ _ _) = True
 matchesTypeCondition _ _ = False
 
 -- type checking for entries/calls
@@ -91,8 +92,9 @@ checkInputs varMap schema param =
 matchesType :: String -> String -> Bool
 matchesType "string" _ = True
 matchesType "bool" s = s == "true" || s == "false"
-matchesType "int" s = all isDigit s
-matchesType "int" s = (head s == '[' || head s == '(') && (last s == ']' || last s == ')')
+matchesType "number" s = all isDigit s
+matchesType "number" s = (head s == '[' || head s == '(') && (last s == ']' || last s == ')')
+matchesType "number" s = isJust (readMaybe s :: Maybe Double)
 matchesType _ _ = False
 
 findDecision :: [Decision] -> Id -> Maybe Schema

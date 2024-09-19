@@ -4,6 +4,8 @@ module FromMD where
 import Types
 import Data.List.Split (splitOn, splitWhen)
 import Data.Char (toLower, isDigit, isSpace)
+import Text.Read (readMaybe)
+import Data.Maybe (isJust)
 import Data.List
 import qualified Data.Map as Map
 import Debug.Trace (trace)
@@ -110,7 +112,8 @@ parseCondition "" = Nothing
 parseCondition s
     | map toLower s == "true"  = Just (ConditionBool True)
     | map toLower s == "false" = Just (ConditionBool False)
-    | all isDigit s = Just (ConditionInt Nothing (read s))
+    | all isDigit s = Just (ConditionNumber Nothing (Left (read s)))
+    | isJust (readMaybe s :: Maybe Double) = Just (ConditionNumber Nothing (Right (read s)))
     | (head s == '[' || head s == '(') && (last s == ']' || last s == ')') = parseRangeCondition s
     | head s == '"' && last s == '"' = Just (ConditionString (init (tail s)))
     | otherwise = parseIntCondition s
@@ -118,7 +121,7 @@ parseCondition s
 parseIntCondition :: String -> Maybe Condition
 parseIntCondition i =
     let (op, numStr) = span (not . isDigit) i
-    in Just (ConditionInt (Just op) (read numStr))
+    in Just (ConditionNumber (Just op) (Left (read numStr)))
 
 parseRangeCondition :: String -> Maybe Condition
 parseRangeCondition r = 
@@ -149,10 +152,11 @@ parseOutputEntry schema entry =
 
 parseOutputType :: String -> String
 parseOutputType s
-    | all isDigit s = "Int"
+    | all isDigit s = "Number"
     | map toLower s == "true" || map toLower s == "false" = "Bool"
     | head s == '"' && last s == '"' = "String"
-    | (head s == '[' || head s == '(') && (last s == ']' || last s == ')') = "Int"
+    | (head s == '[' || head s == '(') && (last s == ']' || last s == ')') = "Number"
+    | isJust (readMaybe s :: Maybe Double) = "Number"
     | otherwise = "Var"
 
 trim :: String -> String

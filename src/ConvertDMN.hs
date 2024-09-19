@@ -23,7 +23,7 @@ data ColumnSignature =
 
 data Type = 
     StringType
-    | IntType
+    | NumType
     | BoolType
     deriving Show
 
@@ -58,7 +58,7 @@ data Bracket = Inclusive Expr | Exclusive Expr deriving Show
 
 data Val = Bool Bool 
             | String String
-            | Int Int 
+            | Number (Either Int Double)  
             | List ListName
             deriving Show
 
@@ -90,7 +90,7 @@ convertOutputSchema OutputSchema {..} = MkColumnSignature (Arg sOutputSchemaVarN
 convertType :: String -> Type
 convertType str = case map toLower str of
     "string" -> StringType
-    "int" -> IntType
+    "number" -> NumType
     "bool" -> BoolType
     _ -> error "Type not supported"
 
@@ -109,7 +109,7 @@ convertArgument :: Param -> Argument
 convertArgument (Param name _) 
                 | map toLower name == "true"  = ValArgument (Bool True)
                 | map toLower name == "false" = ValArgument (Bool False)
-                | all isDigit name = ValArgument (Int (read name))
+                | all isDigit name = ValArgument (Number (Left (read name)))
                 | head name == '"' && last name == '"' = ValArgument (String (init (tail name)))
                 | otherwise = VarArgument (Arg name)
 
@@ -172,13 +172,17 @@ checkCondition InputEntry {sMaybeCondition = Just (ConditionString val), ..} = -
     Just (Equal (Var (Arg sInputEntryId)) (Const (String val)))
 checkCondition InputEntry {sMaybeCondition = Just (ConditionBool val), ..} = -- bool
     Just (Equal (Var (Arg sInputEntryId)) (Const (Bool val)))
-checkCondition InputEntry {sMaybeCondition = Just (ConditionInt Nothing val), ..} = -- number with no operator, default to Equal
+checkCondition InputEntry {sMaybeCondition = Just (ConditionNumber Nothing (Left val)), ..} = -- number with no operator, default to Equal (Int)
     Just (Equal (Var (Arg sInputEntryId)) (Const (Int val)))
-checkCondition InputEntry {sMaybeCondition = Just (ConditionInt (Just op) val), ..} = -- number with operator
+checkCondition InputEntry {sMaybeCondition = Just (ConditionNumber Nothing (Right val)), ..} = -- number with no operator, default to Equal (Double)
+    Just (Equal (Var (Arg sInputEntryId)) (Const (Double val)))
+checkCondition InputEntry {sMaybeCondition = Just (ConditionNumber (Just op) (Left val)), ..} = -- number with operator (Int)
     Just (chooseOperator sInputEntryId op (Const (Int val)))
+checkCondition InputEntry {sMaybeCondition = Just (ConditionNumber (Just op) (Right val)), ..} = -- number with operator (Double)
+    Just (chooseOperator sInputEntryId op (Const (Double val)))
 checkCondition InputEntry {sMaybeCondition = Just (ConditionRange open num1 num2 close), ..} = -- range condition
-    let startBracket = bracket (head open) (Const (Int num1))
-        endBracket = bracket (head close) (Const (Int num2))
+    let startBracket = bracket (head open) (Const (Number (Left num1)))
+        endBracket = bracket (head close) (Const (Number (Left num2)))
     in Just (Range startBracket endBracket (Var (Arg sInputEntryId)))
 checkCondition _ = Nothing
 
@@ -202,7 +206,11 @@ getOutputEntry :: OutputEntry -> Val
 getOutputEntry OutputEntry {sExpr = expr, sOutputFEELType = feelType} = 
     case feelType of
         "String" -> String expr
-        "Int" -> Int (read expr)
+        "Number" -> case readMaybe expr :: Maybe Int of
+                      Just intVal -> Number (Left intVal)
+                      Nothing -> case readMaybe expr :: Maybe Double of
+                                   Just doubleVal -> Number (Right doubleVal)
+                                   Nothing -> error "Invalid number format"
         "Bool" -> case map toLower expr of
                     "true" -> Bool True
                     "false" -> Bool False
