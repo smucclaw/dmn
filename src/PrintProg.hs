@@ -18,7 +18,7 @@ instance ShowProg CompiledDRD where
                                          , vsep (map showProg calls)]
 
 instance ShowProg CompiledRule where
-    showProg (MkCompiledRule table (e:es)) = (vsep [ hsep [pretty (T.pack "def")
+    showProg (MkCompiledRule table e) = (vsep [ hsep [pretty (T.pack "def")
                                                             , showProg table]
                                             , indent nestingDepth (showProg e)])
 
@@ -45,6 +45,9 @@ instance ShowProg Call where
 instance ShowProg Func where
     showProg (Func f) =  pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack f)))
 
+instance ShowProg [Expr] where
+    showProg exprs = vsep (map showProg exprs)
+
 instance ShowProg Expr where
     showProg (Var (Arg v)) = pretty (T.map toLower (T.replace (T.pack " ") (T.pack "_") (T.pack v)))
     showProg (And exprs) = hsep (punctuate (pretty (T.pack " and")) (map showProg exprs))
@@ -54,6 +57,9 @@ instance ShowProg Expr where
               , pretty (T.pack "else:")
               , indent nestingDepth (showProg e)
               ]
+    showProg (If c t Nothing) = vsep [ pretty (T.pack "if") <+> showProg c <+> pretty (T.pack ":")
+              , indent nestingDepth (showProg t)
+              ]
     showProg (MoreThan e1 e2) = showProg e1 <+> pretty (T.pack ">") <+> showProg e2
     showProg (MoreThanEqual e1 e2) = showProg e1 <+> pretty (T.pack ">=") <+> showProg e2
     showProg (LessThan e1 e2) = showProg e1 <+> pretty (T.pack "<") <+> showProg e2
@@ -61,6 +67,8 @@ instance ShowProg Expr where
     showProg (Range e1 e2 e3) = showProg e3 <+> pretty (T.pack ">") <> showProg e1 <+> pretty (T.pack "and") <+> showProg e3 <+> pretty (T.pack "<") <> showProg e2
     showProg (Const val) = showProg val
     showProg (Return vals) = pretty (T.pack "return") <+> showProg vals
+    showProg (InitList (ListName l)) = pretty (T.map toLower (T.pack l)) <+> pretty (T.pack "=") <+> pretty (T.pack "[]")
+    showProg (AppendList (ListName l) vals) = pretty (T.map toLower (T.pack l)) <> pretty (T.pack ".append(") <+> showProg vals <+> pretty (T.pack ")")
     showProg _ = pretty (T.pack "erorr??")
 
 
@@ -81,6 +89,7 @@ instance ShowProg Val where
     showProg (Bool b) = pretty b
     showProg (String s) = pretty (T.pack ("'" ++ s ++ "'"))
     showProg (Int n) = pretty n
+    showProg (List (ListName l)) = pretty (T.map toLower (T.pack l))
 
 instance ShowProg [Argument] where
     showProg args = hsep (punctuate (pretty (T.pack ",")) (map showProg args))

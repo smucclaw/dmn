@@ -1,6 +1,6 @@
 |U (TableA)|season (input, String)|guests (input, Int)|veg_guests (input, Bool)|Dish (output, String)|Dessert (output, String)|
 |---|---|---|---|---|---|
-|1|"Fall"|<=8|false| "Spareribs"|"Cake"|
+|1|"Fall"|<=8|false|"Spareribs"|"Cake"|
 |2|"Winter"|<=8|false|"Roastbeef"|"Brownie"|
 |3|"Spring"|<=4|false|"Fancy Steak"|"Pie"|
 |4||[5..8]|false|"Stew"|"Pie"|
@@ -16,6 +16,6 @@
 |4|"Steak"|||"lemonade"|
 |5|||true|"apple juice"|
 
-TableA("Fall", 5, true, dish, dessert)
+TableA("Fall", 5, false, dish, dessert)
 
-TableB(dish, "Cake", false, beverage)
+TableB(dish, dessert, false, beverage)
