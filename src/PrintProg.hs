@@ -89,6 +89,7 @@ instance ShowProg Val where
     showProg (Bool b) = pretty b
     showProg (String s) = pretty (T.pack ("'" ++ s ++ "'"))
     showProg (Int n) = pretty n
+    showProg (Double n) = pretty n
     showProg (List (ListName l)) = pretty (T.map toLower (T.pack l))
 
 instance ShowProg [Argument] where

@@ -97,3 +97,4 @@ compileVal val = case val of
     Bool b -> Simala.Lit (Simala.BoolLit b)
     String s -> Simala.Atom (T.pack s) 
     Int i -> Simala.Lit (Simala.IntLit i)
+    Double d -> Simala.Lit (Simala.IntLit (round d))
