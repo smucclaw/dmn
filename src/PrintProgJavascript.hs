@@ -120,6 +120,7 @@ instance ShowProgJs Val where
     showProgJs (Bool False) = pretty (T.pack "false")
     showProgJs (String s) = pretty (T.pack ("'" ++ s ++ "'"))
     showProgJs (Int n) = pretty n
+    showProgJs (Double n) = pretty n
     showProgJs (List (ListName l)) = pretty (T.map toLower (T.pack l))
 
 

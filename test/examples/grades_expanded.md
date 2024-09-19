@@ -1,4 +1,4 @@
-|U (PassFail) |Mark (input, Int) |Grade (output, String)|
+|U (PassFail) |Mark (input, number) |Grade (output, String)|
 |---|---|---|
 |1|>=50|"Pass"|
 |2|<50|"Fail"|
