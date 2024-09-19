@@ -1,4 +1,4 @@
-|U (TableA) |season (input, string)|guests (input, int)|vegetarian_guests (input, bool)|dish (output, string)|
+|U (TableA) |season (input, string)|guests (input, number)|vegetarian_guests (input, bool)|dish (output, string)|
 |---|---|---|---|---|
 |1|"Fall"|<=8|false|"Spareribs"|
 |2|"Winter"|<=8|false|"Roastbeef"|

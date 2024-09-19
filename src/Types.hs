@@ -88,7 +88,7 @@ data OutputEntry = OutputEntry
 data Condition = ConditionString String 
                 | ConditionBool Bool
                 | ConditionNumber (Maybe String) (Either Int Double)
-                | ConditionRange String Int Int String
+                | ConditionRange String String String String
                 -- | ConditionDecimal (Maybe String) Double
   deriving Show
 
