@@ -7,12 +7,12 @@ import Data.Char (toLower)
 import Data.List (find)
 
 
-translateToSimala :: CompiledDRD -> Simala.Expr
+translateToSimala :: CompiledDRD -> Simala.Decl
 translateToSimala (DRD rules calls) = 
     let ruleDecls = map translateRule rules
         callDecls = concat $ zipWith (translateCalls rules) (init calls) [0..]
         lastCall = last calls
-    in Simala.mkLet (ruleDecls ++ callDecls) (translateLastCall rules lastCall (length calls - 1))
+    in Simala.Eval (Simala.mkLet (ruleDecls ++ callDecls) (translateLastCall rules lastCall (length calls - 1)))
 
 translateLastCall :: [CompiledRule] -> Call -> Int -> Simala.Expr
 translateLastCall rules (MkCall (Func funcName) inputs _) index =

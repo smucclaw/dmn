@@ -38,6 +38,7 @@ instance Render EvalError where
 instance Render Decl where
   renderAtPrio _ (Rec t name expr)    = "rec" <> renderTransparency t <> " " <> render name <> " = " <> render expr
   renderAtPrio _ (NonRec t name expr) =          renderTransparency t <> " " <> render name <> " = " <> render expr
+  renderAtPrio _ (Eval expr)          = "#eval"                       <> " "                         <> render expr
 
 instance Render Expr where
   renderAtPrio :: Int -> Expr -> Text
@@ -138,6 +139,7 @@ instance Render Builtin where
   render Foldr      = "foldr"
   render Foldl      = "foldl"
   render Case       = "case"
+  render Merge      = "merge"
 
 instance Render Lit where
   render :: Lit -> Text
@@ -162,18 +164,18 @@ instance Render Name where
 
 -- | Helper function to render an argument / parameter list.
 renderArgs :: Render a => [a] -> Text
-renderArgs xs = "(" <> Text.intercalate ", " (map render xs) <> ")"
+renderArgs xs = "(" <> Text.intercalate "," (map render xs) <> ")"
 
 -- | Helper function to render a literal list.
 renderList :: Render a => [a] -> Text
-renderList xs = "[" <> Text.intercalate ", " (map render xs) <> "]"
+renderList xs = "[" <> Text.intercalate "," (map render xs) <> "]"
 
 -- | Helper function to render a row. Takes as argument the
 -- string that separates names from payloads.
 --
 renderRow :: forall a. Render a => Text -> Row a -> Text
 renderRow sep xs =
-  "{" <> Text.intercalate ", " (map item xs) <> "}"
+  "{" <> Text.intercalate "," (map item xs) <> "}"
   where
     item :: (Name, a) -> Text
     item (x, a) = render x <> sep <> render a

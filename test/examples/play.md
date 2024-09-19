@@ -1,4 +1,4 @@
-|F (play)|outlook (input, string)| temp(input, int) | humidity (Input, int) |windy (input, bool)| golf (output, bool)| swimming (output, int)|
+|F (Play)|outlook (input, string)| temp(input, int) | humidity (Input, int) |windy (input, bool)| golf (output, bool)| swimming (output, int)|
 |---|---|---|---|---|---|---|
 |1|"sunny"|>80|>85|-|false|1|
 |2|"overcast"|-|||true|1|
@@ -13,5 +13,7 @@
 |2|true|0|"golf"|
 |3|false|0|"stay at home"|
 
-play("overcast", 75, 90, true, golf, swim)
+Play("sunny", 75, 90, true, golf, swim)
 which(golf, swim, choice)
+
+//test comments

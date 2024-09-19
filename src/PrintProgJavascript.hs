@@ -23,10 +23,10 @@ instance ShowProgJs CompiledRule where
                                             , indent nestingDepth (showProgJs e), pretty (T.pack "}")])
 
 instance ShowProgJs TableSignature where
-    showProgJs (MkTableSignature f inputs outputs) = hsep [showProgJs f
-                                                        , pretty (T.pack "(")
-                                                        , showProgJs inputs
-                                                        , pretty (T.pack ") {")]
+    showProgJs (MkTableSignature f inputs outputs) = showProgJs f
+                                                        <> pretty (T.pack "(")
+                                                        <> showProgJs inputs
+                                                        <> pretty (T.pack ") {")
 
 instance ShowProgJs [ColumnSignature] where
     showProgJs cols = hsep (punctuate (pretty (T.pack ",")) (map showProgJs cols))
@@ -37,11 +37,12 @@ instance ShowProgJs ColumnSignature where
 instance ShowProgJs Call where
     showProgJs call = 
         case call of
-            MkCall f inputs [output] -> hsep [showProgJs output
+            MkCall f inputs [output] -> hsep [pretty (T.pack "let")
+                                            , showProgJs output
                                              , pretty (T.pack "=")
                                              , showProgJs f
-                                             , pretty (T.pack "(")
-                                             , showProgJs inputs
+                                             <> pretty (T.pack "(")
+                                             <> showProgJs inputs
                                              , pretty (T.pack ");")]
             MkCall f inputs outputs -> hsep [pretty (T.pack "let")
                                             , pretty (T.pack "{")
@@ -49,7 +50,7 @@ instance ShowProgJs Call where
                                             <> pretty (T.pack ":") <+> showProgJs v) [1..] outputs))
                                             <> pretty (T.pack "} =")
                                             , showProgJs f
-                                            , pretty (T.pack "(")
+                                            <> pretty (T.pack "(")
                                             <> showProgJs inputs
                                             <> pretty (T.pack ");")]
 

@@ -4,7 +4,7 @@ module FromMD where
 import Types
 import Data.List.Split (splitOn, splitWhen)
 import Data.Char (toLower, isDigit, isSpace)
-import Data.List (isInfixOf, isSuffixOf)
+import Data.List
 import qualified Data.Map as Map
 import Debug.Trace (trace)
 
@@ -12,7 +12,8 @@ type VarMap = Map.Map String String
 
 parseMDToDMN :: String -> (DRD, VarMap)
 parseMDToDMN markdown = 
-    let sections = splitOn "\n\n" markdown
+    let cleanedMarkdown = removeBlockComments markdown
+        sections = splitOn "\n\n" markdown
         (tables, entries) = separateTablesAndConnections sections
         decisions = map parseDecisionTable tables
         schemas = [(tableID (decisionLogic d), schema (decisionLogic d)) | d <- decisions] 
@@ -161,6 +162,19 @@ removeComment :: String -> String
 removeComment line
     | "//" `isInfixOf` line = takeWhile (/= '/') line
     | otherwise = line
+
+removeBlockComments :: String -> String
+removeBlockComments input = 
+    let (before, rest) = breakOn "<!--" input
+    in case rest of
+        "" -> before
+        _  -> let (_, after) = breakOn "-->" (drop 4 rest)
+              in before ++ removeBlockComments (drop 3 after)
+    where 
+        breakOn :: String -> String -> (String, String)
+        breakOn delimiter str = 
+            let (before, remainder) = break (isPrefixOf delimiter) (tails str)
+            in (concat before, concat remainder)
 
 -- ie function calls
 parseEntries :: String -> [(Id, Schema)] -> VarMap -> ([Entry], VarMap)

@@ -189,10 +189,14 @@ This version currently supports strings, bools, and integers.
 ### Unique
 inputs cannot overlap - nested ifs
 
-|U|Mark|Result|
+|U (pass)|Mark|Result|
 |---|---|---|
 |1|>=50|"Pass"|
 |2|<50|"Fail"|
+
+pass (50, result)
+
+this will translate to a singular function and function call, which should return {result = pass} 
 
 ### First (F)
 Outputs the **first** satisfied rule - nested ifs
@@ -233,6 +237,20 @@ Returns all in any order (list) - unnested ifs
 |2|>12|"Videogames"|
 |3|-|"Toys"|
 
+This would translate to:
+```hs
+let
+   advertising = fun (input_advertising) => 
+      if   input_advertising.Age > 18
+      then {`To Advertise` = {1 = 'Cars}} 
+      else
+        if   input_advertising.Age > 12
+        then {`To Advertise` = {2 = 'Videogames}} 
+        else
+          {`To Advertise` = {3 = 'Toys}}
+in advertising({Age = 13})
+```
+
 #### Aggregators
 * all are outputted as a number
 * therefore inputs must be a number too except for count
@@ -264,11 +282,7 @@ Returns all in any order (list) - unnested ifs
 |2|"D", "E", "F"|-|"fail"|
 |3|"A", "B", "C"|true|"pass"|
 
-
-grade -> overall result <- attendance
-^ Not sure what would be the best way to display a DRD in markdown
-
-Grade = InputEntry 
+This translates to 3 function declarations, a
 
 # STATUS
 ## CURRENT PROGRESS: 
@@ -280,13 +294,13 @@ Grade = InputEntry
   - null inputs (in table declaration) can be represented as '-' or simply left blank; however inputs taken in during calls cannot have null inputs - check dmn documentation if this is true?
   - this transpiles to python, and to some extent simala
   - type checking implemented for rule/function/table declaration, ensures that entries into columns match the type declared in the column header
-- both simala and python translations of MkCalls work for multiple tables
+- all translations of MkCalls work for multiple tables
 
 ## TO WORK ON NEXT:
-- type check function calls
+- type check hit policies
   - call types are the same as rules types
   - no recursion
   - ???
-  - handle type checking variables
+  - limit the possible inputs that can be entered
 - (lower priority) addition of all possible feel expressions, including date, time, possibly functions?, lists? as seen in [the drools documentation](https://docs.drools.org/latest/drools-docs/drools/DMN/index.html#dmn-feel-data-types-ref_dmn-models)
 - think of a way to limit the inputs to certain values only? eg for stage in pitchdecks, it can only be seed, pre-seed etc
