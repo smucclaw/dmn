@@ -67,6 +67,3 @@ tests:
     dependencies:
     - dmn
     - hspec
-  
-packages:
-- .
