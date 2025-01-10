@@ -19,6 +19,7 @@ dependencies:
 - parser-combinators
 - process
 - directory
+- simala
 
 ghc-options:
 - -Wall
@@ -26,7 +27,6 @@ ghc-options:
 - -Widentities
 - -Wincomplete-record-updates
 - -Wincomplete-uni-patterns
-- -Wmissing-export-lists
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
@@ -39,7 +39,6 @@ ghc-options:
 library:
   source-dirs: 
   - .
-  - simala/src
 
 executables:
   dmn-exe:
@@ -71,5 +70,3 @@ tests:
   
 packages:
 - .
-- location:
-    directory: simala/src

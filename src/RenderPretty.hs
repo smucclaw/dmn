@@ -3,7 +3,6 @@ module RenderPretty where
 import Base
 import qualified Base.Text as Text
 
-import Prettyprinter
 import Simala.Expr.Parser (simpleName)
 import Simala.Expr.Type
 import Simala.Eval.Type
@@ -46,8 +45,8 @@ instance Render Expr where
   renderAtPrio _ (Var x)            = render x
   renderAtPrio _ (Atom x)           = "'" <> render x
   renderAtPrio _ (Lit l)            = render l
-  renderAtPrio p (Cons e1 e2)       = renderBinopr 5 " : " p e1 e2
-  renderAtPrio _ (List es)          = renderList es
+  -- renderAtPrio p (Cons e1 e2)       = renderBinopr 5 " : " p e1 e2
+  -- renderAtPrio _ (List es)          = renderList es
   renderAtPrio _ (Record r)         = renderRow " = " r
   renderAtPrio p (Project e n)      = parensIf (p > 9) (renderAtPrio 9 e <> "." <> render n)
   renderAtPrio p (Fun t args e)     = parensIf (p > 0) ("fun" <> renderTransparency t <> " " <> renderArgs args <> " => \n" <> indentText 4 (render e))
@@ -102,6 +101,8 @@ renderBuiltin p And        exprs        = parensIf (p > 3) (Data.Text.intercalat
 renderBuiltin p Or         [e1, e2]     = renderBinopr 2 " || " p e1 e2
 renderBuiltin p IfThenElse [e1, e2, e3] =
   parensIf (p > 0) ("if " <> indentText 2 (render e1) <> "then " <> render e2 <> " \nelse\n" <> indentText 2 (render e3))
+renderBuiltin p Cons       [e1, e2]     = renderBinopr 5 " : " p e1 e2
+renderBuiltin _ List       es           = renderList es
 renderBuiltin _ b          es           = render b <> renderArgs es
 
 renderBinopl :: (Render a1, Render a2) => Int -> Text -> Int -> a1 -> a2 -> Text
@@ -132,6 +133,7 @@ instance Render Builtin where
   render Gt         = "gt"
   render Ge         = "ge"
   render Eq         = "eq"
+  render HEq        = "heq"
   render Ne         = "ne"
   render And        = "and"
   render Or         = "or"
@@ -140,18 +142,30 @@ instance Render Builtin where
   render Foldl      = "foldl"
   render Case       = "case"
   render Merge      = "merge"
+  render Floor      = "floor"
+  render Ceiling    = "ceiling"
+  render FromInt    = "fromInt"
+  render Explode    = "explode"
+  render Append     = "append"
+  render TypeOf     = "typeOf"
+  render Cons       = "cons"
+  render List       = "list"
 
 instance Render Lit where
   render :: Lit -> Text
   render (IntLit i)      = Text.pack (show i)
   render (BoolLit True)  = "true"
   render (BoolLit False) = "false"
+  render (StringLit s)   = Text.pack (show s)
+  render (FracLit f)     = Text.pack (show f)
 
 instance Render Val where
   render :: Val -> Text
   render (VInt i)                          = Text.pack (show i)
   render (VBool True)                      = "true"
   render (VBool False)                     = "false"
+  render (VString s)                       = Text.pack (show s)
+  render (VFrac f)                         = Text.pack (show f)
   render (VList vs)                        = renderList vs
   render (VRecord r)                       = renderRow " = " r
   render (VClosure (MkClosure t args _ _)) = "<fun" <> renderTransparency t <> "/" <> Text.pack (show (length args)) <> ">"
@@ -174,8 +188,8 @@ renderList xs = "[" <> Text.intercalate "," (map render xs) <> "]"
 -- string that separates names from payloads.
 --
 renderRow :: forall a. Render a => Text -> Row a -> Text
-renderRow sep xs =
+renderRow sep' xs =
   "{" <> Text.intercalate "," (map item xs) <> "}"
   where
     item :: (Name, a) -> Text
-    item (x, a) = render x <> sep <> render a
+    item (x, a) = render x <> sep' <> render a

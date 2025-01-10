@@ -43,7 +43,7 @@ translateRule rule@(MkCompiledRule (MkTableSignature (Func funcName) inputs _) e
         argName = T.pack $ "input_" ++ funcName
         compileBody :: CompiledRule -> [ConvertDMN.Expr] -> Simala.Expr
         compileBody r [expr] = compileExpr r argName expr
-        compileBody r exprs = Simala.List (map (compileExpr r argName) exprs)
+        compileBody r exprs = Simala.Builtin Simala.List (map (compileExpr r argName) exprs)
 
 compileExpr :: CompiledRule -> T.Text -> ConvertDMN.Expr -> Simala.Expr
 compileExpr rule@(MkCompiledRule (MkTableSignature _ inputs outputs) _) argName expr = case expr of
