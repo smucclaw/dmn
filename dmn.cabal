@@ -27,7 +27,6 @@ library
     , parser-combinators
     , prettyprinter
     , process
-    , simala
     , split
     , text
   default-language: GHC2021
@@ -38,10 +37,8 @@ executable dmn-exe
       ConvertDMN
       FromMD
       PrintProg
-      TranslateToSimala
       TypeChecking
       Types
-      RenderPretty
       PrintProgJavascript
   hs-source-dirs:
       src
@@ -60,7 +57,6 @@ executable dmn-exe
     , parser-combinators
     , prettyprinter
     , process
-    , simala
     , split
     , text
   default-language: GHC2021
@@ -88,7 +84,6 @@ test-suite myproject-test
     , parser-combinators
     , prettyprinter
     , process
-    , simala
     , split
     , text
   default-language: GHC2021

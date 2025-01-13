@@ -19,7 +19,6 @@ dependencies:
 - parser-combinators
 - process
 - directory
-- simala
 
 ghc-options:
 - -Wall
@@ -48,10 +47,8 @@ executables:
     - ConvertDMN
     - FromMD
     - PrintProg
-    - TranslateToSimala
     - TypeChecking
     - Types
-    - RenderPretty
     - PrintProgJavascript
     dependencies:
     - dmn
